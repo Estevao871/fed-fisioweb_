@@ -1,0 +1,95 @@
+<div class="login-page">
+  <div class="login-container">
+
+    <!-- TOP BAR -->
+    <div class="login-topbar">
+      <a routerLink="/" class="brand">
+        <span class="material-symbols-outlined mi-fill brand-icon">favorite</span>
+        Vida em Movimento
+      </a>
+      <a routerLink="/" class="btn btn-ghost btn-sm">← Voltar ao Site</a>
+    </div>
+
+    <!-- GRID -->
+    <div class="login-grid">
+
+      <!-- LEFT: Profile Select -->
+      <section class="profiles-section">
+        <h2>Selecione seu Perfil</h2>
+        <p class="profiles-subtitle">Escolha o tipo de acesso para continuar</p>
+
+        <div class="profiles-list">
+          <button
+            class="profile-card"
+            *ngFor="let p of profiles"
+            [class.active]="selectedType === p.type"
+            (click)="selectedType = p.type"
+            [attr.aria-pressed]="selectedType === p.type"
+          >
+            <div class="profile-icon icon-container" [ngClass]="'profile-icon--' + p.colorClass" aria-hidden="true">
+              <span class="material-symbols-outlined">{{ p.symbol }}</span>
+            </div>
+            <div class="profile-info">
+              <strong>{{ p.title }}</strong>
+              <small>{{ p.description }}</small>
+            </div>
+            <span class="profile-check material-symbols-outlined" aria-hidden="true">check</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- RIGHT: Login Form -->
+      <section class="login-form-card card">
+        <h2>Entrar na Plataforma</h2>
+
+        <div class="field-group">
+          <label for="email">E-mail</label>
+          <input
+            id="email"
+            class="input"
+            type="email"
+            name="email"
+            [(ngModel)]="email"
+            placeholder="seu@email.com"
+            autocomplete="email"
+          />
+        </div>
+
+        <div class="field-group">
+          <label for="password">Senha</label>
+          <input
+            id="password"
+            class="input"
+            type="password"
+            name="password"
+            [(ngModel)]="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+          />
+        </div>
+
+        <div class="login-meta">
+          <label class="remember-label">
+            <input type="checkbox" />
+            <span>Lembrar-me</span>
+          </label>
+          <a href="javascript:void(0)" class="forgot-link">Esqueci minha senha</a>
+        </div>
+
+        <button
+          class="btn btn-primary login-btn"
+          [disabled]="!selectedType"
+          (click)="login()"
+        >
+          {{ selectedLabel }}
+        </button>
+
+        <div class="register-tip">
+          Novo paciente?
+          <a href="javascript:void(0)">Cadastre-se aqui</a>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>

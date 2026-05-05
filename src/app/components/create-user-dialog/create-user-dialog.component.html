@@ -1,0 +1,61 @@
+<div class="modal-backdrop" *ngIf="open" (click)="close()">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <div class="modal-header">
+      <h2>Novo Usuário</h2>
+      <button class="modal-close" (click)="close()">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div class="form-body">
+      <div class="field-group">
+        <label>Nome Completo</label>
+        <input class="input" [(ngModel)]="name" placeholder="Nome do usuário" />
+      </div>
+
+      <div class="grid grid-2" style="gap:.875rem">
+        <div class="field-group">
+          <label>E-mail</label>
+          <input class="input" type="email" [(ngModel)]="email" placeholder="email@exemplo.com" />
+        </div>
+        <div class="field-group">
+          <label>Telefone</label>
+          <input class="input" [(ngModel)]="phone" placeholder="(11) 99999-9999" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Tipo de Usuário</label>
+        <select class="input" [(ngModel)]="role">
+          <option value="paciente">Paciente</option>
+          <option value="fisioterapeuta">Fisioterapeuta</option>
+          <option value="recepcionista">Recepcionista</option>
+        </select>
+      </div>
+
+      <div class="grid grid-2" style="gap:.875rem">
+        <div class="field-group">
+          <label>Senha Inicial</label>
+          <input class="input" type="password" [(ngModel)]="password" placeholder="••••••••" />
+        </div>
+        <div class="field-group">
+          <label>Confirmar Senha</label>
+          <input class="input" type="password" [(ngModel)]="confirmPassword" placeholder="••••••••" />
+        </div>
+      </div>
+
+      <div class="password-mismatch" *ngIf="password && confirmPassword && password !== confirmPassword">
+        <span class="material-symbols-outlined">warning</span> As senhas não coincidem
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" (click)="close()">Cancelar</button>
+      <button class="btn btn-primary" (click)="create()" [disabled]="!isValid">
+        <span class="material-symbols-outlined">person_add</span> Criar Usuário
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,60 @@
+<div class="modal-backdrop" *ngIf="open" (click)="close()" role="dialog" aria-modal="true" aria-labelledby="cf-title">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <!-- SUCCESS STATE -->
+    <div *ngIf="step === 2" class="success-state">
+      <div class="success-icon" aria-hidden="true">
+        <span class="material-symbols-outlined">check_circle</span>
+      </div>
+      <h2>Solicitação Enviada!</h2>
+      <p>Obrigado, <strong>{{ firstName }}</strong>. Entraremos em contato pelo número <strong>{{ phone }}</strong> em até 24h.</p>
+      <button class="btn btn-primary" style="margin-top:1rem" (click)="close()">Fechar</button>
+    </div>
+
+    <!-- FORM STATE -->
+    <ng-container *ngIf="step === 1">
+      <div class="modal-header">
+        <div>
+          <h2 id="cf-title">Solicite uma Avaliação</h2>
+          <p class="text-sm text-gray" style="margin-top:.25rem">Preencha seus dados e retornaremos em até 24h.</p>
+        </div>
+        <button class="modal-close" (click)="close()" aria-label="Fechar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="form-body">
+        <div class="field-group">
+          <label for="cf-name">Nome completo <span aria-hidden="true" style="color:var(--red-600)">*</span></label>
+          <input id="cf-name" class="input" name="name" [(ngModel)]="name" placeholder="Seu nome completo" autocomplete="name" required />
+        </div>
+
+        <div class="grid grid-2" style="gap:.875rem">
+          <div class="field-group">
+            <label for="cf-phone">Telefone <span aria-hidden="true" style="color:var(--red-600)">*</span></label>
+            <input id="cf-phone" class="input" name="phone" [(ngModel)]="phone" placeholder="(11) 99999-9999" autocomplete="tel" required />
+          </div>
+          <div class="field-group">
+            <label for="cf-email">E-mail <span aria-hidden="true" style="color:var(--red-600)">*</span></label>
+            <input id="cf-email" class="input" name="email" type="email" [(ngModel)]="email" placeholder="seu@email.com" autocomplete="email" required />
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="cf-complaint">Queixa principal <span aria-hidden="true" style="color:var(--red-600)">*</span></label>
+          <textarea id="cf-complaint" class="input" name="complaint" [(ngModel)]="complaint" rows="4" placeholder="Descreva sua dor ou limitação..."></textarea>
+        </div>
+
+        <p *ngIf="error" role="alert" style="color:var(--red-600);font-size:.85rem;margin:0">{{ error }}</p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="close()" [disabled]="loading">Cancelar</button>
+        <button class="btn btn-primary" (click)="submit()" [disabled]="!isValid || loading">
+          {{ loading ? 'Enviando...' : 'Enviar Solicitação' }}
+        </button>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

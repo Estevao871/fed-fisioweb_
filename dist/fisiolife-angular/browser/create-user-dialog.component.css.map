@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/create-user-dialog/create-user-dialog.component.scss"],
+  "sourcesContent": [".form-body {\n  display: flex;\n  flex-direction: column;\n  gap: 1rem;\n  margin-bottom: .5rem;\n}\n\n.password-mismatch {\n  padding: .625rem .875rem;\n  background: var(--red-100);\n  border-radius: var(--radius-sm);\n  font-size: .82rem;\n  color: var(--red-600);\n  font-weight: 500;\n}\n"],
+  "mappings": ";AAAA,CAAA;AACE,WAAA;AACA,kBAAA;AACA,OAAA;AACA,iBAAA;;AAGF,CAAA;AACE,WAAA,SAAA;AACA,cAAA,IAAA;AACA,iBAAA,IAAA;AACA,aAAA;AACA,SAAA,IAAA;AACA,eAAA;;",
+  "names": []
+}

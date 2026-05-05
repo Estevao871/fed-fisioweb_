@@ -1,0 +1,99 @@
+<div class="modal-backdrop" *ngIf="open" (click)="close()" role="dialog" aria-modal="true">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <!-- SUCCESS -->
+    <div *ngIf="success" class="success-state">
+      <div class="success-icon" aria-hidden="true">
+        <span class="material-symbols-outlined">check_circle</span>
+      </div>
+      <h2>Sessão Reagendada!</h2>
+      <p>Novo horário de <strong>{{ patientName }}</strong>: {{ date | slice:8:10 }}/{{ date | slice:5:7 }}/{{ date | slice:0:4 }} às {{ time }}.</p>
+    </div>
+
+    <ng-container *ngIf="!success">
+      <div class="modal-header">
+        <div>
+          <h2>Reagendar Sessão</h2>
+          <p class="text-sm text-gray" style="margin-top:.2rem">Paciente: <strong>{{ patientName }}</strong></p>
+        </div>
+        <button class="modal-close" (click)="close()" aria-label="Fechar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="reschedule-form">
+
+        <!-- Data -->
+        <div class="field-group">
+          <label for="rd-date">Nova Data <span style="color:var(--red-600)">*</span></label>
+          <input id="rd-date" class="input" type="date" [(ngModel)]="date"
+            [min]="dateMin" (ngModelChange)="onDateChange()" />
+        </div>
+
+        <!-- Horários -->
+        <div class="field-group" *ngIf="date">
+          <label>Horário <span style="color:var(--red-600)">*</span></label>
+
+          <div *ngIf="loadingSlots" class="slots-loading">Carregando disponibilidade...</div>
+
+          <div *ngIf="!loadingSlots && slots.length === 0 && date" class="slots-empty">
+            Nenhum horário encontrado para esta data.
+          </div>
+
+          <div class="slots-grid" *ngIf="!loadingSlots && slots.length > 0">
+            <button
+              *ngFor="let slot of slots"
+              type="button"
+              class="slot-btn"
+              [ngClass]="slotClass(slot)"
+              [disabled]="!slot.disponivel"
+              (click)="selectSlot(slot)"
+              [attr.aria-label]="slotLabel(slot)"
+              [attr.aria-pressed]="time === slot.horario"
+              [title]="!slot.disponivel ? 'Horário lotado (máx. 6 pacientes)' : ''"
+            >
+              {{ slot.horario }}
+              <span *ngIf="!slot.disponivel" class="slot-full-icon material-symbols-outlined" aria-hidden="true" style="color:var(--red-600);font-size:12px">circle</span>
+            </button>
+          </div>
+
+          <div *ngIf="!loadingSlots && allSlotsOccupied" class="slots-all-occupied">
+            <p class="text-sm" style="color:var(--yellow-600);margin-bottom:.5rem">
+              <span class="material-symbols-outlined">warning</span> Todos os horários estão lotados. Informe um horário manualmente:
+            </p>
+            <input class="input" type="time" [(ngModel)]="time" style="width:140px" min="08:00" max="19:00" step="900" />
+          </div>
+        </div>
+
+        <!-- Escopo (série) -->
+        <div class="field-group" *ngIf="hasSerie">
+          <label for="rd-escopo">Escopo do Reagendamento</label>
+          <select id="rd-escopo" class="input" [(ngModel)]="escopo">
+            <option value="SOMENTE_ESTA">Somente esta sessão</option>
+            <option value="DESTA_EM_DIANTE">Esta e todas as futuras da série</option>
+            <option value="TODA_SERIE">Toda a série</option>
+          </select>
+        </div>
+
+        <!-- Motivo -->
+        <div class="field-group">
+          <label for="rd-motivo">Motivo (opcional)</label>
+          <input id="rd-motivo" class="input" [(ngModel)]="motivo"
+            placeholder="Ex: Pedido do paciente, conflito de agenda..." />
+        </div>
+
+        <p *ngIf="error" role="alert" class="error-msg">{{ error }}</p>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="close()" [disabled]="loading">Cancelar</button>
+        <button class="btn btn-primary" (click)="confirmar()" [disabled]="!isValid || loading">
+          <span class="material-symbols-outlined" *ngIf="!loading">calendar_month</span>
+          {{ loading ? 'Reagendando...' : 'Confirmar Reagendamento' }}
+        </button>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

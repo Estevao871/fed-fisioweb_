@@ -1,0 +1,188 @@
+<div class="page landing">
+
+  <!-- HEADER -->
+  <header class="lp-header" role="banner">
+    <div class="container lp-header__inner">
+      <a routerLink="/" class="brand" aria-label="Vida em Movimento — página inicial">
+        <span class="material-symbols-outlined mi-fill brand-icon" aria-hidden="true">favorite</span>
+        Vida em Movimento
+      </a>
+      <a routerLink="/login" class="btn btn-primary btn-sm">Área do Cliente</a>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" aria-label="Apresentação">
+    <div class="container hero__inner">
+
+      <div class="hero__text enter-up">
+        <h1 class="hero__title">
+          Sua <em class="highlight">saúde</em> em<br />
+          <span class="highlight-dark">movimento</span>
+        </h1>
+        <p class="hero__sub">
+          Tratamentos de fisioterapia personalizados com tecnologia avançada e
+          profissionais especializados para sua recuperação completa.
+        </p>
+        <div class="hero__actions">
+          <button class="btn btn-primary btn-lg" (click)="contactOpen = true">
+            Agende sua Consulta <span aria-hidden="true">→</span>
+          </button>
+          <a routerLink="/login" class="btn btn-outline btn-lg">Área do Paciente</a>
+        </div>
+      </div>
+
+      <!-- Hero visual: floating appointment card -->
+      <div class="hero__visual enter-scale" aria-hidden="true">
+
+        <div class="hero-stat">
+          <span class="hero-stat__value">94%</span>
+          <span class="hero-stat__label">recuperação</span>
+        </div>
+
+        <div class="hero-card">
+          <span class="hero-card__badge">Hoje</span>
+          <div class="hero-card__patient">
+            <div class="hero-card__avatar">JS</div>
+            <div class="hero-card__info">
+              <strong>João Santos</strong>
+              <span>Sessão de Fisioterapia</span>
+            </div>
+            <span class="hero-card__status-dot"></span>
+          </div>
+          <div class="hero-card__time">
+            <span class="material-symbols-outlined">schedule</span> 14:30 · 45 min
+          </div>
+          <div class="hero-card__progress">
+            <div class="hero-card__progress-label">
+              <span>Progresso</span>
+              <span>6 / 10 sessões</span>
+            </div>
+            <div class="progress-bar-wrap colored">
+              <div class="progress-bar-fill" style="width: 60%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-notif">
+          <span class="hero-notif__icon material-symbols-outlined">check</span>
+          <span>Sessão confirmada — Dra. Silva</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="section section--white" aria-labelledby="process-heading">
+    <div class="container">
+      <div class="section-heading" appRevealOnScroll>
+        <h2 id="process-heading">Como Funciona Nosso Processo</h2>
+        <p>Um caminho claro para sua recuperação completa</p>
+      </div>
+      <div class="grid grid-4 steps-grid">
+        <article
+          class="step-card card"
+          *ngFor="let step of processSteps; let i = index"
+          appRevealOnScroll
+          [revealDelay]="i * 100"
+        >
+          <div class="step-icon" [ngClass]="'step-icon--' + step.icon" aria-hidden="true">
+            <span class="material-symbols-outlined">{{ step.symbol }}</span>
+          </div>
+          <h3>{{ step.title }}</h3>
+          <p>{{ step.description }}</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT HELPS -->
+  <section class="section section--soft" aria-labelledby="recovery-heading">
+    <div class="container">
+      <div class="section-heading" appRevealOnScroll>
+        <h2 id="recovery-heading">Como a Fisioterapia Ajuda</h2>
+        <p>Veja o processo de recuperação em ação</p>
+      </div>
+      <article class="recovery-card card" appRevealOnScroll>
+        <div class="recovery-card__text">
+          <h3>Recuperação Progressiva</h3>
+          <p>
+            Através de exercícios direcionados e técnicas especializadas, sua
+            mobilidade e força são restauradas gradualmente.
+          </p>
+          <ul class="recovery-list">
+            <li *ngFor="let point of recoveryPoints; let i = index" appRevealOnScroll [revealDelay]="i * 80">
+              <span class="check-circle material-symbols-outlined" aria-hidden="true">check</span>
+              {{ point }}
+            </li>
+          </ul>
+        </div>
+        <div class="recovery-card__visual" aria-hidden="true">
+          <div class="rec-stats">
+            <div class="rec-stat" *ngFor="let s of recoveryStats; let i = index" [style.--bar-delay]="(i * 120) + 'ms'">
+              <div class="rec-stat__header">
+                <span>{{ s.label }}</span>
+                <strong>{{ s.pct }}%</strong>
+              </div>
+              <div class="rec-bar">
+                <div class="rec-bar__fill" [style.width]="s.pct + '%'"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- WHY Vida em Movimento -->
+  <section class="section section--white" aria-labelledby="benefits-heading">
+    <div class="container">
+      <div class="section-heading" appRevealOnScroll>
+        <h2 id="benefits-heading">Por Que Escolher Vida em Movimento</h2>
+        <p>Excelência em cada detalhe do seu tratamento</p>
+      </div>
+      <div class="grid grid-3 benefits-grid">
+        <article
+          class="benefit-card card"
+          *ngFor="let benefit of benefits; let i = index"
+          appRevealOnScroll
+          [revealDelay]="i * 80"
+        >
+          <div class="benefit-icon" aria-hidden="true"><span class="material-symbols-outlined">{{ benefit.icon }}</span></div>
+          <h3>{{ benefit.title }}</h3>
+          <p>{{ benefit.description }}</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BAND -->
+  <section class="cta-band" appRevealOnScroll aria-labelledby="cta-heading">
+    <div class="container cta-band__inner">
+      <h2 id="cta-heading">Pronto para Começar sua Recuperação?</h2>
+      <p>
+        Agende sua primeira consulta hoje e dê o primeiro passo para uma vida
+        sem dor e com mais mobilidade.
+      </p>
+      <button class="btn cta-band__btn" (click)="contactOpen = true">
+        Agendar Consulta <span aria-hidden="true">→</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="lp-footer" role="contentinfo">
+    <div class="container lp-footer__inner">
+      <a routerLink="/" class="brand brand--white" aria-label="Vida em Movimento — página inicial">
+        <span class="material-symbols-outlined mi-fill brand-icon" aria-hidden="true">favorite</span>
+        Vida em Movimento
+      </a>
+      <p>© 2026 Vida em Movimento. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+</div>
+
+<!-- CONTACT DIALOG -->
+<app-contact-form-dialog [(open)]="contactOpen" />

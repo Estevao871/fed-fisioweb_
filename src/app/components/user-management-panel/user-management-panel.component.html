@@ -1,0 +1,73 @@
+<div class="ump-wrap">
+
+  <div class="ump-header">
+    <h2>Gestão de Usuários</h2>
+    <button class="btn btn-primary btn-sm" (click)="createOpen = true">
+      <span class="material-symbols-outlined">person_add</span> Novo Usuário
+    </button>
+  </div>
+
+  <div class="ump-search">
+    <div class="search-wrap">
+      <span class="search-icon"><span class="material-symbols-outlined">search</span></span>
+      <input class="input search-input" [(ngModel)]="searchTerm" placeholder="Buscar por nome, email ou telefone..." />
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Telefone</th>
+          <th>Tipo</th>
+          <th>Status</th>
+          <th>Criado em</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of filteredUsers()">
+          <td><strong>{{ user.name }}</strong></td>
+          <td class="text-sm text-gray">{{ user.email }}</td>
+          <td class="text-sm text-gray">{{ user.phone }}</td>
+          <td>
+            <span class="badge" [ngClass]="roleBadge(user.role)">{{ roleLabel(user.role) }}</span>
+          </td>
+          <td>
+            <span class="badge" [ngClass]="user.status === 'ativo' ? 'badge-green' : 'badge-gray'">
+              {{ user.status === 'ativo' ? 'Ativo' : 'Inativo' }}
+            </span>
+          </td>
+          <td class="text-sm text-gray">{{ user.createdAt }}</td>
+          <td>
+            <div class="row-actions">
+              <button class="btn btn-ghost btn-sm" (click)="resetPassword(user)" title="Resetar senha">
+                <span class="material-symbols-outlined">key</span>
+              </button>
+              <button class="btn btn-ghost btn-sm" (click)="toggleStatus(user)" title="Ativar/Desativar">
+                <span class="material-symbols-outlined">{{ user.status === 'ativo' ? 'block' : 'check_circle' }}</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredUsers().length === 0">
+          <td colspan="7">
+            <div class="empty-state">
+              <span class="empty-icon"><span class="material-symbols-outlined">group</span></span>
+              <p>Nenhum usuário encontrado</p>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="results-count text-xs text-gray" style="margin-top:.75rem">
+    Mostrando <strong>{{ filteredUsers().length }}</strong> de <strong>{{ users.length }}</strong> usuários
+  </p>
+
+</div>
+
+<app-create-user-dialog [(open)]="createOpen" (created)="addUser($event)" />

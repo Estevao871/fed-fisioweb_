@@ -1,0 +1,118 @@
+<div class="apts-filters">
+  <div class="filters-row">
+    <!-- Busca -->
+    <div class="search-wrap">
+      <span class="search-icon"><span class="material-symbols-outlined">search</span></span>
+      <input class="input search-input" [(ngModel)]="searchTerm"
+        (ngModelChange)="onFilterChange()" placeholder="Buscar por paciente ou telefone..." />
+    </div>
+
+    <!-- Data -->
+    <div class="date-filter-wrap">
+      <input class="input" type="date" [(ngModel)]="filterDate"
+        (ngModelChange)="onFilterChange()" style="width:160px" />
+      <button class="btn btn-ghost btn-sm" (click)="todayFilter()" title="Hoje">Hoje</button>
+      <button class="btn btn-ghost btn-sm" (click)="clearDateFilter()" *ngIf="filterDate" title="Todas as datas">Todas</button>
+    </div>
+
+    <div class="filter-selects">
+      <select class="input filter-select" [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()">
+        <option value="all">Todos os Status</option>
+        <option value="agendado">Agendado</option>
+        <option value="em-andamento">Em andamento</option>
+        <option value="concluido">Concluído</option>
+        <option value="cancelado">Cancelado</option>
+      </select>
+      <select class="input filter-select" [(ngModel)]="filterType" (ngModelChange)="onFilterChange()">
+        <option value="all">Todos os Tipos</option>
+        <option value="avaliacao">Avaliação</option>
+        <option value="sessao">Sessão</option>
+        <option value="reavaliacao">Reavaliação</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="results-meta">
+    <span class="text-xs text-gray">
+      Mostrando <strong>{{ Math.min((page + 1) * pageSize, filtered().length) }}</strong>
+      de <strong>{{ filtered().length }}</strong> agendamentos
+    </span>
+    <span class="text-xs text-gray" *ngIf="totalPages > 1">
+      Página {{ page + 1 }} de {{ totalPages }}
+    </span>
+  </div>
+</div>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>Paciente</th>
+        <th>Contato</th>
+        <th>Data/Hora</th>
+        <th>Tipo</th>
+        <th>Status</th>
+        <th>Fisioterapeuta</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of paged">
+        <td><strong>{{ item.patient }}</strong></td>
+        <td class="text-gray text-sm">
+          <span class="material-symbols-outlined">phone</span> {{ item.phone || '—' }}
+        </td>
+        <td>
+          <div>{{ item.date }}</div>
+          <div class="text-xs text-gray">{{ item.time }}</div>
+        </td>
+        <td><span class="type-badge">{{ typeLabel(item.type) }}</span></td>
+        <td><span class="badge" [ngClass]="statusBadge(item.status)">{{ statusLabel(item.status) }}</span></td>
+        <td class="text-sm text-gray">{{ item.fisioterapeuta || '—' }}</td>
+        <td>
+          <div class="actions-menu">
+            <button class="action-dots" (click)="toggleMenu(item.id, $event); $event.stopPropagation()" aria-label="Ações">⋮</button>
+            <div class="actions-dropdown"
+              *ngIf="openMenu === item.id"
+              [style.top.px]="menuPosition.top"
+              [style.right.px]="menuPosition.right"
+              (click)="$event.stopPropagation()">
+              <button (click)="reschedule.emit(item); closeMenu()">
+                <span class="material-symbols-outlined">calendar_month</span> Reagendar
+              </button>
+              <button (click)="edit.emit(item); closeMenu()">
+                <span class="material-symbols-outlined">edit</span> Editar
+              </button>
+              <button class="danger" (click)="remove.emit(item.id); closeMenu()">
+                <span class="material-symbols-outlined">delete</span> Cancelar
+              </button>
+            </div>
+          </div>
+        </td>
+      </tr>
+      <tr *ngIf="paged.length === 0">
+        <td colspan="7">
+          <div class="empty-state">
+            <span class="empty-icon"><span class="material-symbols-outlined">assignment</span></span>
+            <p>Nenhum agendamento encontrado</p>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Paginação -->
+<div class="table-pagination" *ngIf="totalPages > 1">
+  <button class="btn btn-outline btn-sm" [disabled]="page === 0" (click)="prevPage()">← Anterior</button>
+  <div class="page-numbers">
+    <button
+      *ngFor="let p of [].constructor(totalPages); let i = index"
+      class="page-num"
+      [class.active]="page === i"
+      (click)="page = i"
+      [attr.aria-current]="page === i ? 'page' : null"
+    >{{ i + 1 }}</button>
+  </div>
+  <button class="btn btn-outline btn-sm" [disabled]="page >= totalPages - 1" (click)="nextPage()">Próxima →</button>
+</div>

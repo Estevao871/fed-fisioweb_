@@ -1,0 +1,103 @@
+<div class="modal-backdrop" *ngIf="open" (click)="close()" role="dialog" aria-modal="true">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <!-- SUCCESS -->
+    <div *ngIf="success" class="success-state">
+      <div class="success-icon" aria-hidden="true">
+        <span class="material-symbols-outlined">check_circle</span>
+      </div>
+      <h2>Sessões Agendadas!</h2>
+      <p>
+        {{ quantidadeSessoes }} sessões foram agendadas para <strong>{{ pacienteNome }}</strong>
+        com frequência de {{ frequenciaSemanal }}x por semana.
+      </p>
+      <button class="btn btn-primary" style="margin-top:1rem" (click)="close()">Fechar</button>
+    </div>
+
+    <!-- FORM -->
+    <ng-container *ngIf="!success">
+      <div class="modal-header">
+        <div>
+          <h2>Agendar Sessões</h2>
+          <p class="text-sm text-gray" style="margin-top:.25rem">
+            {{ pacienteNome }} · Plano de 30 dias
+          </p>
+        </div>
+        <button class="modal-close" (click)="close()" aria-label="Fechar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="sessions-form">
+
+        <!-- Quantidade e frequência -->
+        <div class="grid grid-2" style="gap:.875rem">
+          <div class="field-group">
+            <label for="ps-qtd">Quantidade de sessões</label>
+            <input id="ps-qtd" class="input" type="number" min="1" max="30"
+              [(ngModel)]="quantidadeSessoes" />
+          </div>
+          <div class="field-group">
+            <label for="ps-freq">Frequência por semana</label>
+            <select id="ps-freq" class="input" [(ngModel)]="frequenciaSemanal">
+              <option [value]="1">1x por semana</option>
+              <option [value]="2">2x por semana</option>
+              <option [value]="3">3x por semana</option>
+              <option [value]="4">4x por semana</option>
+              <option [value]="5">5x por semana</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Dias da semana -->
+        <div class="field-group">
+          <label>Dias preferidos</label>
+          <div class="dias-grid">
+            <button
+              *ngFor="let d of dias"
+              type="button"
+              class="dia-btn"
+              [class.selected]="isDiaSelecionado(d.code)"
+              (click)="toggleDia(d.code)"
+              [attr.aria-pressed]="isDiaSelecionado(d.code)"
+            >
+              {{ d.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Data início e horário -->
+        <div class="grid grid-2" style="gap:.875rem">
+          <div class="field-group">
+            <label for="ps-inicio">Data de início</label>
+            <input id="ps-inicio" class="input" type="date"
+              [min]="dataInicioMin" [(ngModel)]="dataInicio" />
+          </div>
+          <div class="field-group">
+            <label for="ps-horario">Horário preferido</label>
+            <select id="ps-horario" class="input" [(ngModel)]="horario">
+              <option *ngFor="let h of horarios" [value]="h">{{ h }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Validade preview -->
+        <div class="validade-info" [class.validade-ok]="cabeDentro" [class.validade-err]="!cabeDentro">
+          <span>{{ avisoValidade }}</span>
+        </div>
+
+        <!-- Erro -->
+        <p *ngIf="error" role="alert" class="error-msg">{{ error }}</p>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="close()" [disabled]="loading">Cancelar</button>
+        <button class="btn btn-primary" (click)="confirmar()" [disabled]="!isValid || loading">
+          {{ loading ? 'Agendando...' : 'Confirmar Agendamento' }}
+        </button>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

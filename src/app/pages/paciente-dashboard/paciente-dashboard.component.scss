@@ -1,0 +1,215 @@
+.dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  height: 64px;
+  background: #fff;
+  border-bottom: 1px solid var(--gray-100);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+
+  .dash-title-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .dash-title-info {
+    h1 { font-size: .95rem; font-weight: 700; }
+    p  { font-size: .8rem; color: var(--gray-500); }
+  }
+}
+
+/* Welcome card */
+.welcome-card {
+  background: linear-gradient(135deg, var(--purple-600) 0%, #3b82f6 100%);
+  border-radius: var(--radius-lg);
+  padding: 2rem 2.5rem;
+  color: #fff;
+
+  h2 { font-size: 1.4rem; font-weight: 800; margin-bottom: .4rem; }
+  p  { font-size: .95rem; opacity: .9; margin-bottom: 1.25rem; }
+
+  &__next {
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+
+    .next-label { font-size: .8rem; opacity: .75; text-transform: uppercase; letter-spacing: .05em; }
+    .next-date  { font-size: 1.1rem; font-weight: 700; }
+  }
+}
+
+/* Progress stat card */
+.progress-stat {
+  flex-direction: column !important;
+  align-items: stretch !important;
+
+  .stat-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+  }
+}
+
+.stat-sub {
+  font-size: .78rem;
+  color: var(--gray-400);
+  margin-top: .2rem;
+}
+
+.section-subtitle {
+  font-size: .95rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--gray-900);
+}
+
+/* Upcoming appointments */
+.appt-upcoming-list {
+  display: flex;
+  flex-direction: column;
+  gap: .625rem;
+}
+
+.appt-upcoming-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 1rem;
+  background: var(--blue-100, #dbeafe);
+  border-radius: var(--radius-sm);
+  gap: .5rem;
+
+  &__left {
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+  }
+
+  .appt-date { font-size: .875rem; font-weight: 600; color: var(--gray-900); }
+  .appt-type { font-size: .78rem; color: var(--gray-500); }
+}
+
+/* Done appointments */
+.appt-done-list {
+  display: flex;
+  flex-direction: column;
+  gap: .625rem;
+}
+
+.appt-done-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .75rem 1rem;
+  background: var(--green-100);
+  border-radius: var(--radius-sm);
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: .15rem;
+
+    .appt-date { font-size: .875rem; font-weight: 600; color: var(--gray-900); }
+  }
+}
+
+/* Notes */
+.progress-summary { margin-bottom: 1rem; }
+
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: .875rem;
+}
+
+.note-card {
+  padding: 1.25rem;
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: .75rem;
+
+    strong { font-size: .9rem; font-weight: 700; display: block; }
+    span.text-xs { margin-top: .2rem; }
+  }
+}
+
+.note-metrics {
+  display: flex;
+  gap: .4rem;
+  flex-wrap: wrap;
+}
+
+.note-text {
+  font-size: .875rem;
+  color: var(--gray-600);
+  line-height: 1.6;
+  margin-bottom: .875rem;
+}
+
+.exercises-list {
+  display: flex;
+  flex-direction: column;
+  gap: .4rem;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .85rem;
+    color: var(--gray-700);
+  }
+}
+
+.exercise-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--purple-600);
+  flex-shrink: 0;
+}
+
+/* Exercises grid */
+.exercises-grid {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+  margin-bottom: 1.25rem;
+}
+
+.exercise-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: .875rem 1.25rem;
+
+  .exercise-icon {
+    font-size: 1.5rem;
+    width: 44px;
+    text-align: center;
+  }
+
+  .exercise-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: .2rem;
+
+    strong { font-size: .875rem; font-weight: 600; }
+  }
+}
+
+.exercises-note {
+  padding: .875rem 1rem;
+  background: var(--yellow-100);
+  border-radius: var(--radius-sm);
+  font-size: .85rem;
+  color: var(--yellow-600);
+  font-weight: 500;
+}

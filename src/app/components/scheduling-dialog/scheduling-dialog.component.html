@@ -1,0 +1,104 @@
+<div class="modal-backdrop" *ngIf="open" (click)="close()" role="dialog" aria-modal="true">
+  <div class="modal" (click)="$event.stopPropagation()">
+
+    <!-- SUCCESS -->
+    <div *ngIf="success" class="success-state">
+      <div class="success-icon" aria-hidden="true">
+        <span class="material-symbols-outlined">check_circle</span>
+      </div>
+      <h2>Avaliação Agendada!</h2>
+      <p>Agendamento de <strong>{{ patientName }}</strong> confirmado para {{ date }} às {{ time }}.</p>
+    </div>
+
+    <ng-container *ngIf="!success">
+      <div class="modal-header">
+        <h2>Novo Agendamento</h2>
+        <button class="modal-close" (click)="close()" aria-label="Fechar">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Step indicator -->
+      <div class="step-indicator">
+        <div class="step-item" *ngFor="let s of [1,2,3]; let i = index" [class.active]="step === s" [class.done]="step > s">
+          <div class="step-circle">
+            <span class="material-symbols-outlined" *ngIf="step > s">check</span>
+            <span *ngIf="step <= s">{{ s }}</span>
+          </div>
+          <span>{{ stepLabels[i] }}</span>
+        </div>
+      </div>
+
+      <!-- STEP 1 -->
+      <div *ngIf="step === 1" class="tab-content">
+        <div class="field-group">
+          <label for="sd-name">Nome do Paciente <span style="color:var(--red-600)">*</span></label>
+          <input id="sd-name" class="input" [(ngModel)]="patientName" placeholder="Nome completo" autocomplete="name" />
+        </div>
+        <div class="grid grid-2" style="gap:.875rem">
+          <div class="field-group">
+            <label for="sd-phone">Telefone <span style="color:var(--red-600)">*</span></label>
+            <input id="sd-phone" class="input" [(ngModel)]="patientPhone" placeholder="(11) 99999-9999" autocomplete="tel" />
+          </div>
+          <div class="field-group">
+            <label for="sd-email">E-mail</label>
+            <input id="sd-email" class="input" type="email" [(ngModel)]="patientEmail" placeholder="email@exemplo.com" autocomplete="email" />
+          </div>
+        </div>
+        <div class="field-group">
+          <label for="sd-type">Tipo de Consulta</label>
+          <select id="sd-type" class="input" [(ngModel)]="appointmentType">
+            <option value="avaliacao">Avaliação Inicial</option>
+            <option value="sessao">Sessão de Tratamento</option>
+            <option value="reavaliacao">Reavaliação</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div *ngIf="step === 2" class="tab-content">
+        <div class="field-group">
+          <label for="sd-date">Data da Consulta</label>
+          <input id="sd-date" class="input" type="date" [(ngModel)]="date" [min]="today" />
+        </div>
+        <div class="field-group">
+          <label>Horário</label>
+          <div class="time-grid">
+            <button *ngFor="let t of times" type="button"
+              class="time-btn" [class.selected]="time === t" (click)="time = t">{{ t }}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div *ngIf="step === 3" class="tab-content">
+        <div class="confirm-card card">
+          <h3>Confirmar Agendamento</h3>
+          <div class="confirm-list">
+            <div class="confirm-row"><span class="confirm-label">Paciente</span><span>{{ patientName }}</span></div>
+            <div class="confirm-row"><span class="confirm-label">Telefone</span><span>{{ patientPhone }}</span></div>
+            <div class="confirm-row"><span class="confirm-label">Tipo</span><span>{{ typeLabel }}</span></div>
+            <div class="confirm-row"><span class="confirm-label">Data/Hora</span><span>{{ date }} às {{ time }}</span></div>
+          </div>
+        </div>
+        <p *ngIf="error" role="alert" style="color:var(--red-600);font-size:.85rem;margin-top:.5rem">{{ error }}</p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" (click)="back()" [disabled]="step === 1 || loading">Voltar</button>
+        <div style="display:flex;gap:.5rem">
+          <button class="btn btn-ghost" (click)="close()" [disabled]="loading">Cancelar</button>
+          <button *ngIf="step < 3" class="btn btn-primary" (click)="next()"
+            [disabled]="(step === 1 && !isStep1Valid) || (step === 2 && !isStep2Valid)">
+            Próximo →
+          </button>
+          <button *ngIf="step === 3" class="btn btn-primary" (click)="confirm()" [disabled]="loading">
+            <span class="material-symbols-outlined" *ngIf="!loading">check</span>
+            {{ loading ? 'Agendando...' : 'Confirmar' }}
+          </button>
+        </div>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

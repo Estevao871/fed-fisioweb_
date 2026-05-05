@@ -1,0 +1,226 @@
+<div class="dash-layout">
+
+  <!-- HEADER -->
+  <header class="dash-header">
+    <div class="dash-title-group">
+      <div class="brand">
+        <span class="material-symbols-outlined mi-fill brand-icon">favorite</span>
+        Vida em Movimento
+      </div>
+      <div class="dash-title-info">
+        <h1>Painel da Recepção</h1>
+        <p>Fernanda Rodrigues</p>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm logout-btn" (click)="logout()">↗ Sair</button>
+  </header>
+
+  <main class="dash-body">
+
+    <!-- STATS -->
+    <section class="grid grid-4">
+      <div class="stat-card">
+        <div class="stat-info">
+          <p class="stat-label">Novos Contatos</p>
+          <p class="stat-value text-pink">{{ statsContatos }}</p>
+        </div>
+        <div class="stat-icon" style="background:#fce7f3;color:#db2777">
+          <span class="material-symbols-outlined">group</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info">
+          <p class="stat-label">Agendamentos Hoje</p>
+          <p class="stat-value text-purple">{{ statsHoje }}</p>
+        </div>
+        <div class="stat-icon" style="background:#f5f3ff;color:#7c3aed">
+          <span class="material-symbols-outlined">calendar_month</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info">
+          <p class="stat-label">Pendentes Confirmação</p>
+          <p class="stat-value" style="color:var(--yellow-600)">{{ statsPendentes }}</p>
+        </div>
+        <div class="stat-icon" style="background:#fef9c3;color:#ca8a04">
+          <span class="material-symbols-outlined">schedule</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info">
+          <p class="stat-label">Total Agendamentos</p>
+          <p class="stat-value text-purple">{{ statsTotal }}</p>
+        </div>
+        <div class="stat-icon" style="background:#dbeafe;color:#2563eb">
+          <span class="material-symbols-outlined">phone</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- TABS + ACTION -->
+    <div class="tabs-action-row">
+      <div class="tab-group">
+        <button class="tab-btn" [class.active]="tab === 'contatos'"     (click)="tab = 'contatos'">Novos Contatos</button>
+        <button class="tab-btn" [class.active]="tab === 'avaliacoes'"   (click)="tab = 'avaliacoes'">Avaliações</button>
+        <button class="tab-btn" [class.active]="tab === 'agendamentos'" (click)="tab = 'agendamentos'">Todos os Agendamentos</button>
+        <button class="tab-btn" [class.active]="tab === 'usuarios'"     (click)="tab = 'usuarios'">Gestão de Usuários</button>
+      </div>
+      <button class="btn btn-primary btn-sm" (click)="openScheduling()">+ Novo Agendamento</button>
+    </div>
+
+    <!-- CONTACTS TAB -->
+    <section *ngIf="tab === 'contatos'" class="card">
+      <div class="section-title-row">
+        <h2>Primeira Triagem</h2>
+        <div class="search-wrap">
+          <span class="search-icon"><span class="material-symbols-outlined">search</span></span>
+          <input class="input search-input" [(ngModel)]="contactSearch" placeholder="Buscar contato..." />
+        </div>
+      </div>
+      <div class="contact-list">
+        <div class="contact-item card" *ngFor="let c of filteredContacts()">
+          <div class="contact-item__top">
+            <div class="contact-item__name-row">
+              <strong>{{ c.name }}</strong>
+              <span class="badge badge-yellow">Novo</span>
+              <span class="badge badge-gray contact-source">{{ sourceLabel(c.source) }}</span>
+            </div>
+            <div class="contact-item__details">
+              <span><span class="material-symbols-outlined">phone</span> {{ c.phone }}</span>
+              <span><span class="material-symbols-outlined">calendar_month</span> Recebido em {{ c.date }}</span>
+            </div>
+          </div>
+          <div class="contact-item__actions">
+            <button class="btn btn-primary" (click)="scheduleContact(c)">
+              <span class="material-symbols-outlined">calendar_month</span> Agendar Avaliação
+            </button>
+            <button class="btn btn-outline">
+              <span class="material-symbols-outlined">phone</span> Ligar
+            </button>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="filteredContacts().length === 0">
+          <span class="empty-icon"><span class="material-symbols-outlined">group</span></span>
+          <p>Nenhum contato encontrado</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- AVALIACOES TAB -->
+    <section *ngIf="tab === 'avaliacoes'" class="card">
+      <div class="section-title-row">
+        <h2>Controle de Avaliações</h2>
+        <div class="aval-filtro">
+          <input
+            class="input"
+            type="date"
+            [(ngModel)]="avaliacaoFiltroData"
+            (ngModelChange)="onFiltroDataChange()"
+            style="width:160px"
+          />
+          <span class="text-sm text-gray">
+            {{ avaliacoesFiltradas.length }} resultado{{ avaliacoesFiltradas.length !== 1 ? 's' : '' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="aval-list" *ngIf="avaliacoesPaginadas.length > 0; else emptyAval">
+        <div class="aval-item" *ngFor="let av of avaliacoesPaginadas">
+
+          <div class="aval-item__info">
+            <strong>{{ av.pacienteNome ?? 'Aguardando nome' }}</strong>
+            <span class="text-sm text-gray">{{ formatDataHora(av.dataHora) }}</span>
+            <span *ngIf="av.pacienteTelefone" class="text-sm text-gray">
+              <span class="material-symbols-outlined">phone</span> {{ av.pacienteTelefone }}
+            </span>
+          </div>
+
+          <span class="badge" [ngClass]="statusAvaliacaoBadge(av.status)">
+            {{ statusAvaliacaoLabel(av.status) }}
+          </span>
+
+          <div class="aval-item__actions">
+            <!-- Aguardando chegada -->
+            <ng-container *ngIf="av.status === 'marcada' || av.status === 'remarcada'">
+              <button
+                class="btn btn-primary btn-sm"
+                [disabled]="confirmandoChegada === av.id"
+                (click)="confirmarChegada(av)"
+              >
+                <span class="material-symbols-outlined" *ngIf="confirmandoChegada !== av.id">check</span>
+                {{ confirmandoChegada === av.id ? 'Confirmando...' : 'Confirmar Chegada' }}
+              </button>
+            </ng-container>
+
+            <!-- Em avaliação com o fisio -->
+            <ng-container *ngIf="av.status === 'aguardando_avaliacao'">
+              <span class="text-sm text-gray">Em avaliação com fisioterapeuta</span>
+            </ng-container>
+
+            <!-- Avaliada — pronta para agendar sessões -->
+            <ng-container *ngIf="av.status === 'avaliada'">
+              <button class="btn btn-primary btn-sm" (click)="abrirAgendamentoSessoes(av)">
+                <span class="material-symbols-outlined">calendar_month</span> Agendar Sessões
+              </button>
+            </ng-container>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Paginação -->
+      <div class="pagination-row" *ngIf="totalPaginas > 1">
+        <button class="btn btn-outline btn-sm" [disabled]="avaliacaoPage === 0" (click)="paginaAnterior()">← Anterior</button>
+        <span class="text-sm text-gray">{{ avaliacaoPage + 1 }} / {{ totalPaginas }}</span>
+        <button class="btn btn-outline btn-sm" [disabled]="avaliacaoPage >= totalPaginas - 1" (click)="proximaPagina()">Próxima →</button>
+      </div>
+
+      <ng-template #emptyAval>
+        <div class="empty-state">
+          <span class="empty-icon"><span class="material-symbols-outlined">assignment</span></span>
+          <p>Nenhuma avaliação nesta data</p>
+        </div>
+      </ng-template>
+    </section>
+
+    <!-- APPOINTMENTS TAB -->
+    <section *ngIf="tab === 'agendamentos'" class="card">
+      <h2 style="margin-bottom:1.25rem">Gerenciar Agendamentos</h2>
+      <app-appointments-table
+        [appointments]="allAppointments"
+        (reschedule)="onReschedule($event)"
+        (edit)="onEdit($event)"
+        (remove)="onDelete($event)"
+      />
+    </section>
+
+    <!-- USERS TAB -->
+    <section *ngIf="tab === 'usuarios'" class="card">
+      <app-user-management-panel />
+    </section>
+
+  </main>
+</div>
+
+<app-scheduling-dialog
+  [(open)]="schedulingOpen"
+  [contactName]="selectedContactName"
+  [contactPhone]="selectedContactPhone"
+  [contactEmail]="selectedContactEmail"
+  [contactId]="selectedContactId"
+  (scheduled)="loadData()"
+/>
+<app-reschedule-dialog
+  [(open)]="rescheduleOpen"
+  [patientName]="selectedPatient"
+  [appointmentId]="selectedAppointmentId"
+  [hasSerie]="selectedHasSerie"
+  (rescheduled)="loadData()"
+/>
+<app-patient-sessions-dialog
+  [(open)]="patientSessionsOpen"
+  [pacienteId]="selectedPatientId"
+  [avaliacaoId]="selectedAvaliacaoId"
+  [pacienteNome]="selectedPatientName"
+  (sessionsScheduled)="onSessionsScheduled()"
+/>

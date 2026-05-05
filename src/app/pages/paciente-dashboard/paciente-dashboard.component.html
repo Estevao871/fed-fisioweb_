@@ -1,0 +1,162 @@
+<div class="dash-layout">
+
+  <!-- HEADER -->
+  <header class="dash-header">
+    <div class="dash-title-group">
+      <div class="brand">
+        <span class="material-symbols-outlined mi-fill brand-icon">favorite</span>
+        Vida em Movimento
+      </div>
+      <div class="dash-title-info">
+        <h1>Meu Tratamento</h1>
+        <p>João Santos</p>
+      </div>
+    </div>
+    <button class="btn btn-ghost btn-sm logout-btn" (click)="logout()">↗ Sair</button>
+  </header>
+
+  <!-- BODY -->
+  <main class="dash-body">
+
+    <!-- WELCOME CARD -->
+    <section class="welcome-card">
+      <div class="welcome-card__text">
+        <h2>Olá, João!</h2>
+        <p>Você está indo muito bem no seu tratamento de lombalgia!</p>
+        <div class="welcome-card__next">
+          <span class="next-label">Próxima Sessão</span>
+          <span class="next-date">22/04/2026 às 09:30</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="grid grid-3">
+      <div class="stat-card">
+        <div class="stat-info">
+          <p class="stat-label">Sessões Realizadas</p>
+          <p class="stat-value text-purple">{{ completed.length }}</p>
+          <p class="stat-sub">de {{ totalSessions }} sessões</p>
+        </div>
+        <div class="stat-icon" style="background:#f5f3ff; color:#7c3aed">
+          <span class="material-symbols-outlined">check_circle</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info">
+          <p class="stat-label">Próximas Sessões</p>
+          <p class="stat-value text-purple">{{ upcoming.length }}</p>
+          <p class="stat-sub">agendamentos confirmados</p>
+        </div>
+        <div class="stat-icon" style="background:#f5f3ff; color:#7c3aed">
+          <span class="material-symbols-outlined">calendar_month</span>
+        </div>
+      </div>
+      <div class="stat-card progress-stat">
+        <div class="stat-info">
+          <p class="stat-label">Progresso</p>
+          <p class="stat-value text-green">{{ progress }}%</p>
+        </div>
+        <div class="stat-icon" style="background:#dcfce7; color:#16a34a">
+          <span class="material-symbols-outlined">trending_up</span>
+        </div>
+        <div class="progress-bar-wrap" style="margin-top:.75rem">
+          <div class="progress-bar-fill" [style.width]="progress + '%'"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TABS -->
+    <div class="tab-group">
+      <button class="tab-btn" [class.active]="tab === 'agenda'"    (click)="tab = 'agenda'">Minha Agenda</button>
+      <button class="tab-btn" [class.active]="tab === 'progresso'" (click)="tab = 'progresso'">Meu Progresso</button>
+      <button class="tab-btn" [class.active]="tab === 'exercicios'"(click)="tab = 'exercicios'">Exercícios</button>
+    </div>
+
+    <!-- AGENDA TAB -->
+    <section *ngIf="tab === 'agenda'" class="grid grid-2">
+      <div class="card">
+        <h3 class="section-subtitle">
+          <span class="material-symbols-outlined">calendar_month</span> Próximos Agendamentos
+        </h3>
+        <div class="appt-upcoming-list">
+          <div class="appt-upcoming-item" *ngFor="let a of upcoming">
+            <div class="appt-upcoming-item__left">
+              <span class="appt-date">{{ a.date }}</span>
+              <span class="appt-type text-xs text-gray">Sessão de Fisioterapia · Dra. Juliana Ferreira</span>
+            </div>
+            <span class="badge badge-blue">{{ a.time }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 class="section-subtitle">
+          <span class="material-symbols-outlined">check_circle</span> Sessões Concluídas
+        </h3>
+        <div class="appt-done-list">
+          <div class="appt-done-item" *ngFor="let a of completed">
+            <div class="appt-done-item__info">
+              <span class="appt-date">{{ a.date }}</span>
+              <span class="text-xs text-gray">Sessão de Fisioterapia · Dra. Juliana Ferreira</span>
+            </div>
+            <span class="badge badge-green">Concluído</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROGRESS TAB -->
+    <section *ngIf="tab === 'progresso'" class="card">
+      <h3 class="section-subtitle" style="margin-bottom:1.25rem">Evolução do Tratamento</h3>
+      <div class="progress-summary">
+        <span class="text-sm text-gray">{{ completed.length }} de {{ totalSessions }} sessões concluídas</span>
+      </div>
+      <div class="notes-list">
+        <div class="note-card card" *ngFor="let n of notes">
+          <div class="note-card__header">
+            <div>
+              <strong>Sessão {{ n.session }}</strong>
+              <span class="text-xs text-gray">{{ n.date }}</span>
+            </div>
+            <div class="note-metrics" *ngIf="n.pain !== undefined">
+              <span class="badge badge-red">Dor: {{ n.pain }}/10</span>
+              <span class="badge badge-blue">Mobilidade: {{ n.mobility }}%</span>
+            </div>
+          </div>
+          <p class="note-text">{{ n.notes }}</p>
+          <div class="note-exercises">
+            <p class="text-xs font-semibold text-gray" style="margin-bottom:.4rem">Exercícios:</p>
+            <ul class="exercises-list">
+              <li *ngFor="let e of n.exercises">
+                <span class="exercise-dot"></span>{{ e }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXERCISES TAB -->
+    <section *ngIf="tab === 'exercicios'" class="card">
+      <h3 class="section-subtitle" style="margin-bottom:1.25rem">Exercícios para Casa</h3>
+      <div class="exercises-grid">
+        <div class="exercise-card card" *ngFor="let ex of exercises">
+          <div class="exercise-icon">
+            <span class="material-symbols-outlined">{{ ex.icon }}</span>
+          </div>
+          <div class="exercise-info">
+            <strong>{{ ex.name }}</strong>
+            <span class="text-xs text-gray">{{ ex.frequency }}</span>
+          </div>
+          <span class="badge badge-purple">{{ ex.sets }}</span>
+        </div>
+      </div>
+      <div class="exercises-note">
+        <span class="material-symbols-outlined">warning</span>
+        Pare se sentir dor aguda e fale com sua fisioterapeuta.
+      </div>
+    </section>
+
+  </main>
+</div>

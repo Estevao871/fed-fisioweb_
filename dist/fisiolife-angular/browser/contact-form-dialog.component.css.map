@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/contact-form-dialog/contact-form-dialog.component.scss"],
+  "sourcesContent": [".form-body {\n  display: flex;\n  flex-direction: column;\n  gap: 1rem;\n  margin-bottom: .5rem;\n}\n\n.success-state {\n  text-align: center;\n  padding: 2rem 1rem;\n\n  .success-icon { font-size: 3rem; margin-bottom: 1rem; }\n  h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: .75rem; }\n  p  { font-size: .9rem; color: var(--gray-600); line-height: 1.6; }\n}\n"],
+  "mappings": ";AAAA,CAAA;AACE,WAAA;AACA,kBAAA;AACA,OAAA;AACA,iBAAA;;AAGF,CAAA;AACE,cAAA;AACA,WAAA,KAAA;;AAEA,CAJF,cAIE,CAAA;AAAgB,aAAA;AAAiB,iBAAA;;AACjC,CALF,cAKE;AAAK,aAAA;AAAmB,eAAA;AAAkB,iBAAA;;AAC1C,CANF,cAME;AAAK,aAAA;AAAkB,SAAA,IAAA;AAAwB,eAAA;;",
+  "names": []
+}

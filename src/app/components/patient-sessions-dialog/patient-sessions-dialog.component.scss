@@ -1,0 +1,70 @@
+.sessions-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.dias-grid {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+  margin-top: .25rem;
+}
+
+.dia-btn {
+  padding: .45rem .875rem;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  font-size: .875rem;
+  font-weight: 500;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: all .15s;
+
+  &:hover { border-color: var(--purple-400, #a78bfa); }
+
+  &.selected {
+    background: var(--purple-600);
+    border-color: var(--purple-600);
+    color: #fff;
+  }
+
+  &:focus-visible { outline: 2px solid var(--purple-600); outline-offset: 2px; }
+}
+
+.validade-info {
+  padding: .75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: .85rem;
+  font-weight: 500;
+
+  &.validade-ok {
+    background: var(--green-100);
+    color: var(--green-700);
+  }
+
+  &.validade-err {
+    background: var(--red-100);
+    color: var(--red-600);
+  }
+}
+
+.error-msg {
+  font-size: .85rem;
+  color: var(--red-600);
+  margin: 0;
+}
+
+.success-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+  padding: 1.5rem 0;
+  text-align: center;
+
+  .success-icon { font-size: 2.5rem; }
+  h2 { font-size: 1.2rem; font-weight: 700; }
+  p { font-size: .9rem; color: var(--gray-600); line-height: 1.6; max-width: 360px; }
+}

@@ -1,0 +1,291 @@
+<div class="modal-backdrop" *ngIf="open" (click)="close()" role="dialog" aria-modal="true">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+
+    <!-- HEADER -->
+    <div class="modal-header">
+      <div>
+        <h2>{{ isInitialEvaluation ? 'Avaliação Inicial' : 'Prontuário do Paciente' }}</h2>
+        <div class="mr-meta">
+          <span><span class="material-symbols-outlined">person</span> {{ patientName }}{{ patientAge ? ', ' + patientAge + ' anos' : '' }}</span>
+          <span *ngIf="condition && condition !== 'sem_avaliacao'">· {{ conditionLabel }}</span>
+          <span>· {{ today }}</span>
+        </div>
+      </div>
+      <button class="modal-close" (click)="close()" aria-label="Fechar">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <!-- TABS -->
+    <div class="modal-tabs">
+      <button *ngIf="isInitialEvaluation || viewingHistoryEvaluation"
+        [class.active]="tab === 'avaliacao'" (click)="setTab('avaliacao')">
+        <span class="material-symbols-outlined">assignment</span> Avaliação
+      </button>
+      <button *ngIf="!isInitialEvaluation"
+        [class.active]="tab === 'evolucao'" (click)="setTab('evolucao')">
+        <span class="material-symbols-outlined">trending_up</span>
+        {{ activeSessaoId ? 'Registrar Evolução' : 'Evolução da Sessão' }}
+      </button>
+      <button [class.active]="tab === 'historico'" (click)="setTab('historico')">
+        <span class="material-symbols-outlined">history</span> Histórico
+      </button>
+    </div>
+
+    <!-- ALERTS -->
+    <div *ngIf="saveSuccess" class="alert-success" role="status">
+      <span class="material-symbols-outlined">check</span> Salvo com sucesso!
+    </div>
+    <div *ngIf="error"       class="alert-error"   role="alert">{{ error }}</div>
+    <div *ngIf="loadingAvaliacao" class="alert-info">Carregando dados da avaliação...</div>
+    <div *ngIf="viewingHistoryEvaluation" class="alert-info" style="display:flex;align-items:center;justify-content:space-between">
+      <span><span class="material-symbols-outlined">visibility</span> Ficha clínica — modo leitura</span>
+      <button class="btn btn-ghost btn-sm" (click)="setTab('historico')">← Voltar ao histórico</button>
+    </div>
+    <div *ngIf="avaliacaoJaFinalizada && tab === 'avaliacao' && !viewingHistoryEvaluation" class="alert-info">
+      <span class="material-symbols-outlined">assignment</span> Avaliação finalizada — campos em modo de leitura.
+    </div>
+
+    <!-- ══════════════════════ AVALIAÇÃO INICIAL ══════════════════════ -->
+    <div *ngIf="tab === 'avaliacao'" class="tab-content eval-sections">
+
+      <!-- Fisioterapeuta -->
+      <div class="eval-section">
+        <div class="eval-section__title">
+          <span class="material-symbols-outlined">medical_services</span> Identificação
+        </div>
+        <div class="field-group">
+          <label for="av-medico">Fisioterapeuta Responsável</label>
+          <input id="av-medico" class="input" [(ngModel)]="medico" placeholder="Nome do fisioterapeuta" [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation" />
+        </div>
+      </div>
+
+      <!-- Anamnese -->
+      <div class="eval-section">
+        <div class="eval-section__title">
+          <span class="material-symbols-outlined">assignment</span> Anamnese
+        </div>
+        <div class="field-group">
+          <label for="av-hda">HDA — História da Doença Atual *</label>
+          <textarea id="av-hda" class="input" [(ngModel)]="hda" rows="4"
+            placeholder="Queixa principal, início dos sintomas, evolução, fatores de piora/melhora..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+        </div>
+        <div class="field-group">
+          <label for="av-hpp">HPP — História Patológica Pregressa</label>
+          <textarea id="av-hpp" class="input" [(ngModel)]="hpp" rows="2"
+            placeholder="Doenças preexistentes, histórico de lesões, acidentes..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+        </div>
+        <div class="grid grid-2" style="gap:.875rem">
+          <div class="field-group">
+            <label for="av-med">Medicamentos em Uso</label>
+            <textarea id="av-med" class="input" [(ngModel)]="medicamentos" rows="2"
+              placeholder="Nomes, dosagens..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+          </div>
+          <div class="field-group">
+            <label for="av-cir">Cirurgias Prévias</label>
+            <textarea id="av-cir" class="input" [(ngModel)]="cirurgia" rows="2"
+              placeholder="Tipo e data das cirurgias..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+          </div>
+        </div>
+        <div class="field-group">
+          <label for="av-com">Comorbidades</label>
+          <textarea id="av-com" class="input" [(ngModel)]="comodidade" rows="2"
+            placeholder="Diabetes, hipertensão, obesidade..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+        </div>
+      </div>
+
+      <!-- Avaliação Física -->
+      <div class="eval-section">
+        <div class="eval-section__title">
+          <span class="material-symbols-outlined">biotech</span> Avaliação Física
+        </div>
+        <div class="field-group">
+          <label for="av-testes">Testes Realizados *</label>
+          <textarea id="av-testes" class="input" [(ngModel)]="testesRealizados" rows="4"
+            placeholder="Ex: Teste de força muscular — Grau 4/5 bilateral&#10;Teste de Lasègue — Negativo&#10;Avaliação postural — hipercifose torácica..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+        </div>
+        <div class="field-group">
+          <label for="av-gon">Goniometria (Amplitude de Movimento)</label>
+          <textarea id="av-gon" class="input" [(ngModel)]="goniometria" rows="3"
+            placeholder="Ex: Joelho D — Flexão: 120° | Extensão: 0°&#10;Ombro E — Flexão: 80° | Abdução: 70°" [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+        </div>
+      </div>
+
+      <!-- Diagnóstico e Conduta -->
+      <div class="eval-section">
+        <div class="eval-section__title">
+          <span class="material-symbols-outlined">medication</span> Diagnóstico e Conduta
+        </div>
+        <div class="field-group">
+          <label for="av-diag">Diagnóstico Fisioterapêutico *</label>
+          <textarea id="av-diag" class="input" [(ngModel)]="diagnostico" rows="2"
+            placeholder="Diagnóstico cinético funcional..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label>Conduta Terapêutica</label>
+          <div class="conduta-grid">
+            <label *ngFor="let c of condutaOptions" class="conduta-item"
+              [class.selected]="isCondutaSelected(c)"
+              [class.disabled]="avaliacaoJaFinalizada || viewingHistoryEvaluation">
+              <input type="checkbox" [checked]="isCondutaSelected(c)"
+                (change)="!(avaliacaoJaFinalizada || viewingHistoryEvaluation) && toggleConduta(c)"
+                [disabled]="avaliacaoJaFinalizada || viewingHistoryEvaluation" />
+              {{ c }}
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="av-prog">Prognóstico *</label>
+          <textarea id="av-prog" class="input" [(ngModel)]="prognostico" rows="3"
+            placeholder="Expectativas de recuperação, tempo estimado..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+        </div>
+        <div class="field-group">
+          <label for="av-des">Desfecho Esperado</label>
+          <textarea id="av-des" class="input" [(ngModel)]="desfecho" rows="2"
+            placeholder="Objetivos funcionais do tratamento..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════════════════════ EVOLUÇÃO ══════════════════════ -->
+    <div *ngIf="tab === 'evolucao'" class="tab-content">
+
+      <ng-container *ngIf="effectiveSessaoId; else semSessao">
+        <div *ngIf="activeSessaoId" class="alert-info" style="margin-bottom:1rem">
+          <span class="material-symbols-outlined">edit_note</span>
+          Registrando evolução para a sessão selecionada no histórico.
+        </div>
+
+        <div class="evolucao-box card">
+          <div class="evolucao-header">
+            <span class="material-symbols-outlined" aria-hidden="true">trending_up</span>
+            <strong>Registrar Evolução da Sessão</strong>
+          </div>
+
+          <div class="field-group">
+            <label for="ev-notes">Observações da Sessão</label>
+            <textarea id="ev-notes" class="input" [(ngModel)]="sessionNotes" rows="4"
+              placeholder="Como o paciente está? Houve melhora? Dificuldades encontradas?..."></textarea>
+          </div>
+
+          <div class="grid grid-2" style="gap:1rem">
+            <div class="field-group">
+              <label for="ev-pain">Nível de Dor Hoje (0–10)</label>
+              <input id="ev-pain" class="input" type="number" [(ngModel)]="sessionPain"
+                min="0" max="10" placeholder="0 = sem dor · 10 = máxima" />
+            </div>
+            <div class="field-group">
+              <label for="ev-mob">Mobilidade Atual (%)</label>
+              <input id="ev-mob" class="input" type="number" [(ngModel)]="sessionMobility"
+                min="0" max="100" placeholder="Percentual estimado" />
+            </div>
+          </div>
+        </div>
+
+        <div class="exercises-section">
+          <div class="exercises-header">
+            <strong>Exercícios Realizados</strong>
+            <button class="btn btn-outline btn-sm" type="button" (click)="addExercise()">+ Adicionar</button>
+          </div>
+          <div *ngIf="sessionExercises.length === 0" class="empty-state" style="padding:1.5rem 0">
+            <span class="empty-icon" aria-hidden="true"><span class="material-symbols-outlined">description</span></span>
+            <p>Nenhum exercício adicionado</p>
+          </div>
+          <div *ngFor="let ex of sessionExercises; let i = index" class="exercise-row">
+            <input class="input" [(ngModel)]="ex.name"
+              placeholder="Ex: Ponte — 3×15 repetições" [attr.aria-label]="'Exercício ' + (i + 1)" />
+            <button class="btn btn-ghost btn-sm" type="button" (click)="removeExercise(i)" aria-label="Remover">
+              <span class="material-symbols-outlined">close</span>
+            </button>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #semSessao>
+        <div class="sem-sessao-msg">
+          <span class="material-symbols-outlined" aria-hidden="true">info</span>
+          <div>
+            <strong>Nenhuma sessão selecionada</strong>
+            <p>Para registrar a evolução, abra o prontuário a partir de um agendamento na <strong>Agenda de Hoje</strong>, ou selecione uma sessão na aba <strong>Histórico</strong>.</p>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- ══════════════════════ HISTÓRICO ══════════════════════ -->
+    <div *ngIf="tab === 'historico'" class="tab-content">
+      <div *ngIf="loadingHistorico" class="loading-state">Carregando histórico...</div>
+
+      <div *ngIf="!loadingHistorico && sessionHistory.length === 0" class="empty-state">
+        <span class="empty-icon" aria-hidden="true"><span class="material-symbols-outlined">history</span></span>
+        <p>Nenhuma sessão registrada ainda</p>
+      </div>
+
+      <div *ngIf="!loadingHistorico && sessionHistory.length > 0">
+        <p class="text-sm text-gray" style="margin-bottom:1rem">
+          {{ sessionHistory.length }} registro{{ sessionHistory.length !== 1 ? 's' : '' }} (avaliação + sessões)
+        </p>
+        <div class="history-list">
+          <div class="history-item card" *ngFor="let s of sessionHistory; let i = index">
+            <div class="history-item__header">
+              <div>
+                <strong>{{ s.tipo === 'avaliacao' ? 'Avaliação' : 'Sessão ' + (s.numeroOcorrencia ?? (sessionHistory.length - i)) }}</strong>
+                <span class="text-xs text-gray">{{ formatData(s.dataHora) }}</span>
+              </div>
+              <span class="badge" [ngClass]="statusBadge(s.status)">{{ formatStatus(s.status) }}</span>
+            </div>
+            <div class="history-item__body" *ngIf="s.observacoes || s.nivelDor != null || s.exercicios?.length">
+              <div class="history-field" *ngIf="s.observacoes">
+                <span class="history-label">Observações:</span>
+                <span>{{ s.observacoes }}</span>
+              </div>
+              <div class="history-metrics" *ngIf="s.nivelDor != null || s.mobilidade != null">
+                <span *ngIf="s.nivelDor != null" class="metric-badge">Dor: <strong>{{ s.nivelDor }}/10</strong></span>
+                <span *ngIf="s.mobilidade != null" class="metric-badge">Mobilidade: <strong>{{ s.mobilidade }}%</strong></span>
+              </div>
+              <div class="history-field" *ngIf="s.exercicios?.length">
+                <span class="history-label">Exercícios:</span>
+                <ul class="history-exercises">
+                  <li *ngFor="let e of s.exercicios"><span class="dot" aria-hidden="true"></span>{{ e }}</li>
+                </ul>
+              </div>
+            </div>
+            <div class="history-no-data" *ngIf="!s.observacoes && s.nivelDor == null && !s.exercicios?.length">
+              <span class="text-xs text-gray">Evolução não registrada nesta sessão</span>
+            </div>
+
+            <!-- Ações do item de histórico -->
+            <div class="history-item__actions">
+              <!-- Ver ficha clínica (apenas na entrada de avaliação) -->
+              <button *ngIf="s.tipo === 'avaliacao' && historicAvaliacaoId"
+                class="btn btn-outline btn-sm" (click)="verFichaClinica()">
+                <span class="material-symbols-outlined">assignment</span> Ver Ficha Clínica
+              </button>
+              <!-- Registrar evolução (apenas sessões de hoje com status pendente) -->
+              <button *ngIf="s.tipo !== 'avaliacao' && isHoje(s.dataHora) && (s.status === 'marcada' || s.status === 'remarcada')"
+                class="btn btn-primary btn-sm" (click)="registrarEvolucaoParaSessao(s)">
+                <span class="material-symbols-outlined">edit_note</span> Registrar Evolução
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="modal-footer">
+      <button class="btn btn-outline" (click)="close()" [disabled]="saving">Cancelar</button>
+      <button *ngIf="currentTabHasSave" class="btn btn-primary"
+        [class.btn-success]="saveSuccess" (click)="save()" [disabled]="saving">
+        <span class="material-symbols-outlined" *ngIf="saveSuccess">check</span>
+        {{ saveSuccess ? 'Salvo!' : saveLabel }}
+      </button>
+      <button *ngIf="!currentTabHasSave" class="btn btn-outline" (click)="close()">Fechar</button>
+    </div>
+
+  </div>
+</div>

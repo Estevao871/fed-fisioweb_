@@ -1,5 +1,5 @@
-<div class="modal-backdrop" *ngIf="open" (click)="close()" role="dialog" aria-modal="true">
-  <div class="modal" (click)="$event.stopPropagation()">
+<div class="modal-backdrop" *ngIf="open" role="dialog" aria-modal="true">
+  <div class="modal">
 
     <!-- SUCCESS -->
     <div *ngIf="success" class="success-state">
@@ -82,7 +82,7 @@
             placeholder="Ex: Pedido do paciente, conflito de agenda..." />
         </div>
 
-        <p *ngIf="error" role="alert" class="error-msg">{{ error }}</p>
+        <p *ngIf="error" role="alert" aria-live="polite" class="error-msg">{{ error }}</p>
 
       </div>
 

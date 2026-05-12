@@ -35,11 +35,6 @@
       <!-- Hero visual: floating appointment card -->
       <div class="hero__visual enter-scale" aria-hidden="true">
 
-        <div class="hero-stat">
-          <span class="hero-stat__value">94%</span>
-          <span class="hero-stat__label">recuperação</span>
-        </div>
-
         <div class="hero-card">
           <span class="hero-card__badge">Hoje</span>
           <div class="hero-card__patient">
@@ -102,36 +97,22 @@
     <div class="container">
       <div class="section-heading" appRevealOnScroll>
         <h2 id="recovery-heading">Como a Fisioterapia Ajuda</h2>
-        <p>Veja o processo de recuperação em ação</p>
+        <p>Diferenciais do nosso atendimento</p>
       </div>
-      <article class="recovery-card card" appRevealOnScroll>
-        <div class="recovery-card__text">
-          <h3>Recuperação Progressiva</h3>
-          <p>
-            Através de exercícios direcionados e técnicas especializadas, sua
-            mobilidade e força são restauradas gradualmente.
-          </p>
-          <ul class="recovery-list">
-            <li *ngFor="let point of recoveryPoints; let i = index" appRevealOnScroll [revealDelay]="i * 80">
-              <span class="check-circle material-symbols-outlined" aria-hidden="true">check</span>
-              {{ point }}
-            </li>
-          </ul>
-        </div>
-        <div class="recovery-card__visual" aria-hidden="true">
-          <div class="rec-stats">
-            <div class="rec-stat" *ngFor="let s of recoveryStats; let i = index" [style.--bar-delay]="(i * 120) + 'ms'">
-              <div class="rec-stat__header">
-                <span>{{ s.label }}</span>
-                <strong>{{ s.pct }}%</strong>
-              </div>
-              <div class="rec-bar">
-                <div class="rec-bar__fill" [style.width]="s.pct + '%'"></div>
-              </div>
-            </div>
+      <div class="grid grid-3 benefits-grid">
+        <article
+          class="benefit-card card"
+          *ngFor="let d of diferenciais; let i = index"
+          appRevealOnScroll
+          [revealDelay]="i * 100"
+        >
+          <div class="benefit-icon" aria-hidden="true">
+            <span class="material-symbols-outlined">{{ d.icon }}</span>
           </div>
-        </div>
-      </article>
+          <h3>{{ d.title }}</h3>
+          <p>{{ d.description }}</p>
+        </article>
+      </div>
     </div>
   </section>
 

@@ -8,6 +8,7 @@ import { SchedulingDialogComponent } from '../../components/scheduling-dialog/sc
 import { UserManagementPanelComponent } from '../../components/user-management-panel/user-management-panel.component';
 import { PatientSessionsDialogComponent } from '../../components/patient-sessions-dialog/patient-sessions-dialog.component';
 import { ApiService, LeadApi, SessaoApi } from '../../core/api.service';
+import { AuthService } from '../../core/auth.service';
 import { Appointment, Contact } from '../../core/models';
 
 @Component({
@@ -34,7 +35,10 @@ export class RecepcionistaDashboardComponent implements OnInit {
   loading = false;
 
   /* Avaliações filter + pagination */
-  avaliacaoFiltroData = new Date().toISOString().split('T')[0];
+  avaliacaoFiltroData = (() => {
+    const n = new Date();
+    return `${n.getFullYear()}-${String(n.getMonth() + 1).padStart(2, '0')}-${String(n.getDate()).padStart(2, '0')}`;
+  })();
   avaliacaoPage = 0;
   readonly avaliacaoPageSize = 10;
 
@@ -63,9 +67,12 @@ export class RecepcionistaDashboardComponent implements OnInit {
   sessaoIdsAgendadas = new Set<string>();
   pendingScheduleSessaoId = '';
 
+  readonly userName = this.authService.getNome();
+
   constructor(
-    private readonly api: ApiService,
-    private readonly router: Router,
+    private readonly api:         ApiService,
+    private readonly router:      Router,
+    private readonly authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -101,10 +108,12 @@ export class RecepcionistaDashboardComponent implements OnInit {
           s.tipo === 'avaliacao' && (s.status === 'marcada' || s.status === 'remarcada')
         ).length;
 
-        /* Total = sessões de terapia não canceladas */
-        this.statsTotal = sessoes.filter(s =>
-          s.tipo === 'sessao' && s.status !== 'cancelada' && s.status !== 'faltou'
-        ).length;
+        /* Total = pacientes distintos com sessões de terapia ativas */
+        this.statsTotal = new Set(
+          sessoes
+            .filter(s => s.tipo === 'sessao' && s.status !== 'cancelada' && s.status !== 'faltou' && s.pacienteId)
+            .map(s => s.pacienteId as string)
+        ).size;
       },
       error: () => {
         this.allAppointments = [];
@@ -243,7 +252,7 @@ export class RecepcionistaDashboardComponent implements OnInit {
   }
 
   onEdit(item: Appointment): void {
-    window.alert(`Editar agendamento de ${item.patient}.`);
+    console.warn('Editar agendamento:', item.patient);
   }
 
   onDelete(id: string): void {
@@ -256,12 +265,26 @@ export class RecepcionistaDashboardComponent implements OnInit {
   }
 
   get avaliacoesFiltradas(): SessaoApi[] {
-    let lista = this.avaliacaoSessoes.filter(av => !this.sessaoIdsAgendadas.has(av.id));
+    /* Pacientes que já têm sessões de terapia agendadas — avaliação some da fila */
+    const pacientesComSessoes = new Set(
+      this.allAppointments
+        .filter(a => a.type === 'sessao' && a.status !== 'cancelado')
+        .map(a => a.pacienteId)
+        .filter((id): id is string => !!id)
+    );
+
+    let lista = this.avaliacaoSessoes.filter(av =>
+      !this.sessaoIdsAgendadas.has(av.id) &&
+      av.status !== 'cancelada' &&
+      !(av.pacienteId && pacientesComSessoes.has(av.pacienteId))
+    );
+
     if (!this.avaliacaoFiltroData) return lista;
     const filtro = this.avaliacaoFiltroData;
     return lista.filter(av => {
-      const d = new Date(av.dataHora).toISOString().split('T')[0];
-      return d === filtro;
+      const d = new Date(av.dataHora);
+      const local = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      return local === filtro;
     });
   }
 
@@ -285,6 +308,7 @@ export class RecepcionistaDashboardComponent implements OnInit {
   }
 
   logout(): void {
-    void this.router.navigateByUrl('/');
+    this.authService.logout();
+    void this.router.navigateByUrl('/login');
   }
 }

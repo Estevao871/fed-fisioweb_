@@ -1,5 +1,5 @@
-<div class="modal-backdrop" *ngIf="open" (click)="close()" role="dialog" aria-modal="true">
-  <div class="modal" (click)="$event.stopPropagation()">
+<div class="modal-backdrop" *ngIf="open" role="dialog" aria-modal="true">
+  <div class="modal">
 
     <!-- SUCCESS -->
     <div *ngIf="success" class="success-state">
@@ -42,7 +42,18 @@
           </div>
           <div class="field-group">
             <label for="sd-email">E-mail</label>
-            <input id="sd-email" class="input" type="email" [(ngModel)]="patientEmail" placeholder="email@exemplo.com" autocomplete="email" />
+            <div class="password-wrap">
+              <input id="sd-email" class="input" type="email" [(ngModel)]="patientEmail"
+                placeholder="email@exemplo.com" autocomplete="email"
+                (blur)="onEmailBlur()" [style.padding-right]="lookingUp ? '2.75rem' : null" />
+              <span *ngIf="lookingUp" class="eye-btn" style="cursor:default">
+                <span class="material-symbols-outlined" style="font-size:1rem;animation:spin 1s linear infinite">refresh</span>
+              </span>
+            </div>
+            <div *ngIf="cadastroEncontrado" style="display:flex;align-items:center;gap:.4rem;margin-top:.4rem;font-size:.8rem;color:var(--green-700,#15803d)">
+              <span class="material-symbols-outlined" style="font-size:1rem">check_circle</span>
+              Cadastro encontrado — dados preenchidos automaticamente
+            </div>
           </div>
         </div>
         <div class="field-group">

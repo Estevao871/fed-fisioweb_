@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MedicalRecordDialogComponent } from '../../components/medical-record-dialog/medical-record-dialog.component';
 import { ApiService, AvaliacaoPendenteApi, AvaliacaoHistoricoApi, PacienteAtivoApi, SessaoApi } from '../../core/api.service';
+import { AuthService } from '../../core/auth.service';
 import { Appointment, Patient } from '../../core/models';
 
 @Component({
@@ -32,25 +33,43 @@ export class FisioterapeutaDashboardComponent implements OnInit {
   patients: Patient[] = [];
   avaliacoesPendentes: AvaliacaoPendenteApi[] = [];
   avaliacoesHistorico: AvaliacaoHistoricoApi[] = [];
-  loadingHistorico = false;
+  loadingHistorico  = false;
+  historicoSearch   = '';
+  historicoPage     = 0;
+  readonly historicoPageSize = 10;
 
-  /* Pacientes pagination */
-  pacientePage = 0;
-  readonly pacientePageSize = 10;
-  get pacienteTotalPages(): number { return Math.ceil(this.filteredPatients().length / this.pacientePageSize); }
-  get pacientesPaged(): Patient[] {
-    const s = this.pacientePage * this.pacientePageSize;
-    return this.filteredPatients().slice(s, s + this.pacientePageSize);
+  filteredHistorico(): AvaliacaoHistoricoApi[] {
+    const s = this.historicoSearch.toLowerCase();
+    if (!s) return this.avaliacoesHistorico;
+    return this.avaliacoesHistorico.filter(h => h.paciente.toLowerCase().includes(s));
   }
+
+  get pagedHistorico(): AvaliacaoHistoricoApi[] {
+    const start = this.historicoPage * this.historicoPageSize;
+    return this.filteredHistorico().slice(start, start + this.historicoPageSize);
+  }
+
+  get historicoTotalPages(): number {
+    return Math.ceil(this.filteredHistorico().length / this.historicoPageSize);
+  }
+
+  /* Pacientes pagination — server-side */
+  pacientePage       = 0;
+  pacienteTotalPages = 0;
+  pacientesLoading   = false;
+  readonly pacientePageSize = 20;
 
   statsConsultasHoje = 0;
   statsPacientesAtivos = 0;
   statsAvaliacoesPendentes = 0;
   statsTaxaRecuperacao = '—';
 
+  readonly userName = this.authService.getNome();
+
   constructor(
-    private readonly api: ApiService,
-    private readonly router: Router,
+    private readonly api:         ApiService,
+    private readonly router:      Router,
+    private readonly authService: AuthService,
   ) {}
 
   ngOnInit(): void {
@@ -59,7 +78,8 @@ export class FisioterapeutaDashboardComponent implements OnInit {
 
   private loadData(): void {
     this.loading = true;
-    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
     this.api.getSessoes({ date: today }).subscribe({
       next: (sessoes) => {
@@ -74,16 +94,7 @@ export class FisioterapeutaDashboardComponent implements OnInit {
       },
     });
 
-    this.api.getPacientesAtivos().subscribe({
-      next: (pacientes) => {
-        this.patients = pacientes.map(p => this.pacienteToPatient(p));
-        this.statsPacientesAtivos = pacientes.length;
-      },
-      error: () => {
-        this.patients = [];
-        this.statsPacientesAtivos = 0;
-      },
-    });
+    this.loadPacientes(0);
 
     this.api.getAvaliacoesPendentes().subscribe({
       next: (avs) => {
@@ -105,6 +116,24 @@ export class FisioterapeutaDashboardComponent implements OnInit {
         }
       },
       error: () => { this.statsTaxaRecuperacao = '—'; },
+    });
+  }
+
+  loadPacientes(page: number): void {
+    this.pacientePage     = page;
+    this.pacientesLoading = true;
+    this.api.getPacientesAtivos(page, this.pacientePageSize).subscribe({
+      next: (result) => {
+        this.patients              = result.content.map(p => this.pacienteToPatient(p));
+        this.pacienteTotalPages    = result.totalPages;
+        this.statsPacientesAtivos  = result.totalElements;
+        this.pacientesLoading      = false;
+      },
+      error: () => {
+        this.patients           = [];
+        this.pacienteTotalPages = 0;
+        this.pacientesLoading   = false;
+      },
     });
   }
 
@@ -172,15 +201,25 @@ export class FisioterapeutaDashboardComponent implements OnInit {
   }
 
   private pacienteToPatient(p: PacienteAtivoApi): Patient {
+    const statusMap: Record<string, string> = {
+      aguardando:      'Aguardando avaliação',
+      em_atendimento:  'Em avaliação',
+      finalizada:      'Avaliação concluída',
+      sem_avaliacao:   'Aguardando avaliação',
+    };
+    const total      = Number(p.totalSessoes);
+    const realizadas = Number(p.sessoesRealizadas ?? 0);
     return {
-      id: p.idPaciente,
-      name: p.nome,
-      age: 0,
-      condition: p.statusClinico ?? '—',
-      sessionsCompleted: 0,
-      totalSessions: Number(p.totalSessoes),
-      progress: 0,
-      nextAppointment: p.proximaSessao ?? '—',
+      id:                p.idPaciente,
+      name:              p.nome,
+      age:               0,
+      condition:         statusMap[p.statusClinico] ?? p.statusClinico ?? '—',
+      sessionsCompleted: realizadas,
+      totalSessions:     total,
+      progress:          total > 0 ? Math.round((realizadas / total) * 100) : 0,
+      nextAppointment:   p.proximaSessao
+        ? new Date(p.proximaSessao).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+        : '—',
     };
   }
 
@@ -188,7 +227,8 @@ export class FisioterapeutaDashboardComponent implements OnInit {
     const map: Record<string, Appointment['status']> = {
       marcada: 'agendado', remarcada: 'agendado',
       compareceu: 'concluido', aguardando_avaliacao: 'em-andamento',
-      avaliada: 'concluido', faltou: 'cancelado', cancelada: 'cancelado',
+      avaliada: 'concluido', realizada: 'concluido',
+      faltou: 'cancelado', cancelada: 'cancelado',
     };
     return map[s] ?? 'agendado';
   }
@@ -246,9 +286,20 @@ export class FisioterapeutaDashboardComponent implements OnInit {
     return map[status] ?? 'badge-gray';
   }
 
+  editarAvaliacao(h: AvaliacaoHistoricoApi): void {
+    this.selectedPatientName    = h.paciente;
+    this.selectedPatientAge     = 0;
+    this.selectedCondition      = h.resumo ?? '';
+    this.isInitialEvaluation    = false;
+    this.selectedAvaliacaoId    = h.idAvaliacao;
+    this.selectedSessaoId       = '';
+    this.selectedPacienteId     = '';
+    this.recordOpen             = true;
+  }
+
   loadHistoricoAvaliacoes(): void {
-    if (this.avaliacoesHistorico.length > 0) return;
     this.loadingHistorico = true;
+    this.historicoPage    = 0;
     this.api.getAvaliacoesHistorico().subscribe({
       next: (h) => { this.avaliacoesHistorico = h; this.loadingHistorico = false; },
       error: () => { this.loadingHistorico = false; },
@@ -266,6 +317,7 @@ export class FisioterapeutaDashboardComponent implements OnInit {
   }
 
   logout(): void {
-    void this.router.navigateByUrl('/');
+    this.authService.logout();
+    void this.router.navigateByUrl('/login');
   }
 }

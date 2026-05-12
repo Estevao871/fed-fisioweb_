@@ -37,6 +37,8 @@ export class SchedulingDialogComponent implements OnChanges {
   loading = false;
   error = '';
   success = false;
+  lookingUp = false;
+  cadastroEncontrado = false;
 
   get today(): string { return new Date().toISOString().split('T')[0]; }
 
@@ -68,6 +70,27 @@ export class SchedulingDialogComponent implements OnChanges {
     if (this.contactName)  this.patientName  = this.contactName;
     if (this.contactPhone) this.patientPhone = this.contactPhone;
     if (this.contactEmail) this.patientEmail = this.contactEmail;
+  }
+
+  onEmailBlur(): void {
+    const email = this.patientEmail.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+
+    this.lookingUp = true;
+    this.cadastroEncontrado = false;
+
+    this.api.buscarLeadPorEmail(email).subscribe({
+      next: (lead) => {
+        this.patientName  = `${lead.nome} ${lead.sobrenome}`.trim();
+        this.patientPhone = lead.telefone;
+        this.appointmentType  = 'reavaliacao';
+        this.cadastroEncontrado = true;
+        this.lookingUp = false;
+      },
+      error: () => {
+        this.lookingUp = false;
+      },
+    });
   }
 
   next(): void {
@@ -147,5 +170,7 @@ export class SchedulingDialogComponent implements OnChanges {
     this.loading = false;
     this.error = '';
     this.success = false;
+    this.lookingUp = false;
+    this.cadastroEncontrado = false;
   }
 }

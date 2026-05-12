@@ -29,7 +29,10 @@ export class RescheduleDialogComponent implements OnChanges {
 
   slots: DisponibilidadeApi[] = [];
 
-  get dateMin(): string { return new Date().toISOString().split('T')[0]; }
+  get dateMin(): string {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  }
   get isValid(): boolean { return !!(this.date && this.time); }
   get allSlotsOccupied(): boolean { return this.slots.length > 0 && this.slots.every(s => !s.disponivel); }
 

@@ -21,18 +21,22 @@ export class LandingPageComponent {
     { title: 'Acompanhamento',      description: 'Monitoramento contínuo do seu progresso e recuperação',             symbol: 'group',          icon: 'blue'   },
   ];
 
-  recoveryPoints = [
-    'Redução da dor',
-    'Aumento da mobilidade',
-    'Fortalecimento muscular',
-    'Prevenção de lesões',
-  ];
-
-  recoveryStats = [
-    { label: 'Redução de dor',      pct: 85 },
-    { label: 'Ganho de mobilidade', pct: 90 },
-    { label: 'Força muscular',      pct: 78 },
-    { label: 'Taxa de sucesso',     pct: 94 },
+  diferenciais = [
+    {
+      icon: 'assignment_ind',
+      title: 'Plano Individualizado',
+      description: 'Cada paciente recebe um protocolo desenvolvido especificamente para o seu quadro clinico, sem formulas genericas.',
+    },
+    {
+      icon: 'monitoring',
+      title: 'Acompanhamento Continuo',
+      description: 'O fisioterapeuta registra a evolucao em cada sessao — nivel de dor, mobilidade e exercicios — e ajusta o tratamento ao longo do processo.',
+    },
+    {
+      icon: 'fact_check',
+      title: 'Evolucao Documentada',
+      description: 'Todo o historico de sessoes fica registrado e acessivel, oferecendo visibilidade completa sobre o progresso do tratamento.',
+    },
   ];
 
   benefits = [
@@ -41,6 +45,6 @@ export class LandingPageComponent {
     { icon: 'local_hospital', title: 'Ambiente Acolhedor',          description: 'Espaço confortável e moderno para a sua recuperação' },
     { icon: 'schedule',       title: 'Horários Flexíveis',          description: 'Agendamentos que se adaptam à sua rotina diária' },
     { icon: 'assignment',     title: 'Plano Personalizado',         description: 'Tratamento desenvolvido exclusivamente para as suas necessidades' },
-    { icon: 'trending_up',    title: 'Resultados Comprovados',      description: '94% dos nossos pacientes atingem seus objetivos de recuperação' },
+    { icon: 'support_agent',  title: 'Suporte Continuo',            description: 'Atendimento dedicado durante todo o tratamento, do primeiro contato ate a alta' },
   ];
 }

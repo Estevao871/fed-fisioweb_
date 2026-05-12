@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../../core/auth.service';
 import { Appointment, ProgressNote } from '../../core/models';
 
 @Component({
@@ -13,14 +14,19 @@ import { Appointment, ProgressNote } from '../../core/models';
 export class PacienteDashboardComponent {
   tab: 'agenda' | 'progresso' | 'exercicios' = 'agenda';
 
-  upcoming: Appointment[] = [];
-  completed: Appointment[] = [];
-  notes: ProgressNote[] = [];
+  readonly userName = this.authService.getNome();
+
+  upcoming:  Appointment[]  = [];
+  completed: Appointment[]  = [];
+  notes:     ProgressNote[] = [];
   totalSessions = 0;
 
   exercises: { icon: string; name: string; sets: string; frequency: string }[] = [];
 
-  constructor(private readonly router: Router) {}
+  constructor(
+    private readonly router:      Router,
+    private readonly authService: AuthService,
+  ) {}
 
   get progress(): number {
     if (!this.totalSessions) return 0;
@@ -28,6 +34,7 @@ export class PacienteDashboardComponent {
   }
 
   logout(): void {
-    void this.router.navigateByUrl('/');
+    this.authService.logout();
+    void this.router.navigateByUrl('/login');
   }
 }

@@ -38,56 +38,117 @@
         </div>
       </section>
 
-      <!-- RIGHT: Login Form -->
+      <!-- RIGHT: Login / Register Form -->
       <section class="login-form-card card">
-        <h2>Entrar na Plataforma</h2>
 
-        <div class="field-group">
-          <label for="email">E-mail</label>
-          <input
-            id="email"
-            class="input"
-            type="email"
-            name="email"
-            [(ngModel)]="email"
-            placeholder="seu@email.com"
-            autocomplete="email"
-          />
-        </div>
+        <!-- ── LOGIN ── -->
+        <ng-container *ngIf="!showRegister">
+          <h2>Entrar na Plataforma</h2>
 
-        <div class="field-group">
-          <label for="password">Senha</label>
-          <input
-            id="password"
-            class="input"
-            type="password"
-            name="password"
-            [(ngModel)]="password"
-            placeholder="••••••••"
-            autocomplete="current-password"
-          />
-        </div>
+          <div class="field-group">
+            <label for="email">E-mail</label>
+            <input id="email" class="input" type="email" name="email"
+              [(ngModel)]="email" placeholder="seu@email.com" autocomplete="email" />
+          </div>
 
-        <div class="login-meta">
-          <label class="remember-label">
-            <input type="checkbox" />
-            <span>Lembrar-me</span>
-          </label>
-          <a href="javascript:void(0)" class="forgot-link">Esqueci minha senha</a>
-        </div>
+          <div class="field-group">
+            <label for="password">Senha</label>
+            <div class="password-wrap">
+              <input id="password" class="input" [type]="showPassword ? 'text' : 'password'" name="password"
+                [(ngModel)]="password" placeholder="••••••••" autocomplete="current-password" />
+              <button type="button" class="eye-btn" (click)="showPassword = !showPassword"
+                [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'">
+                <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+          </div>
 
-        <button
-          class="btn btn-primary login-btn"
-          [disabled]="!selectedType"
-          (click)="login()"
-        >
-          {{ selectedLabel }}
-        </button>
+          <div class="login-meta">
+            <label class="remember-label">
+              <input type="checkbox" />
+              <span>Lembrar-me</span>
+            </label>
+            <button type="button" class="forgot-link btn-link" (click)="showForgot = !showForgot">
+              Esqueci minha senha
+            </button>
+          </div>
 
-        <div class="register-tip">
-          Novo paciente?
-          <a href="javascript:void(0)">Cadastre-se aqui</a>
-        </div>
+          <div *ngIf="showForgot" class="forgot-box">
+            <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--purple-600)">info</span>
+            <p>
+              Para redefinir sua senha, entre em contato com a recepção:
+              <br>
+              <strong>📞 (11) 9 9999-9999</strong>
+              <br>
+              <span class="text-xs text-gray">A recepcionista pode redefinir sua senha no painel de administração.</span>
+            </p>
+          </div>
+
+          <p *ngIf="errorMessage" class="error-msg" role="alert" aria-live="polite">{{ errorMessage }}</p>
+
+          <button class="btn btn-primary login-btn" [disabled]="!selectedType || loading" (click)="login()">
+            {{ selectedLabel }}
+          </button>
+
+          <div class="register-tip">
+            Novo paciente?
+            <button type="button" class="btn-link" (click)="showRegister = true">Cadastre-se aqui</button>
+          </div>
+        </ng-container>
+
+        <!-- ── CADASTRO ── -->
+        <ng-container *ngIf="showRegister">
+          <h2>Criar Conta de Paciente</h2>
+
+          <div class="field-group">
+            <label for="reg-name">Nome completo</label>
+            <input id="reg-name" class="input" type="text"
+              [(ngModel)]="regName" placeholder="Seu nome completo" autocomplete="name" />
+          </div>
+
+          <div class="field-group">
+            <label for="reg-email">E-mail</label>
+            <input id="reg-email" class="input" type="email"
+              [(ngModel)]="regEmail" placeholder="seu@email.com" autocomplete="email" />
+          </div>
+
+          <div class="field-group">
+            <label for="reg-password">Senha</label>
+            <div class="password-wrap">
+              <input id="reg-password" class="input" [type]="showRegPassword ? 'text' : 'password'"
+                [(ngModel)]="regPassword" placeholder="••••••••" autocomplete="new-password" />
+              <button type="button" class="eye-btn" (click)="showRegPassword = !showRegPassword"
+                [attr.aria-label]="showRegPassword ? 'Ocultar senha' : 'Mostrar senha'">
+                <span class="material-symbols-outlined">{{ showRegPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label for="reg-confirm">Confirmar senha</label>
+            <div class="password-wrap">
+              <input id="reg-confirm" class="input" [type]="showRegConfirm ? 'text' : 'password'"
+                [(ngModel)]="regConfirm" placeholder="••••••••" autocomplete="new-password" />
+              <button type="button" class="eye-btn" (click)="showRegConfirm = !showRegConfirm"
+                [attr.aria-label]="showRegConfirm ? 'Ocultar senha' : 'Mostrar senha'">
+                <span class="material-symbols-outlined">{{ showRegConfirm ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <p *ngIf="regError"   class="error-msg" role="alert" aria-live="polite">{{ regError }}</p>
+          <p *ngIf="regSuccess" class="success-msg">Conta criada com sucesso! Redirecionando para o login...</p>
+
+          <button class="btn btn-primary login-btn" [disabled]="regLoading" (click)="register()">
+            {{ regLoading ? 'Criando conta...' : 'Criar Conta' }}
+          </button>
+
+          <div class="register-tip">
+            Já tem conta?
+            <button type="button" class="btn-link" (click)="voltarParaLogin()">Fazer login</button>
+          </div>
+        </ng-container>
+
       </section>
 
     </div>

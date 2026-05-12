@@ -8,7 +8,7 @@
       </div>
       <div class="dash-title-info">
         <h1>Painel do Fisioterapeuta</h1>
-        <p>Dra. Juliana Ferreira</p>
+        <p>{{ userName }}</p>
       </div>
     </div>
     <button class="btn btn-ghost btn-sm logout-btn" (click)="logout()">↗ Sair</button>
@@ -104,19 +104,19 @@
         <div class="search-wrap">
           <span class="search-icon"><span class="material-symbols-outlined">search</span></span>
           <input class="input search-input" [(ngModel)]="searchTerm"
-            (ngModelChange)="pacientePage = 0" placeholder="Buscar paciente ou condição..." />
+            placeholder="Buscar paciente ou condição..." />
         </div>
       </div>
 
       <div class="patient-list">
-        <div class="patient-item" *ngFor="let p of pacientesPaged" (click)="openPatient(p)">
+        <div class="patient-item" *ngFor="let p of filteredPatients()" (click)="openPatient(p)">
           <div class="patient-item__info">
             <strong>{{ p.name }}</strong>
-            <span>{{ p.condition !== 'sem_avaliacao' ? p.condition : 'Aguardando avaliação' }}</span>
+            <span>{{ p.condition }}</span>
           </div>
           <div class="patient-item__right">
             <span class="text-xs text-gray">{{ p.nextAppointment !== '—' ? p.nextAppointment : 'Sem próxima sessão' }}</span>
-            <span class="text-xs text-gray">{{ p.totalSessions }} sessão{{ p.totalSessions !== 1 ? 'ões' : '' }}</span>
+            <span class="text-xs text-gray">{{ p.totalSessions }} {{ p.totalSessions === 1 ? 'sessão' : 'sessões' }}</span>
           </div>
           <div class="patient-item__progress">
             <div class="progress-bar-label">
@@ -128,17 +128,21 @@
             <span class="text-xs text-purple font-semibold">{{ p.progress }}% concluído</span>
           </div>
         </div>
-        <div class="empty-state" *ngIf="pacientesPaged.length === 0">
+        <div class="empty-state" *ngIf="filteredPatients().length === 0">
           <span class="empty-icon"><span class="material-symbols-outlined">search</span></span>
           <p>Nenhum paciente encontrado</p>
         </div>
       </div>
 
-      <!-- Paginação pacientes -->
+      <!-- Paginação pacientes — server-side -->
       <div class="pagination-row" *ngIf="pacienteTotalPages > 1">
-        <button class="btn btn-outline btn-sm" [disabled]="pacientePage === 0" (click)="pacientePage = pacientePage - 1">← Anterior</button>
+        <button class="btn btn-outline btn-sm"
+                [disabled]="pacientePage === 0 || pacientesLoading"
+                (click)="loadPacientes(pacientePage - 1)">← Anterior</button>
         <span class="text-sm text-gray">{{ pacientePage + 1 }} / {{ pacienteTotalPages }}</span>
-        <button class="btn btn-outline btn-sm" [disabled]="pacientePage >= pacienteTotalPages - 1" (click)="pacientePage = pacientePage + 1">Próxima →</button>
+        <button class="btn btn-outline btn-sm"
+                [disabled]="pacientePage >= pacienteTotalPages - 1 || pacientesLoading"
+                (click)="loadPacientes(pacientePage + 1)">Próxima →</button>
       </div>
     </section>
 
@@ -177,26 +181,49 @@
 
     <!-- HISTÓRICO DE AVALIAÇÕES CONCLUÍDAS -->
     <section *ngIf="tab === 'historico'" class="card">
-      <h2 style="margin-bottom:1.25rem">Avaliações Concluídas</h2>
+      <div class="section-title-row" style="margin-bottom:1.25rem">
+        <h2>Avaliações Concluídas</h2>
+        <div class="search-wrap" *ngIf="avaliacoesHistorico.length > 0">
+          <span class="search-icon"><span class="material-symbols-outlined">search</span></span>
+          <input class="input search-input" [(ngModel)]="historicoSearch"
+            (ngModelChange)="historicoPage = 0" placeholder="Buscar paciente..." />
+        </div>
+      </div>
 
       <div *ngIf="loadingHistorico" class="empty-state">
         <p>Carregando histórico...</p>
       </div>
 
-      <div class="eval-list" *ngIf="!loadingHistorico && avaliacoesHistorico.length > 0">
-        <div class="eval-item card" *ngFor="let h of avaliacoesHistorico">
+      <div class="eval-list" *ngIf="!loadingHistorico && pagedHistorico.length > 0">
+        <div class="eval-item card" *ngFor="let h of pagedHistorico">
           <div class="eval-info">
             <strong>{{ h.paciente }}</strong>
             <span class="text-sm text-gray">{{ formatData(h.data) }}</span>
             <span class="text-sm text-gray" *ngIf="h.resumo && h.resumo !== 'Sem resumo'">{{ h.resumo }}</span>
           </div>
-          <span class="badge badge-green">Finalizada</span>
+          <div style="display:flex;align-items:center;gap:.75rem">
+            <span class="badge badge-green">Finalizada</span>
+            <button class="btn btn-outline btn-sm" (click)="editarAvaliacao(h)">
+              <span class="material-symbols-outlined">edit</span> Editar
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="empty-state" *ngIf="!loadingHistorico && avaliacoesHistorico.length === 0">
+      <!-- Paginação do histórico -->
+      <div class="pagination-row" *ngIf="historicoTotalPages > 1" style="margin-top:1rem">
+        <button class="btn btn-outline btn-sm"
+                [disabled]="historicoPage === 0"
+                (click)="historicoPage = historicoPage - 1">← Anterior</button>
+        <span class="text-sm text-gray">{{ historicoPage + 1 }} / {{ historicoTotalPages }}</span>
+        <button class="btn btn-outline btn-sm"
+                [disabled]="historicoPage >= historicoTotalPages - 1"
+                (click)="historicoPage = historicoPage + 1">Próxima →</button>
+      </div>
+
+      <div class="empty-state" *ngIf="!loadingHistorico && filteredHistorico().length === 0">
         <span class="empty-icon"><span class="material-symbols-outlined">assignment</span></span>
-        <p>Nenhuma avaliação concluída ainda</p>
+        <p>{{ historicoSearch ? 'Nenhum resultado para "' + historicoSearch + '"' : 'Nenhuma avaliação concluída ainda' }}</p>
       </div>
     </section>
 

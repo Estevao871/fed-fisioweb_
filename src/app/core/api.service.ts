@@ -5,6 +5,14 @@ import { environment } from '../../environments/environment';
 
 /* ── Response types ── */
 
+export interface PageResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
 export interface SessaoApi {
   id: string;
   leadId: string | null;
@@ -24,6 +32,7 @@ export interface PacienteAtivoApi {
   ultimaSessao: string | null;
   proximaSessao: string | null;
   totalSessoes: number;
+  sessoesRealizadas: number;
   statusClinico: string;
 }
 
@@ -148,6 +157,28 @@ export interface AgendarSessoesDto {
   diasSemanaPreferidos?: string[];
 }
 
+export interface UsuarioApi {
+  id: string;
+  nome: string;
+  email: string;
+  role: string;
+  ativo: boolean;
+  criadoEm: string;
+}
+
+export interface CriarUsuarioDto {
+  nome: string;
+  email: string;
+  senha: string;
+  role: string;
+}
+
+export interface AtualizarUsuarioDto {
+  nome: string;
+  email: string;
+  role: string;
+}
+
 export interface FinalizarAvaliacaoDto {
   avaliacaoId: string;
   medico?: string;
@@ -250,10 +281,17 @@ export class ApiService {
     return this.http.post<void>(`${this.base}/avaliacoes/finalizar`, dto);
   }
 
+  atualizarAvaliacao(id: string, dto: Partial<FinalizarAvaliacaoDto>): Observable<AvaliacaoDetalheApi> {
+    return this.http.patch<AvaliacaoDetalheApi>(`${this.base}/avaliacoes/${id}`, dto);
+  }
+
   /* ── Pacientes ── */
 
-  getPacientesAtivos(): Observable<PacienteAtivoApi[]> {
-    return this.http.get<PacienteAtivoApi[]>(`${this.base}/pacientes/ativos`);
+  getPacientesAtivos(page = 0, size = 20): Observable<PageResponse<PacienteAtivoApi>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<PageResponse<PacienteAtivoApi>>(`${this.base}/pacientes/ativos`, { params });
   }
 
   agendarSessoesPaciente(pacienteId: string, dto: AgendarSessoesDto): Observable<unknown> {
@@ -270,6 +308,12 @@ export class ApiService {
 
   criarLead(dto: CriarLeadDto): Observable<LeadApi> {
     return this.http.post<LeadApi>(`${this.base}/leads`, dto);
+  }
+
+  buscarLeadPorEmail(email: string): Observable<LeadApi> {
+    return this.http.get<LeadApi>(`${this.base}/leads/buscar-email`, {
+      params: { email },
+    });
   }
 
   agendarAvaliacao(leadId: string, dto: AgendarAvaliacaoDto): Observable<unknown> {
@@ -290,5 +334,27 @@ export class ApiService {
     let params = new HttpParams().set('date', date);
     if (excludeId) params = params.set('excludeId', excludeId);
     return this.http.get<DisponibilidadeApi[]>(`${this.base}/agendamentos/disponibilidade`, { params });
+  }
+
+  /* ── Usuários ── */
+
+  getUsuarios(): Observable<UsuarioApi[]> {
+    return this.http.get<UsuarioApi[]>(`${this.base}/usuarios`);
+  }
+
+  criarUsuario(dto: CriarUsuarioDto): Observable<UsuarioApi> {
+    return this.http.post<UsuarioApi>(`${this.base}/usuarios`, dto);
+  }
+
+  alternarStatusUsuario(id: string): Observable<UsuarioApi> {
+    return this.http.patch<UsuarioApi>(`${this.base}/usuarios/${id}/status`, {});
+  }
+
+  atualizarUsuario(id: string, dto: AtualizarUsuarioDto): Observable<UsuarioApi> {
+    return this.http.patch<UsuarioApi>(`${this.base}/usuarios/${id}`, dto);
+  }
+
+  resetarSenhaUsuario(id: string, novaSenha: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/usuarios/${id}/reset-senha`, { novaSenha });
   }
 }

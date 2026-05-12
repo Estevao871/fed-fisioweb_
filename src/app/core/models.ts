@@ -57,12 +57,14 @@ export interface ProgressNote {
   mobility?: number;
 }
 
+export type UserRole = 'admin' | 'fisioterapeuta' | 'recepcionista' | 'paciente';
+
 export interface UserRecord {
   id: string;
   name: string;
   email: string;
   phone: string;
-  role: 'paciente' | 'fisioterapeuta' | 'recepcionista';
+  role: UserRole;
   status: 'ativo' | 'inativo';
   createdAt: string;
 }

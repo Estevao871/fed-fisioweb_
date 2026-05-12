@@ -9,7 +9,7 @@
       </div>
       <div class="dash-title-info">
         <h1>Painel da Recepção</h1>
-        <p>Fernanda Rodrigues</p>
+        <p>{{ userName }}</p>
       </div>
     </div>
     <button class="btn btn-ghost btn-sm logout-btn" (click)="logout()">↗ Sair</button>
@@ -48,7 +48,7 @@
       </div>
       <div class="stat-card">
         <div class="stat-info">
-          <p class="stat-label">Total Agendamentos</p>
+          <p class="stat-label">Pacientes em Tratamento</p>
           <p class="stat-value text-purple">{{ statsTotal }}</p>
         </div>
         <div class="stat-icon" style="background:#dbeafe;color:#2563eb">

@@ -14,8 +14,8 @@
     </div>
   </div>
 
-  <div class="table-container">
-    <table>
+  <div class="table-container" style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+    <table style="min-width:700px">
       <thead>
         <tr>
           <th>Nome</th>
@@ -43,11 +43,17 @@
           <td class="text-sm text-gray">{{ user.createdAt }}</td>
           <td>
             <div class="row-actions">
-              <button class="btn btn-ghost btn-sm" (click)="resetPassword(user)" title="Resetar senha">
-                <span class="material-symbols-outlined">key</span>
+              <button class="btn btn-ghost btn-sm" (click)="openEdit(user)"
+                [attr.aria-label]="'Editar ' + user.name">
+                <span class="material-symbols-outlined" aria-hidden="true">edit</span>
               </button>
-              <button class="btn btn-ghost btn-sm" (click)="toggleStatus(user)" title="Ativar/Desativar">
-                <span class="material-symbols-outlined">{{ user.status === 'ativo' ? 'block' : 'check_circle' }}</span>
+              <button class="btn btn-ghost btn-sm" (click)="resetPassword(user)"
+                [attr.aria-label]="'Redefinir senha de ' + user.name">
+                <span class="material-symbols-outlined" aria-hidden="true">key</span>
+              </button>
+              <button class="btn btn-ghost btn-sm" (click)="toggleStatus(user)"
+                [attr.aria-label]="(user.status === 'ativo' ? 'Desativar ' : 'Ativar ') + user.name">
+                <span class="material-symbols-outlined" aria-hidden="true">{{ user.status === 'ativo' ? 'block' : 'check_circle' }}</span>
               </button>
             </div>
           </td>
@@ -71,3 +77,114 @@
 </div>
 
 <app-create-user-dialog [(open)]="createOpen" (created)="addUser($event)" />
+
+<!-- Modal editar usuario -->
+<div class="modal-backdrop" *ngIf="editOpen" role="dialog" aria-modal="true">
+  <div class="modal">
+
+    <div class="modal-header">
+      <div>
+        <h2>Editar Usuario</h2>
+        <p class="text-sm text-gray" style="margin-top:.2rem">{{ editUser?.email }}</p>
+      </div>
+      <button class="modal-close" (click)="editOpen = false" aria-label="Fechar">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div style="padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:1rem">
+
+      <div class="field-group">
+        <label for="edit-nome">Nome Completo</label>
+        <input id="edit-nome" class="input" type="text"
+          [(ngModel)]="editName" placeholder="Nome do usuario" />
+      </div>
+
+      <div class="field-group">
+        <label for="edit-email">E-mail</label>
+        <input id="edit-email" class="input" type="email"
+          [(ngModel)]="editEmail" placeholder="email@exemplo.com" />
+        <span class="field-error" *ngIf="editEmail && !editEmailValido"
+          style="color:var(--red-600,#dc2626);font-size:.8rem;margin-top:.25rem;display:block">
+          Formato de e-mail invalido
+        </span>
+      </div>
+
+      <div class="field-group">
+        <label for="edit-role">Tipo de Usuario</label>
+        <select id="edit-role" class="input" [(ngModel)]="editRole">
+          <option *ngFor="let r of roles" [value]="r.value">{{ r.label }}</option>
+        </select>
+      </div>
+
+      <p *ngIf="editError" style="color:var(--red-600,#dc2626);font-size:.85rem;margin:0">{{ editError }}</p>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" (click)="editOpen = false" [disabled]="editLoading">Cancelar</button>
+      <button class="btn btn-primary" (click)="saveEdit()" [disabled]="!editValido || editLoading">
+        {{ editLoading ? 'Salvando...' : 'Salvar Alteracoes' }}
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal redefinir senha -->
+<div class="modal-backdrop" *ngIf="resetOpen" role="dialog" aria-modal="true">
+  <div class="modal">
+
+    <div class="modal-header">
+      <div>
+        <h2>Redefinir Senha</h2>
+        <p class="text-sm text-gray" style="margin-top:.2rem">Usuário: <strong>{{ resetUser?.name }}</strong></p>
+      </div>
+      <button class="modal-close" (click)="fecharReset()" aria-label="Fechar">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+
+    <div style="padding:1.25rem 1.5rem;display:flex;flex-direction:column;gap:1rem">
+
+      <div *ngIf="resetSuccess" class="alert-success">
+        <span class="material-symbols-outlined">check</span> Senha redefinida com sucesso!
+      </div>
+
+      <ng-container *ngIf="!resetSuccess">
+        <div class="field-group">
+          <label for="reset-nova">Nova Senha</label>
+          <div class="password-wrap">
+            <input id="reset-nova" class="input" [type]="showResetSenha ? 'text' : 'password'"
+              [(ngModel)]="resetNovaSenha" placeholder="Minimo 6 caracteres" autocomplete="new-password" />
+            <button type="button" class="eye-btn" (click)="showResetSenha = !showResetSenha">
+              <span class="material-symbols-outlined">{{ showResetSenha ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="reset-confirm">Confirmar Nova Senha</label>
+          <div class="password-wrap">
+            <input id="reset-confirm" class="input" [type]="showResetConfirmar ? 'text' : 'password'"
+              [(ngModel)]="resetConfirmar" placeholder="Repita a senha" autocomplete="new-password" />
+            <button type="button" class="eye-btn" (click)="showResetConfirmar = !showResetConfirmar">
+              <span class="material-symbols-outlined">{{ showResetConfirmar ? 'visibility_off' : 'visibility' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <p *ngIf="resetError" style="color:var(--red-600,#dc2626);font-size:.85rem;margin:0">{{ resetError }}</p>
+      </ng-container>
+
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" (click)="fecharReset()" [disabled]="resetSaving">Cancelar</button>
+      <button *ngIf="!resetSuccess" class="btn btn-primary" (click)="confirmarReset()" [disabled]="resetSaving">
+        {{ resetSaving ? 'Salvando...' : 'Redefinir Senha' }}
+      </button>
+    </div>
+
+  </div>
+</div>

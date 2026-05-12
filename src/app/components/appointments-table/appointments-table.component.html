@@ -1,18 +1,17 @@
+<!-- Filtros -->
 <div class="apts-filters">
   <div class="filters-row">
-    <!-- Busca -->
     <div class="search-wrap">
       <span class="search-icon"><span class="material-symbols-outlined">search</span></span>
       <input class="input search-input" [(ngModel)]="searchTerm"
         (ngModelChange)="onFilterChange()" placeholder="Buscar por paciente ou telefone..." />
     </div>
 
-    <!-- Data -->
     <div class="date-filter-wrap">
       <input class="input" type="date" [(ngModel)]="filterDate"
         (ngModelChange)="onFilterChange()" style="width:160px" />
-      <button class="btn btn-ghost btn-sm" (click)="todayFilter()" title="Hoje">Hoje</button>
-      <button class="btn btn-ghost btn-sm" (click)="clearDateFilter()" *ngIf="filterDate" title="Todas as datas">Todas</button>
+      <button class="btn btn-ghost btn-sm" (click)="todayFilter()">Hoje</button>
+      <button class="btn btn-ghost btn-sm" (click)="clearDateFilter()" *ngIf="filterDate">Todas</button>
     </div>
 
     <div class="filter-selects">
@@ -34,8 +33,8 @@
 
   <div class="results-meta">
     <span class="text-xs text-gray">
-      Mostrando <strong>{{ Math.min((page + 1) * pageSize, filtered().length) }}</strong>
-      de <strong>{{ filtered().length }}</strong> agendamentos
+      <strong>{{ patientGroups().length }}</strong> pacientes ·
+      <strong>{{ filtered().length }}</strong> sessões
     </span>
     <span class="text-xs text-gray" *ngIf="totalPages > 1">
       Página {{ page + 1 }} de {{ totalPages }}
@@ -43,63 +42,58 @@
   </div>
 </div>
 
-<div class="table-container">
-  <table>
-    <thead>
-      <tr>
-        <th>Paciente</th>
-        <th>Contato</th>
-        <th>Data/Hora</th>
-        <th>Tipo</th>
-        <th>Status</th>
-        <th>Fisioterapeuta</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of paged">
-        <td><strong>{{ item.patient }}</strong></td>
-        <td class="text-gray text-sm">
-          <span class="material-symbols-outlined">phone</span> {{ item.phone || '—' }}
-        </td>
-        <td>
-          <div>{{ item.date }}</div>
-          <div class="text-xs text-gray">{{ item.time }}</div>
-        </td>
-        <td><span class="type-badge">{{ typeLabel(item.type) }}</span></td>
-        <td><span class="badge" [ngClass]="statusBadge(item.status)">{{ statusLabel(item.status) }}</span></td>
-        <td class="text-sm text-gray">{{ item.fisioterapeuta || '—' }}</td>
-        <td>
-          <div class="actions-menu">
-            <button class="action-dots" (click)="toggleMenu(item.id, $event); $event.stopPropagation()" aria-label="Ações">⋮</button>
-            <div class="actions-dropdown"
-              *ngIf="openMenu === item.id"
-              [style.top.px]="menuPosition.top"
-              [style.right.px]="menuPosition.right"
-              (click)="$event.stopPropagation()">
-              <button (click)="reschedule.emit(item); closeMenu()">
-                <span class="material-symbols-outlined">calendar_month</span> Reagendar
-              </button>
-              <button (click)="edit.emit(item); closeMenu()">
-                <span class="material-symbols-outlined">edit</span> Editar
-              </button>
-              <button class="danger" (click)="remove.emit(item.id); closeMenu()">
-                <span class="material-symbols-outlined">delete</span> Cancelar
-              </button>
-            </div>
-          </div>
-        </td>
-      </tr>
-      <tr *ngIf="paged.length === 0">
-        <td colspan="7">
-          <div class="empty-state">
-            <span class="empty-icon"><span class="material-symbols-outlined">assignment</span></span>
-            <p>Nenhum agendamento encontrado</p>
-          </div>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+<!-- Accordion por paciente -->
+<div class="accordion-list">
+  <div class="accordion-card" *ngFor="let group of pagedGroups">
+
+    <!-- Cabeçalho do paciente -->
+    <div class="accordion-header" (click)="toggleGroup(group.key)">
+      <div class="accordion-patient-info">
+        <strong>{{ group.name }}</strong>
+        <span class="text-sm text-gray" *ngIf="group.phone">
+          <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle">phone</span>
+          {{ group.phone }}
+        </span>
+      </div>
+      <div class="accordion-meta">
+        <span class="text-xs text-gray">{{ sessoesAtivas(group.sessions) }} sessões ativas</span>
+        <span class="text-xs text-gray">Próxima: {{ proximaSessao(group.sessions) }}</span>
+      </div>
+      <span class="accordion-toggle" [class.expanded]="expandedGroups.has(group.key)">
+        <span class="material-symbols-outlined">expand_more</span>
+      </span>
+    </div>
+
+    <!-- Lista de sessões (expandível) -->
+    <div class="accordion-body" *ngIf="expandedGroups.has(group.key)">
+      <div class="session-row" *ngFor="let s of group.sessions">
+        <div class="session-datetime">
+          <span class="text-sm"><strong>{{ s.date }}</strong></span>
+          <span class="text-xs text-gray">{{ s.time }}</span>
+        </div>
+        <span class="type-badge">{{ typeLabel(s.type) }}</span>
+        <span class="badge" [ngClass]="statusBadge(s.status)">{{ statusLabel(s.status) }}</span>
+        <div class="session-actions">
+          <button class="btn btn-outline btn-sm"
+                  *ngIf="s.status !== 'cancelado' && s.status !== 'concluido'"
+                  (click)="reschedule.emit(s); $event.stopPropagation()">
+            <span class="material-symbols-outlined">calendar_month</span> Reagendar
+          </button>
+          <button class="btn btn-ghost btn-sm danger"
+                  *ngIf="s.status !== 'cancelado'"
+                  (click)="remove.emit(s.id); $event.stopPropagation()">
+            <span class="material-symbols-outlined">cancel</span> Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="empty-state" *ngIf="pagedGroups.length === 0">
+    <span class="empty-icon"><span class="material-symbols-outlined">assignment</span></span>
+    <p>Nenhum agendamento encontrado</p>
+  </div>
 </div>
 
 <!-- Paginação -->
@@ -111,7 +105,6 @@
       class="page-num"
       [class.active]="page === i"
       (click)="page = i"
-      [attr.aria-current]="page === i ? 'page' : null"
     >{{ i + 1 }}</button>
   </div>
   <button class="btn btn-outline btn-sm" [disabled]="page >= totalPages - 1" (click)="nextPage()">Próxima →</button>

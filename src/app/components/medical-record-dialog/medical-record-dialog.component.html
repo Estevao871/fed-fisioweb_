@@ -1,5 +1,5 @@
-<div class="modal-backdrop" *ngIf="open" (click)="close()" role="dialog" aria-modal="true">
-  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+<div class="modal-backdrop" *ngIf="open" role="dialog" aria-modal="true">
+  <div class="modal modal-lg">
 
     <!-- HEADER -->
     <div class="modal-header">
@@ -36,7 +36,7 @@
     <div *ngIf="saveSuccess" class="alert-success" role="status">
       <span class="material-symbols-outlined">check</span> Salvo com sucesso!
     </div>
-    <div *ngIf="error"       class="alert-error"   role="alert">{{ error }}</div>
+    <div *ngIf="error" class="alert-error" role="alert" aria-live="assertive">{{ error }}</div>
     <div *ngIf="loadingAvaliacao" class="alert-info">Carregando dados da avaliação...</div>
     <div *ngIf="viewingHistoryEvaluation" class="alert-info" style="display:flex;align-items:center;justify-content:space-between">
       <span><span class="material-symbols-outlined">visibility</span> Ficha clínica — modo leitura</span>
@@ -264,10 +264,15 @@
                 class="btn btn-outline btn-sm" (click)="verFichaClinica()">
                 <span class="material-symbols-outlined">assignment</span> Ver Ficha Clínica
               </button>
-              <!-- Registrar evolução (apenas sessões de hoje com status pendente) -->
-              <button *ngIf="s.tipo !== 'avaliacao' && isHoje(s.dataHora) && (s.status === 'marcada' || s.status === 'remarcada')"
+              <!-- Registrar evolução — sessão de hoje sem evolução ainda -->
+              <button *ngIf="s.tipo !== 'avaliacao' && isHoje(s.dataHora) && (s.status === 'marcada' || s.status === 'remarcada') && !temEvolucao(s)"
                 class="btn btn-primary btn-sm" (click)="registrarEvolucaoParaSessao(s)">
                 <span class="material-symbols-outlined">edit_note</span> Registrar Evolução
+              </button>
+              <!-- Editar evolução — qualquer sessão que já tenha evolução salva -->
+              <button *ngIf="s.tipo !== 'avaliacao' && temEvolucao(s)"
+                class="btn btn-outline btn-sm" (click)="registrarEvolucaoParaSessao(s)">
+                <span class="material-symbols-outlined">edit</span> Editar Evolução
               </button>
             </div>
 

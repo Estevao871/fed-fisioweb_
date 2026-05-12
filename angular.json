@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "Vida em Movimento-angular": {
+    "fisiolife": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/Vida em Movimento-angular",
+            "outputPath": "dist/fisiolife",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": ["zone.js"],
@@ -44,8 +44,8 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
-            "production": { "buildTarget": "Vida em Movimento-angular:build:production" },
-            "development": { "buildTarget": "Vida em Movimento-angular:build:development" }
+            "production": { "buildTarget": "fisiolife:build:production" },
+            "development": { "buildTarget": "fisiolife:build:development" }
           },
           "defaultConfiguration": "development"
         }

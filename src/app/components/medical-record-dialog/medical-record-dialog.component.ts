@@ -318,7 +318,7 @@ export class MedicalRecordDialogComponent implements OnChanges {
 
   formatStatus(s: string): string {
     const m: Record<string, string> = {
-      compareceu: 'Concluída', avaliada: 'Concluída',
+      compareceu: 'Concluída', avaliada: 'Concluída', realizada: 'Realizada',
       faltou: 'Faltou', cancelada: 'Cancelada',
       marcada: 'Agendada', remarcada: 'Reagendada',
     };
@@ -327,11 +327,15 @@ export class MedicalRecordDialogComponent implements OnChanges {
 
   statusBadge(s: string): string {
     const m: Record<string, string> = {
-      compareceu: 'badge-green', avaliada: 'badge-green',
+      compareceu: 'badge-green', avaliada: 'badge-green', realizada: 'badge-green',
       faltou: 'badge-red', cancelada: 'badge-gray',
       marcada: 'badge-blue', remarcada: 'badge-purple',
     };
     return m[s] ?? 'badge-gray';
+  }
+
+  temEvolucao(s: SessaoHistoricoApi): boolean {
+    return !!(s.observacoes || s.nivelDor != null || s.exercicios?.length);
   }
 
   private resetForms(): void {

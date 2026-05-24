@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { UserType } from '../../core/models';
+import { isValidEmail } from '../../core/validators';
 
 @Component({
   selector: 'app-login-page',
@@ -58,6 +59,14 @@ export class LoginPageComponent {
       this.regError = 'Preencha todos os campos.';
       return;
     }
+    if (!isValidEmail(this.regEmail)) {
+      this.regError = 'Digite um e-mail válido.';
+      return;
+    }
+    if (this.regPassword.length < 6) {
+      this.regError = 'A senha deve ter pelo menos 6 caracteres.';
+      return;
+    }
     if (this.regPassword !== this.regConfirm) {
       this.regError = 'As senhas não coincidem.';
       return;
@@ -87,6 +96,10 @@ export class LoginPageComponent {
 
   login(): void {
     if (!this.selectedType || !this.email || !this.password) return;
+    if (!isValidEmail(this.email)) {
+      this.errorMessage = 'Digite um e-mail válido.';
+      return;
+    }
     this.errorMessage = '';
     this.loading      = true;
 

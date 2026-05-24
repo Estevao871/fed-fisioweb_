@@ -1,5 +1,5 @@
 /* ===== GLOBAL STYLES — Vida em Movimento ===== */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap');
 
 :root {
   /* Brand */
@@ -64,7 +64,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 16px;
   line-height: 1.6;
   color: var(--gray-900);
@@ -236,9 +236,9 @@ textarea { resize: vertical; line-height: 1.6; }
     &:hover { background: var(--gray-50); }
 
     &.active {
-      background: var(--gray-900);
+      background: var(--purple-600);
       color: #fff;
-      border-color: var(--gray-900);
+      border-color: var(--purple-600);
     }
   }
 }
@@ -367,7 +367,7 @@ textarea { resize: vertical; line-height: 1.6; }
     transition: all .15s;
 
     &:not(:last-child) { border-right: 1px solid var(--gray-200); }
-    &.active { background: var(--gray-900); color: #fff; }
+    &.active { background: var(--purple-600); color: #fff; }
   }
 }
 
@@ -427,7 +427,7 @@ textarea { resize: vertical; line-height: 1.6; }
 
   .stat-info {
     .stat-label { font-size: .82rem; color: var(--gray-500); margin-bottom: .4rem; }
-    .stat-value { font-size: 1.6rem; font-weight: 700; line-height: 1; }
+    .stat-value { font-size: 2rem; font-weight: 800; line-height: 1; }
   }
 
   .stat-icon {

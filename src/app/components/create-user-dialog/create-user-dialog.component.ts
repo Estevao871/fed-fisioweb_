@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService, UsuarioApi } from '../../core/api.service';
 import { UserRecord, UserRole } from '../../core/models';
+import { isValidEmail } from '../../core/validators';
 
 @Component({
   selector: 'app-create-user-dialog',
@@ -36,9 +37,7 @@ export class CreateUserDialogComponent {
 
   constructor(private readonly api: ApiService) {}
 
-  private readonly emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  get emailValido(): boolean { return this.emailRegex.test(this.email); }
+  get emailValido(): boolean { return isValidEmail(this.email); }
 
   get isValid(): boolean {
     return !!(

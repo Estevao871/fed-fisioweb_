@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
+import { isValidPhone } from '../../core/validators';
 
 @Component({
   selector: 'app-scheduling-dialog',
@@ -51,8 +52,10 @@ export class SchedulingDialogComponent implements OnChanges {
     return map[this.appointmentType] ?? this.appointmentType;
   }
 
+  get patientPhoneValido(): boolean { return isValidPhone(this.patientPhone); }
+
   get isStep1Valid(): boolean {
-    return !!(this.patientName.trim() && this.patientPhone.trim());
+    return !!(this.patientName.trim() && this.patientPhone.trim() && this.patientPhoneValido);
   }
 
   get isStep2Valid(): boolean {

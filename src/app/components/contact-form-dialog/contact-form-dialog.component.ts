@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
+import { isValidEmail, isValidPhone } from '../../core/validators';
 
 @Component({
   selector: 'app-contact-form-dialog',
@@ -28,8 +29,16 @@ export class ContactFormDialogComponent {
     return this.name.trim().split(' ')[0] || 'paciente';
   }
 
+  get phoneValido(): boolean { return isValidPhone(this.phone); }
+  get emailValido(): boolean { return isValidEmail(this.email); }
+
   get isValid(): boolean {
-    return !!(this.name.trim() && this.phone.trim() && this.email.trim() && this.complaint.trim());
+    return !!(
+      this.name.trim() &&
+      this.phone.trim() && this.phoneValido &&
+      this.email.trim() && this.emailValido &&
+      this.complaint.trim()
+    );
   }
 
   submit(): void {

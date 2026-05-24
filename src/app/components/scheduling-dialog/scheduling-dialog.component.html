@@ -39,6 +39,9 @@
           <div class="field-group">
             <label for="sd-phone">Telefone <span style="color:var(--red-600)">*</span></label>
             <input id="sd-phone" class="input" [(ngModel)]="patientPhone" placeholder="(11) 99999-9999" autocomplete="tel" />
+            <span *ngIf="patientPhone && !patientPhoneValido" style="color:var(--red-600);font-size:.8rem;margin-top:.25rem;display:block">
+              Telefone inválido. Use: (11) 99999-9999
+            </span>
           </div>
           <div class="field-group">
             <label for="sd-email">E-mail</label>

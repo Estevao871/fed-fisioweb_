@@ -33,10 +33,16 @@
           <div class="field-group">
             <label for="cf-phone">Telefone <span aria-hidden="true" style="color:var(--red-600)">*</span></label>
             <input id="cf-phone" class="input" name="phone" [(ngModel)]="phone" placeholder="(11) 99999-9999" autocomplete="tel" required />
+            <span *ngIf="phone && !phoneValido" style="color:var(--red-600);font-size:.8rem;margin-top:.25rem;display:block">
+              Telefone inválido. Use: (11) 99999-9999
+            </span>
           </div>
           <div class="field-group">
             <label for="cf-email">E-mail <span aria-hidden="true" style="color:var(--red-600)">*</span></label>
             <input id="cf-email" class="input" name="email" type="email" [(ngModel)]="email" placeholder="seu@email.com" autocomplete="email" required />
+            <span *ngIf="email && !emailValido" style="color:var(--red-600);font-size:.8rem;margin-top:.25rem;display:block">
+              Formato de e-mail inválido
+            </span>
           </div>
         </div>
 

@@ -236,6 +236,10 @@ export class MedicalRecordDialogComponent implements OnChanges {
   }
 
   private saveEvaluation(): void {
+    if (!this.hda.trim() || !this.diagnostico.trim() || !this.prognostico.trim()) {
+      this.error = 'Preencha os campos obrigatórios: HDA, Diagnóstico e Prognóstico.';
+      return;
+    }
     this.saving = true;
     this.api.finalizarAvaliacao({
       avaliacaoId: this.avaliacaoId,

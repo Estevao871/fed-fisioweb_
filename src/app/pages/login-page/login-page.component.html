@@ -55,7 +55,8 @@
             <label for="password">Senha</label>
             <div class="password-wrap">
               <input id="password" class="input" [type]="showPassword ? 'text' : 'password'" name="password"
-                [(ngModel)]="password" placeholder="••••••••" autocomplete="current-password" />
+                [(ngModel)]="password" placeholder="••••••••" autocomplete="current-password"
+                (keydown.enter)="login()" />
               <button type="button" class="eye-btn" (click)="showPassword = !showPassword"
                 [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'">
                 <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
@@ -128,7 +129,8 @@
             <label for="reg-confirm">Confirmar senha</label>
             <div class="password-wrap">
               <input id="reg-confirm" class="input" [type]="showRegConfirm ? 'text' : 'password'"
-                [(ngModel)]="regConfirm" placeholder="••••••••" autocomplete="new-password" />
+                [(ngModel)]="regConfirm" placeholder="••••••••" autocomplete="new-password"
+                (keydown.enter)="register()" />
               <button type="button" class="eye-btn" (click)="showRegConfirm = !showRegConfirm"
                 [attr.aria-label]="showRegConfirm ? 'Ocultar senha' : 'Mostrar senha'">
                 <span class="material-symbols-outlined">{{ showRegConfirm ? 'visibility_off' : 'visibility' }}</span>

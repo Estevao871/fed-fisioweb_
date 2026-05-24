@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService, AtualizarUsuarioDto } from '../../core/api.service';
 import { CreateUserDialogComponent } from '../create-user-dialog/create-user-dialog.component';
 import { UserRecord, UserRole } from '../../core/models';
+import { isValidEmail } from '../../core/validators';
 
 @Component({
   selector: 'app-user-management-panel',
@@ -42,8 +43,7 @@ export class UserManagementPanelComponent implements OnInit {
     { value: 'paciente',       label: 'Paciente'       },
   ];
 
-  private readonly emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  get editEmailValido(): boolean { return this.emailRegex.test(this.editEmail); }
+  get editEmailValido(): boolean { return isValidEmail(this.editEmail); }
   get editValido(): boolean { return !!(this.editName.trim() && this.editEmail && this.editEmailValido); }
 
   constructor(private readonly api: ApiService) {}

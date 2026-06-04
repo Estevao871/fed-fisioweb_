@@ -1,0 +1,168 @@
+.ld-modal {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  width: min(480px, 100%);
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: slideUp .2s ease;
+}
+
+.ld-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: var(--gray-100);
+  color: var(--gray-500);
+  display: grid; place-items: center;
+  cursor: pointer;
+  transition: background .15s;
+  &:hover { background: var(--gray-200); }
+}
+
+.ld-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: .25rem;
+}
+
+.ld-sub {
+  font-size: .875rem;
+  color: var(--gray-500);
+  margin-bottom: 1.25rem;
+}
+
+.ld-profiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .625rem;
+  margin-bottom: 1.25rem;
+}
+
+.ld-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .25rem;
+  padding: .875rem .5rem;
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius);
+  background: #fff;
+  cursor: pointer;
+  transition: all .15s;
+  text-align: center;
+
+  &__icon {
+    font-size: 1.4rem;
+    color: var(--gray-400);
+    margin-bottom: .2rem;
+    transition: color .15s;
+  }
+
+  strong {
+    display: block;
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--gray-800);
+  }
+
+  span {
+    display: block;
+    font-size: .7rem;
+    color: var(--gray-500);
+    line-height: 1.3;
+  }
+
+  &:hover {
+    border-color: var(--purple-300);
+    background: var(--purple-50);
+    .ld-profile__icon { color: var(--purple-500); }
+  }
+
+  &.active {
+    border-color: var(--purple-600);
+    background: var(--purple-50);
+    .ld-profile__icon { color: var(--purple-600); }
+    strong { color: var(--purple-700); }
+  }
+}
+
+.ld-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: .875rem 0;
+}
+
+.ld-remember {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  font-size: .82rem;
+  color: var(--gray-600);
+  cursor: pointer;
+  user-select: none;
+}
+
+.ld-forgot {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+  background: var(--purple-50);
+  border-radius: var(--radius-sm);
+  padding: .75rem;
+  font-size: .82rem;
+  color: var(--gray-700);
+  margin-bottom: .75rem;
+  .material-symbols-outlined { font-size: 1rem; color: var(--purple-600); flex-shrink: 0; margin-top: .1rem; }
+}
+
+.ld-error {
+  font-size: .82rem;
+  color: var(--red-600);
+  background: var(--red-100);
+  border-radius: var(--radius-sm);
+  padding: .5rem .75rem;
+  margin-bottom: .5rem;
+}
+
+.ld-success {
+  font-size: .82rem;
+  color: var(--green-700);
+  background: var(--green-100);
+  border-radius: var(--radius-sm);
+  padding: .5rem .75rem;
+  margin-bottom: .5rem;
+}
+
+.ld-submit {
+  width: 100%;
+  justify-content: center;
+  padding: .75rem;
+  font-size: .95rem;
+  margin-top: .5rem;
+}
+
+.ld-tip {
+  text-align: center;
+  font-size: .82rem;
+  color: var(--gray-500);
+  margin-top: .875rem;
+}
+
+.ld-link {
+  background: none;
+  border: none;
+  color: var(--purple-600);
+  font-size: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  &:hover { text-decoration: underline; }
+}

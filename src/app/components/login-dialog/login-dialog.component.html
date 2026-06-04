@@ -1,0 +1,118 @@
+<div class="modal-backdrop" *ngIf="open" (click)="close()" role="dialog" aria-modal="true" aria-labelledby="ld-title">
+  <div class="ld-modal" (click)="$event.stopPropagation()">
+
+    <button class="ld-close" (click)="close()" aria-label="Fechar">
+      <span class="material-symbols-outlined">close</span>
+    </button>
+
+    <!-- ── LOGIN ── -->
+    <ng-container *ngIf="!showRegister">
+      <h2 id="ld-title" class="ld-title">Entrar na Plataforma</h2>
+      <p class="ld-sub">Selecione seu perfil para continuar</p>
+
+      <div class="ld-profiles">
+        <button
+          class="ld-profile"
+          *ngFor="let p of profiles"
+          [class.active]="selectedType === p.type"
+          (click)="selectedType = p.type"
+          [attr.aria-pressed]="selectedType === p.type"
+        >
+          <span class="material-symbols-outlined ld-profile__icon">{{ p.symbol }}</span>
+          <strong>{{ p.title }}</strong>
+          <span>{{ p.description }}</span>
+        </button>
+      </div>
+
+      <div class="field-group">
+        <label for="ld-email">E-mail</label>
+        <input id="ld-email" class="input" type="email" [(ngModel)]="email"
+          placeholder="seu@email.com" autocomplete="email" (keydown.enter)="login()" />
+      </div>
+
+      <div class="field-group" style="margin-top:.875rem">
+        <label for="ld-password">Senha</label>
+        <div class="password-wrap">
+          <input id="ld-password" class="input" [type]="showPassword ? 'text' : 'password'"
+            [(ngModel)]="password" placeholder="••••••••" autocomplete="current-password"
+            (keydown.enter)="login()" />
+          <button type="button" class="eye-btn" (click)="showPassword = !showPassword"
+            [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'">
+            <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="ld-meta">
+        <label class="ld-remember">
+          <input type="checkbox" /> <span>Lembrar-me</span>
+        </label>
+        <button type="button" class="ld-link" (click)="showForgot = !showForgot">Esqueci minha senha</button>
+      </div>
+
+      <div *ngIf="showForgot" class="ld-forgot">
+        <span class="material-symbols-outlined">info</span>
+        <p>Entre em contato com a recepção: <strong>📞 (11) 9 9999-9999</strong></p>
+      </div>
+
+      <p *ngIf="errorMessage" class="ld-error" role="alert">{{ errorMessage }}</p>
+
+      <button class="btn btn-primary ld-submit" [disabled]="!selectedType || loading" (click)="login()">
+        {{ selectedLabel }}
+      </button>
+
+      <p class="ld-tip">
+        Novo paciente?
+        <button type="button" class="ld-link" (click)="showRegister = true">Cadastre-se aqui</button>
+      </p>
+    </ng-container>
+
+    <!-- ── CADASTRO ── -->
+    <ng-container *ngIf="showRegister">
+      <h2 class="ld-title">Criar Conta de Paciente</h2>
+
+      <div class="field-group">
+        <label>Nome completo</label>
+        <input class="input" type="text" [(ngModel)]="regName" placeholder="Seu nome completo" autocomplete="name" />
+      </div>
+      <div class="field-group" style="margin-top:.875rem">
+        <label>E-mail</label>
+        <input class="input" type="email" [(ngModel)]="regEmail" placeholder="seu@email.com" autocomplete="email" />
+      </div>
+      <div class="field-group" style="margin-top:.875rem">
+        <label>Senha</label>
+        <div class="password-wrap">
+          <input class="input" [type]="showRegPassword ? 'text' : 'password'"
+            [(ngModel)]="regPassword" placeholder="••••••••" autocomplete="new-password" />
+          <button type="button" class="eye-btn" (click)="showRegPassword = !showRegPassword">
+            <span class="material-symbols-outlined">{{ showRegPassword ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
+      </div>
+      <div class="field-group" style="margin-top:.875rem">
+        <label>Confirmar senha</label>
+        <div class="password-wrap">
+          <input class="input" [type]="showRegConfirm ? 'text' : 'password'"
+            [(ngModel)]="regConfirm" placeholder="••••••••" autocomplete="new-password"
+            (keydown.enter)="register()" />
+          <button type="button" class="eye-btn" (click)="showRegConfirm = !showRegConfirm">
+            <span class="material-symbols-outlined">{{ showRegConfirm ? 'visibility_off' : 'visibility' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <p *ngIf="regError"   class="ld-error"   role="alert">{{ regError }}</p>
+      <p *ngIf="regSuccess" class="ld-success">Conta criada com sucesso! Redirecionando...</p>
+
+      <button class="btn btn-primary ld-submit" [disabled]="regLoading" (click)="register()">
+        {{ regLoading ? 'Criando conta...' : 'Criar Conta' }}
+      </button>
+
+      <p class="ld-tip">
+        Já tem conta?
+        <button type="button" class="ld-link" (click)="voltarParaLogin()">Fazer login</button>
+      </p>
+    </ng-container>
+
+  </div>
+</div>

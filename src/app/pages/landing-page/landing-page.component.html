@@ -7,7 +7,10 @@
         <span class="material-symbols-outlined mi-fill brand-icon" aria-hidden="true">favorite</span>
         Vida em Movimento
       </a>
-      <a routerLink="/login" class="btn btn-primary btn-sm">Área do Cliente</a>
+      <div style="display:flex;gap:.75rem;align-items:center">
+        <button class="btn btn-ghost btn-sm" (click)="loginOpen = true">Entrar</button>
+        <button class="btn btn-primary btn-sm" (click)="contactOpen = true">Agendar Avaliação</button>
+      </div>
     </div>
   </header>
 
@@ -28,13 +31,12 @@
           <button class="btn btn-primary btn-lg" (click)="contactOpen = true">
             Agende sua Consulta <span aria-hidden="true">→</span>
           </button>
-          <a routerLink="/login" class="btn btn-outline btn-lg">Área do Paciente</a>
+          <button class="btn btn-outline btn-lg" (click)="loginOpen = true">Área do Paciente</button>
         </div>
       </div>
 
-      <!-- Hero visual: floating appointment card -->
+      <!-- Hero visual -->
       <div class="hero__visual enter-scale" aria-hidden="true">
-
         <div class="hero-card">
           <span class="hero-card__badge">Hoje</span>
           <div class="hero-card__patient">
@@ -58,13 +60,12 @@
             </div>
           </div>
         </div>
-
         <div class="hero-notif">
           <span class="hero-notif__icon material-symbols-outlined">check</span>
           <span>Sessão confirmada — Dra. Silva</span>
         </div>
-
       </div>
+
     </div>
   </section>
 
@@ -92,8 +93,44 @@
     </div>
   </section>
 
+  <!-- SOBRE -->
+  <section class="section section--soft" aria-labelledby="sobre-heading">
+    <div class="container">
+      <div class="sobre-grid">
+
+        <div class="sobre-visual enter-scale" aria-hidden="true">
+          <div class="sobre-img-wrap">
+            <span class="material-symbols-outlined sobre-img-icon">self_improvement</span>
+            <span class="sobre-img-label">Fisioterapia de verdade</span>
+          </div>
+        </div>
+
+        <div class="sobre-content" appRevealOnScroll>
+          <span class="lp-chip">Sobre</span>
+          <h2 id="sobre-heading">Cuidado com quem<br/>realmente importa</h2>
+          <p class="sobre-desc">
+            A Vida em Movimento nasceu da vontade de oferecer fisioterapia de verdade — onde
+            o paciente é ouvido, o tratamento é personalizado e os resultados são monitorados
+            de perto.
+          </p>
+          <p class="sobre-desc">
+            Cada protocolo é desenvolvido individualmente, com base na avaliação clínica
+            completa e nas metas de vida de cada paciente.
+          </p>
+          <ul class="sobre-list">
+            <li *ngFor="let b of sobreBullets">
+              <span class="sobre-check material-symbols-outlined" aria-hidden="true">check_circle</span>
+              {{ b }}
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
   <!-- HOW IT HELPS -->
-  <section class="section section--soft" aria-labelledby="recovery-heading">
+  <section class="section section--white" aria-labelledby="recovery-heading">
     <div class="container">
       <div class="section-heading" appRevealOnScroll>
         <h2 id="recovery-heading">Como a Fisioterapia Ajuda</h2>
@@ -117,7 +154,7 @@
   </section>
 
   <!-- WHY Vida em Movimento -->
-  <section class="section section--white" aria-labelledby="benefits-heading">
+  <section class="section section--soft" aria-labelledby="benefits-heading">
     <div class="container">
       <div class="section-heading" appRevealOnScroll>
         <h2 id="benefits-heading">Por Que Escolher Vida em Movimento</h2>
@@ -141,29 +178,113 @@
   <!-- CTA BAND -->
   <section class="cta-band" appRevealOnScroll aria-labelledby="cta-heading">
     <div class="container cta-band__inner">
-      <h2 id="cta-heading">Pronto para Começar sua Recuperação?</h2>
-      <p>
-        Agende sua primeira consulta hoje e dê o primeiro passo para uma vida
-        sem dor e com mais mobilidade.
-      </p>
+      <div class="cta-band__text">
+        <h2 id="cta-heading">Pronto para começar?</h2>
+        <p>Agende sua avaliação inicial e dê o primeiro passo.</p>
+      </div>
       <button class="btn cta-band__btn" (click)="contactOpen = true">
-        Agendar Consulta <span aria-hidden="true">→</span>
+        Agendar Avaliação <span aria-hidden="true">→</span>
       </button>
+    </div>
+  </section>
+
+  <!-- FALE CONOSCO -->
+  <section class="section section--white" aria-labelledby="contato-heading">
+    <div class="container">
+      <div class="contato-grid">
+
+        <div class="contato-info" appRevealOnScroll>
+          <span class="lp-chip">Contato</span>
+          <h2 id="contato-heading">Fale conosco</h2>
+          <ul class="contato-list">
+            <li>
+              <span class="contato-icon"><span class="material-symbols-outlined">location_on</span></span>
+              <div><small>ENDEREÇO</small><p>Adicione seu endereço aqui</p></div>
+            </li>
+            <li>
+              <span class="contato-icon"><span class="material-symbols-outlined">phone</span></span>
+              <div><small>TELEFONE</small><p>(11) 99999-9999</p></div>
+            </li>
+            <li>
+              <span class="contato-icon"><span class="material-symbols-outlined">mail</span></span>
+              <div><small>E-MAIL</small><p>contato@vidaemmovimento.com</p></div>
+            </li>
+            <li>
+              <span class="contato-icon"><span class="material-symbols-outlined">schedule</span></span>
+              <div><small>HORÁRIO</small><p>Seg–Sex: 8h às 18h · Sab: 8h às 12h</p></div>
+            </li>
+          </ul>
+        </div>
+
+        <div class="contato-form card" appRevealOnScroll [revealDelay]="100">
+          <div class="field-group">
+            <label for="ct-nome">Nome completo</label>
+            <input id="ct-nome" class="input" [(ngModel)]="contatoNome" placeholder="Seu nome" />
+          </div>
+          <div class="field-group">
+            <label for="ct-tel">Telefone</label>
+            <input id="ct-tel" class="input" [(ngModel)]="contatoTelefone" placeholder="(11) 99999-9999" />
+          </div>
+          <div class="field-group">
+            <label for="ct-msg">Mensagem</label>
+            <textarea id="ct-msg" class="input" [(ngModel)]="contatoMensagem"
+              rows="4" placeholder="Como podemos ajudar?"></textarea>
+          </div>
+          <p *ngIf="contatoErro" style="color:var(--red-600);font-size:.82rem;margin-top:.25rem">{{ contatoErro }}</p>
+          <p *ngIf="contatoSucesso" style="color:var(--green-700);font-size:.82rem;margin-top:.25rem">
+            Mensagem enviada! Entraremos em contato em breve.
+          </p>
+          <button class="btn btn-primary contato-btn" [disabled]="contatoLoading" (click)="enviarContato()">
+            {{ contatoLoading ? 'Enviando...' : 'Enviar mensagem' }}
+          </button>
+        </div>
+
+      </div>
     </div>
   </section>
 
   <!-- FOOTER -->
   <footer class="lp-footer" role="contentinfo">
-    <div class="container lp-footer__inner">
-      <a routerLink="/" class="brand brand--white" aria-label="Vida em Movimento — página inicial">
-        <span class="material-symbols-outlined mi-fill brand-icon" aria-hidden="true">favorite</span>
-        Vida em Movimento
-      </a>
-      <p>© 2026 Vida em Movimento. Todos os direitos reservados.</p>
+    <div class="container lp-footer__grid">
+
+      <div class="lp-footer__brand">
+        <a routerLink="/" class="brand brand--white" aria-label="Vida em Movimento">
+          <span class="material-symbols-outlined mi-fill brand-icon" aria-hidden="true">favorite</span>
+          Vida em Movimento
+        </a>
+        <p>Fisioterapia personalizada, tecnologia a serviço do cuidado e da recuperação.</p>
+      </div>
+
+      <div class="lp-footer__col">
+        <h4>Serviços</h4>
+        <ul>
+          <li>Reabilitação Ortopédica</li>
+          <li>Fisioterapia Neurológica</li>
+          <li>Fisioterapia Respiratória</li>
+          <li>Reabilitação Funcional</li>
+        </ul>
+      </div>
+
+      <div class="lp-footer__col">
+        <h4>Acesso</h4>
+        <ul>
+          <li><button type="button" (click)="loginOpen = true">Área do Paciente</button></li>
+          <li><button type="button" (click)="loginOpen = true">Área do Fisioterapeuta</button></li>
+          <li><button type="button" (click)="loginOpen = true">Área da Recepção</button></li>
+          <li><button type="button" (click)="contactOpen = true">Contato</button></li>
+        </ul>
+      </div>
+
+    </div>
+    <div class="lp-footer__bottom">
+      <div class="container">
+        <p>© 2026 Vida em Movimento. Todos os direitos reservados.</p>
+      </div>
     </div>
   </footer>
 
 </div>
 
-<!-- CONTACT DIALOG -->
+<!-- MODALS -->
 <app-contact-form-dialog [(open)]="contactOpen" />
+<app-login-dialog [(open)]="loginOpen" />

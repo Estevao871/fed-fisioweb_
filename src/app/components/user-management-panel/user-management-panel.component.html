@@ -110,7 +110,7 @@
         </span>
       </div>
 
-      <div class="field-group">
+      <div class="field-group" *ngIf="isAdmin">
         <label for="edit-role">Tipo de Usuario</label>
         <select id="edit-role" class="input" [(ngModel)]="editRole">
           <option *ngFor="let r of roles" [value]="r.value">{{ r.label }}</option>
@@ -156,7 +156,7 @@
           <label for="reset-nova">Nova Senha</label>
           <div class="password-wrap">
             <input id="reset-nova" class="input" [type]="showResetSenha ? 'text' : 'password'"
-              [(ngModel)]="resetNovaSenha" placeholder="Minimo 6 caracteres" autocomplete="new-password" />
+              [(ngModel)]="resetNovaSenha" placeholder="Minimo 8 caracteres" autocomplete="new-password" />
             <button type="button" class="eye-btn" (click)="showResetSenha = !showResetSenha">
               <span class="material-symbols-outlined">{{ showResetSenha ? 'visibility_off' : 'visibility' }}</span>
             </button>

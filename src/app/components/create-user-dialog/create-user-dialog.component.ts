@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService, UsuarioApi } from '../../core/api.service';
+import { AuthService } from '../../core/auth.service';
 import { UserRecord, UserRole } from '../../core/models';
 import { isValidEmail } from '../../core/validators';
 
@@ -20,7 +21,7 @@ export class CreateUserDialogComponent {
   name            = '';
   email           = '';
   phone           = '';
-  role: UserRole  = 'recepcionista';
+  role: UserRole;
   password        = '';
   confirmPassword = '';
   errorMessage    = '';
@@ -28,14 +29,26 @@ export class CreateUserDialogComponent {
   showPassword    = false;
   showConfirm     = false;
 
-  readonly roles: Array<{ value: UserRole; label: string }> = [
+  private readonly allRoles: Array<{ value: UserRole; label: string }> = [
     { value: 'admin',          label: 'Admin'          },
     { value: 'fisioterapeuta', label: 'Fisioterapeuta' },
     { value: 'recepcionista',  label: 'Recepcionista'  },
     { value: 'paciente',       label: 'Paciente'       },
   ];
 
-  constructor(private readonly api: ApiService) {}
+  constructor(
+    private readonly api: ApiService,
+    private readonly auth: AuthService,
+  ) {
+    this.role = this.defaultRole();
+  }
+
+  get isAdmin(): boolean { return this.auth.getRole()?.toLowerCase() === 'admin'; }
+
+  // Só o admin cria funcionários; a recepção cria apenas pacientes.
+  get roles(): Array<{ value: UserRole; label: string }> {
+    return this.isAdmin ? this.allRoles : this.allRoles.filter(r => r.value === 'paciente');
+  }
 
   get emailValido(): boolean { return isValidEmail(this.email); }
 
@@ -43,7 +56,7 @@ export class CreateUserDialogComponent {
     return !!(
       this.name.trim() &&
       this.email && this.emailValido &&
-      this.password && this.password.length >= 6 &&
+      this.password && this.password.length >= 8 &&
       this.password === this.confirmPassword
     );
   }
@@ -85,11 +98,15 @@ export class CreateUserDialogComponent {
     this.reset();
   }
 
+  private defaultRole(): UserRole {
+    return this.isAdmin ? 'recepcionista' : 'paciente';
+  }
+
   private reset(): void {
     this.name            = '';
     this.email           = '';
     this.phone           = '';
-    this.role            = 'recepcionista';
+    this.role            = this.defaultRole();
     this.password        = '';
     this.confirmPassword = '';
     this.errorMessage    = '';

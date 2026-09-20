@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService, AtualizarUsuarioDto } from '../../core/api.service';
+import { AuthService } from '../../core/auth.service';
 import { CreateUserDialogComponent } from '../create-user-dialog/create-user-dialog.component';
 import { UserRecord, UserRole } from '../../core/models';
 import { isValidEmail } from '../../core/validators';
@@ -46,7 +47,12 @@ export class UserManagementPanelComponent implements OnInit {
   get editEmailValido(): boolean { return isValidEmail(this.editEmail); }
   get editValido(): boolean { return !!(this.editName.trim() && this.editEmail && this.editEmailValido); }
 
-  constructor(private readonly api: ApiService) {}
+  constructor(
+    private readonly api: ApiService,
+    private readonly auth: AuthService,
+  ) {}
+
+  get isAdmin(): boolean { return this.auth.getRole()?.toLowerCase() === 'admin'; }
 
   ngOnInit(): void {
     this.api.getUsuarios().subscribe({
@@ -92,8 +98,8 @@ export class UserManagementPanelComponent implements OnInit {
   confirmarReset(): void {
     if (!this.resetUser) return;
     this.resetError = '';
-    if (this.resetNovaSenha.length < 6) {
-      this.resetError = 'A senha deve ter pelo menos 6 caracteres.';
+    if (this.resetNovaSenha.length < 8) {
+      this.resetError = 'A senha deve ter pelo menos 8 caracteres.';
       return;
     }
     if (this.resetNovaSenha !== this.resetConfirmar) {

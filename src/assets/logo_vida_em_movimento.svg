@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1600" height="500" viewBox="0 0 1600 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FF4FC3"/>
+      <stop offset="100%" stop-color="#7B3FF2"/>
+    </linearGradient>
+
+    <linearGradient id="emGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#C65BFF"/>
+      <stop offset="100%" stop-color="#8B3DFF"/>
+    </linearGradient>
+
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#B44CFF" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Ícone -->
+  <g filter="url(#softShadow)">
+    <rect x="90" y="110" width="220" height="220" rx="40" fill="url(#bgGrad)"/>
+  </g>
+
+  <!-- Boneco correndo -->
+  <g transform="translate(120 125)">
+    <circle cx="78" cy="28" r="18" fill="white" opacity="0.95"/>
+
+    <path d="
+      M78 52
+      L96 92
+      L135 112
+
+      M94 90
+      L66 132
+      L48 182
+
+      M96 90
+      L142 72
+
+      M67 132
+      L92 205
+
+      M50 182
+      L24 222
+    "
+    stroke="white"
+    stroke-width="16"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    opacity="0.95"/>
+  </g>
+
+  <!-- Texto -->
+  <text x="380" y="220"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="96"
+        font-weight="700"
+        fill="#050B2B">
+    Vida
+  </text>
+
+  <text x="660" y="220"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="96"
+        font-style="italic"
+        font-weight="700"
+        fill="url(#emGrad)">
+    em
+  </text>
+
+  <text x="860" y="220"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="96"
+        font-weight="700"
+        fill="#050B2B">
+    Movimento
+  </text>
+
+  <!-- Subtitulo -->
+  <text x="392" y="295"
+        font-family="Arial, sans-serif"
+        font-size="34"
+        letter-spacing="6"
+        fill="#8A93A8">
+    FISIOTERAPIA AVANÇADA • RECUPERAÇÃO COMPLETA
+  </text>
+
+</svg>

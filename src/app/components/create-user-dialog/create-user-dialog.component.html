@@ -59,8 +59,8 @@
       <p class="password-mismatch" *ngIf="password && confirmPassword && password !== confirmPassword">
         <span class="material-symbols-outlined">warning</span> As senhas não coincidem
       </p>
-      <p class="password-mismatch" *ngIf="password && password.length < 6 && password.length > 0">
-        <span class="material-symbols-outlined">warning</span> Senha deve ter pelo menos 6 caracteres
+      <p class="password-mismatch" *ngIf="password && password.length < 8 && password.length > 0">
+        <span class="material-symbols-outlined">warning</span> Senha deve ter pelo menos 8 caracteres
       </p>
       <p class="error-msg" *ngIf="errorMessage" role="alert" aria-live="polite">{{ errorMessage }}</p>
     </div>

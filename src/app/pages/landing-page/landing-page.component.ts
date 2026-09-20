@@ -6,11 +6,12 @@ import { ApiService } from '../../core/api.service';
 import { ContactFormDialogComponent } from '../../components/contact-form-dialog/contact-form-dialog.component';
 import { LoginDialogComponent } from '../../components/login-dialog/login-dialog.component';
 import { RevealOnScrollDirective } from '../../core/directives/reveal-on-scroll.directive';
+import { ParticleModelComponent } from '../../components/particle-model/particle-model.component';
 
 @Component({
   selector: 'app-landing-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ContactFormDialogComponent, LoginDialogComponent, RevealOnScrollDirective],
+  imports: [CommonModule, FormsModule, RouterLink, ContactFormDialogComponent, LoginDialogComponent, RevealOnScrollDirective, ParticleModelComponent],
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.scss',
 })
@@ -87,6 +88,15 @@ export class LandingPageComponent {
     { icon: 'schedule',       title: 'Horários Flexíveis',          description: 'Agendamentos que se adaptam à sua rotina diária' },
     { icon: 'assignment',     title: 'Plano Personalizado',         description: 'Tratamento desenvolvido exclusivamente para as suas necessidades' },
     { icon: 'support_agent',  title: 'Suporte Contínuo',            description: 'Atendimento dedicado durante todo o tratamento, do primeiro contato até a alta' },
+  ];
+
+  readonly rotationPoseT = -Math.PI / 2;
+
+  bodyAreas = [
+    { icon: 'accessibility_new', label: 'Ombro',   desc: 'Tendinite, luxação, síndrome do impacto' },
+    { icon: 'line_axis',         label: 'Coluna',   desc: 'Hérnia de disco, lombalgia, escoliose' },
+    { icon: 'sports_martial_arts', label: 'Quadril', desc: 'Bursites, artroses, pós-operatório' },
+    { icon: 'directions_walk',   label: 'Joelho',   desc: 'Ligamento, menisco, condromalácia' },
   ];
 
   sobreBullets = [

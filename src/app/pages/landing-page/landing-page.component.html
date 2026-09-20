@@ -4,8 +4,7 @@
   <header class="lp-header" role="banner">
     <div class="container lp-header__inner">
       <a routerLink="/" class="brand" aria-label="Vida em Movimento — página inicial">
-        <span class="material-symbols-outlined mi-fill brand-icon" aria-hidden="true">favorite</span>
-        Vida em Movimento
+        <img src="assets/logo_vida_em_movimento.svg" alt="Vida em Movimento" class="brand-logo" />
       </a>
       <div style="display:flex;gap:.75rem;align-items:center">
         <button class="btn btn-ghost btn-sm" (click)="loginOpen = true">Entrar</button>
@@ -35,32 +34,10 @@
         </div>
       </div>
 
-      <!-- Hero visual -->
-      <div class="hero__visual enter-scale" aria-hidden="true">
-        <div class="hero-card">
-          <span class="hero-card__badge">Hoje</span>
-          <div class="hero-card__patient">
-            <div class="hero-card__avatar">JS</div>
-            <div class="hero-card__info">
-              <strong>João Santos</strong>
-              <span>Sessão de Fisioterapia</span>
-            </div>
-            <span class="hero-card__status-dot"></span>
-          </div>
-          <div class="hero-card__time">
-            <span class="material-symbols-outlined">schedule</span> 14:30 · 45 min
-          </div>
-          <div class="hero-card__progress">
-            <div class="hero-card__progress-label">
-              <span>Progresso</span>
-              <span>6 / 10 sessões</span>
-            </div>
-            <div class="progress-bar-wrap colored">
-              <div class="progress-bar-fill" style="width: 60%"></div>
-            </div>
-          </div>
-        </div>
-        <div class="hero-notif">
+      <!-- Hero visual — modelo 3D em partículas -->
+      <div class="hero__visual hero__visual--3d enter-scale" aria-hidden="true">
+        <app-particle-model></app-particle-model>
+        <div class="hero-notif hero-notif--float">
           <span class="hero-notif__icon material-symbols-outlined">check</span>
           <span>Sessão confirmada — Dra. Silva</span>
         </div>
@@ -90,6 +67,35 @@
           <p>{{ step.description }}</p>
         </article>
       </div>
+    </div>
+  </section>
+
+  <!-- COLUNA 3D -->
+  <section class="section spine-section" aria-labelledby="spine-heading">
+    <div class="container spine-grid">
+
+      <div class="spine-content" appRevealOnScroll>
+        <span class="lp-chip">Tecnologia e Cuidado</span>
+        <h2 id="spine-heading">Ciência, movimento<br/>e <em class="highlight">transformação</em></h2>
+        <p class="spine-desc">
+          Unimos tecnologia, conhecimento e um olhar humanizado para entregar
+          resultados reais e duradouros.
+        </p>
+        <button class="btn btn-primary" (click)="contactOpen = true">
+          Conheça nossos tratamentos
+        </button>
+      </div>
+
+      <div class="spine-visual" aria-hidden="true">
+        <app-particle-model
+          modelUrl="assets/spine.glb"
+          colorMain="#7c3aed"
+          colorHl="#c4b5fd"
+          [enableTrail]="false"
+          [rotationY]="0">
+        </app-particle-model>
+      </div>
+
     </div>
   </section>
 
@@ -126,6 +132,64 @@
         </div>
 
       </div>
+    </div>
+  </section>
+
+  <!-- CORPO EM T — Tratamentos por região -->
+  <section class="section section--soft pose-section" aria-labelledby="pose-heading">
+    <div class="container pose-grid">
+
+      <div class="pose-visual" aria-hidden="true">
+        <app-particle-model
+          modelUrl="assets/pose-t.glb"
+          colorMain="#7c3aed"
+          colorHl="#c4b5fd"
+          [enableTrail]="false"
+          [rotationY]="rotationPoseT"
+          [enableMouseRotate]="false">
+        </app-particle-model>
+
+        <!-- Hotspots sobrepostos ao canvas -->
+        <div class="hotspot hotspot--ombro">
+          <div class="hotspot__dot"></div>
+          <div class="hotspot__line"></div>
+          <span class="hotspot__label">Ombro</span>
+        </div>
+        <div class="hotspot hotspot--coluna">
+          <div class="hotspot__dot"></div>
+          <div class="hotspot__line"></div>
+          <span class="hotspot__label">Coluna</span>
+        </div>
+        <div class="hotspot hotspot--quadril">
+          <div class="hotspot__dot"></div>
+          <div class="hotspot__line"></div>
+          <span class="hotspot__label">Quadril</span>
+        </div>
+        <div class="hotspot hotspot--joelho">
+          <div class="hotspot__dot"></div>
+          <div class="hotspot__line"></div>
+          <span class="hotspot__label">Joelho</span>
+        </div>
+      </div>
+
+      <div class="pose-content" appRevealOnScroll>
+        <span class="lp-chip">Tratamentos Personalizados</span>
+        <h2 id="pose-heading">Cada corpo<br/>é <em class="highlight">único.</em></h2>
+        <p class="pose-desc">
+          Avaliação individualizada e tratamentos focados na causa do problema,
+          não apenas nos sintomas.
+        </p>
+        <ul class="pose-areas">
+          <li *ngFor="let a of bodyAreas" class="pose-area-item">
+            <span class="material-symbols-outlined pose-area-icon">{{ a.icon }}</span>
+            <div>
+              <strong>{{ a.label }}</strong>
+              <span>{{ a.desc }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
     </div>
   </section>
 
@@ -249,8 +313,7 @@
 
       <div class="lp-footer__brand">
         <a routerLink="/" class="brand brand--white" aria-label="Vida em Movimento">
-          <span class="material-symbols-outlined mi-fill brand-icon" aria-hidden="true">favorite</span>
-          Vida em Movimento
+          <img src="assets/logo.png" alt="Vida em Movimento" class="brand-logo brand-logo--white" />
         </a>
         <p>Fisioterapia personalizada, tecnologia a serviço do cuidado e da recuperação.</p>
       </div>

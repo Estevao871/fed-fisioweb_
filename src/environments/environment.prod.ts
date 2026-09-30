@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.vidaemmovimento.com/api',
+  apiUrl: 'https://srv-fisioterapia.onrender.com/api',
 };

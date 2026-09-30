@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin, map, of } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 /* ── Response types ── */
@@ -208,6 +208,26 @@ export class ApiService {
 
   /* ── Sessões ── */
 
+  /**
+   * GET paginado. O backend usa pageSerializationMode = VIA_DTO, que devolve
+   * { content, page: { size, number, totalElements, totalPages } } — achata para PageResponse.
+   */
+  private getPage<T>(url: string, params: HttpParams): Observable<PageResponse<T>> {
+    type Raw = Partial<PageResponse<T>> & { page?: Partial<Omit<PageResponse<T>, 'content'>> };
+    return this.http.get<Raw>(url, { params }).pipe(
+      map(r => {
+        const meta = r.page ?? r;
+        return {
+          content:       r.content ?? [],
+          totalElements: meta.totalElements ?? 0,
+          totalPages:    meta.totalPages ?? 0,
+          number:        meta.number ?? 0,
+          size:          meta.size ?? 0,
+        };
+      }),
+    );
+  }
+
   getSessoes(params: { periodo?: string; date?: string; status?: string[]; page?: number; size?: number } = {}): Observable<PageResponse<SessaoApi>> {
     let p = new HttpParams()
       .set('page', String(params.page ?? 0))
@@ -215,7 +235,26 @@ export class ApiService {
     if (params.periodo) p = p.set('periodo', params.periodo);
     if (params.date)    p = p.set('date', params.date);
     if (params.status?.length) params.status.forEach(s => { p = p.append('status', s); });
-    return this.http.get<PageResponse<SessaoApi>>(`${this.base}/sessoes`, { params: p });
+    return this.getPage<SessaoApi>(`${this.base}/sessoes`, p);
+  }
+
+  /**
+   * Todas as sessões de um mês (mes 1-12), só dias úteis.
+   * O backend ainda não aceita intervalo de datas (periodo=mes é sempre o mês atual),
+   * então busca dia a dia em paralelo — trocar por um endpoint de intervalo/resumo quando existir.
+   */
+  getSessoesMes(ano: number, mes: number): Observable<SessaoApi[]> {
+    const ultimoDia = new Date(ano, mes, 0).getDate();
+    const dias: string[] = [];
+    for (let d = 1; d <= ultimoDia; d++) {
+      const dow = new Date(ano, mes - 1, d).getDay();
+      if (dow === 0 || dow === 6) continue;
+      dias.push(`${ano}-${String(mes).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
+    }
+    if (dias.length === 0) return of([]);
+    return forkJoin(dias.map(date => this.getSessoes({ date, size: 200 }))).pipe(
+      map(paginas => paginas.flatMap(p => p.content)),
+    );
   }
 
   getEstatisticas(): Observable<EstatisticasApi> {
@@ -266,12 +305,12 @@ export class ApiService {
 
   getAvaliacoesPendentes(page = 0, size = 50): Observable<PageResponse<AvaliacaoPendenteApi>> {
     const params = new HttpParams().set('page', String(page)).set('size', String(size));
-    return this.http.get<PageResponse<AvaliacaoPendenteApi>>(`${this.base}/avaliacoes/pendentes`, { params });
+    return this.getPage<AvaliacaoPendenteApi>(`${this.base}/avaliacoes/pendentes`, params);
   }
 
   getAvaliacoesHistorico(page = 0, size = 20): Observable<PageResponse<AvaliacaoHistoricoApi>> {
     const params = new HttpParams().set('page', String(page)).set('size', String(size));
-    return this.http.get<PageResponse<AvaliacaoHistoricoApi>>(`${this.base}/avaliacoes/historico`, { params });
+    return this.getPage<AvaliacaoHistoricoApi>(`${this.base}/avaliacoes/historico`, params);
   }
 
   getAvaliacaoDetalhe(id: string): Observable<AvaliacaoDetalheApi> {
@@ -301,7 +340,7 @@ export class ApiService {
       .set('page', page.toString())
       .set('size', size.toString());
     if (meusPacientes) params = params.set('meusPacientes', 'true');
-    return this.http.get<PageResponse<PacienteAtivoApi>>(`${this.base}/pacientes/ativos`, { params });
+    return this.getPage<PacienteAtivoApi>(`${this.base}/pacientes/ativos`, params);
   }
 
   agendarSessoesPaciente(pacienteId: string, dto: AgendarSessoesDto): Observable<unknown> {
@@ -317,7 +356,7 @@ export class ApiService {
   getLeads(ativos?: boolean, page = 0, size = 50): Observable<PageResponse<LeadApi>> {
     let p = new HttpParams().set('page', String(page)).set('size', String(size));
     if (ativos !== undefined) p = p.set('ativos', String(ativos));
-    return this.http.get<PageResponse<LeadApi>>(`${this.base}/leads`, { params: p });
+    return this.getPage<LeadApi>(`${this.base}/leads`, p);
   }
 
   criarLead(dto: CriarLeadDto): Observable<LeadApi> {
@@ -355,7 +394,7 @@ export class ApiService {
 
   getUsuarios(page = 0, size = 50): Observable<PageResponse<UsuarioApi>> {
     const params = new HttpParams().set('page', String(page)).set('size', String(size));
-    return this.http.get<PageResponse<UsuarioApi>>(`${this.base}/usuarios`, { params });
+    return this.getPage<UsuarioApi>(`${this.base}/usuarios`, params);
   }
 
   getFisioterapeutas(): Observable<UsuarioApi[]> {

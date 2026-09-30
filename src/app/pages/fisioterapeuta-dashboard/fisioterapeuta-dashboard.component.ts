@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AgendaCalendarComponent } from '../../components/agenda-calendar/agenda-calendar.component';
 import { MedicalRecordDialogComponent } from '../../components/medical-record-dialog/medical-record-dialog.component';
 import { ApiService, AvaliacaoPendenteApi, AvaliacaoHistoricoApi, PacienteAtivoApi, SessaoApi } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
@@ -10,7 +11,7 @@ import { Appointment, Patient } from '../../core/models';
 @Component({
   selector: 'app-fisioterapeuta-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, MedicalRecordDialogComponent],
+  imports: [CommonModule, FormsModule, MedicalRecordDialogComponent, AgendaCalendarComponent],
   templateUrl: './fisioterapeuta-dashboard.component.html',
   styleUrl: './fisioterapeuta-dashboard.component.scss',
 })
@@ -28,6 +29,20 @@ export class FisioterapeutaDashboardComponent implements OnInit {
   loading = false;
   iniciandoAvaliacao: string | null = null;
   readonly Math = Math;
+
+  @ViewChild(AgendaCalendarComponent) calendar?: AgendaCalendarComponent;
+
+  /* Agenda — dia selecionado no calendário (yyyy-MM-dd) */
+  readonly today = this.toIso(new Date());
+  selectedDate   = this.today;
+
+  get selectedDateLabel(): string {
+    if (this.selectedDate === this.today) return 'Agenda de Hoje';
+    const [y, m, d] = this.selectedDate.split('-').map(Number);
+    const label = new Date(y, m - 1, d)
+      .toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  }
 
   appointments: Appointment[] = [];
   patients: Patient[] = [];
@@ -78,34 +93,20 @@ export class FisioterapeutaDashboardComponent implements OnInit {
   }
 
   private loadData(): void {
-    this.loading = true;
-    const now = new Date();
-    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    this.loadAgendaDia(this.selectedDate);
+    this.calendar?.reload();
 
-    this.api.getSessoes({ date: today }).subscribe({
-      next: (pagina) => {
-        this.appointments = pagina.content.map(s => this.sessaoToAppointment(s));
-        this.statsConsultasHoje = pagina.totalElements;
-        this.loading = false;
-      },
-      error: () => {
-        this.appointments = [];
-        this.statsConsultasHoje = 0;
-        this.loading = false;
-      },
-    });
+    // Se o dia selecionado é hoje, loadAgendaDia já atualiza o card "Consultas Hoje"
+    if (this.selectedDate !== this.today) {
+      this.api.getSessoes({ date: this.today }).subscribe({
+        next: (pagina) => { this.statsConsultasHoje = pagina.totalElements; },
+        error: () => { this.statsConsultasHoje = 0; },
+      });
+    }
 
     this.loadPacientes(0);
 
-    this.api.getAvaliacoesPendentes(0, 100).subscribe({
-      next: (pagina) => {
-        this.avaliacoesPendentes = pagina.content;
-        this.statsAvaliacoesPendentes = pagina.totalElements;
-      },
-      error: () => {
-        this.statsAvaliacoesPendentes = 0;
-      },
-    });
+    this.loadAvaliacoesPendentes();
 
     this.api.getEstatisticas().subscribe({
       next: (stats) => {
@@ -118,6 +119,47 @@ export class FisioterapeutaDashboardComponent implements OnInit {
       },
       error: () => { this.statsTaxaRecuperacao = '—'; },
     });
+  }
+
+  loadAgendaDia(date: string): void {
+    this.selectedDate = date;
+    this.loading      = true;
+
+    this.api.getSessoes({ date }).subscribe({
+      next: (pagina) => {
+        if (date !== this.selectedDate) return; // usuário já clicou em outro dia
+        this.appointments = pagina.content.map(s => this.sessaoToAppointment(s));
+        if (date === this.today) this.statsConsultasHoje = pagina.totalElements;
+        this.loading = false;
+      },
+      error: () => {
+        if (date !== this.selectedDate) return;
+        this.appointments = [];
+        this.loading = false;
+      },
+    });
+  }
+
+  private loadAvaliacoesPendentes(): void {
+    this.api.getAvaliacoesPendentes(0, 100).subscribe({
+      next: (pagina) => {
+        this.avaliacoesPendentes = pagina.content;
+        this.statsAvaliacoesPendentes = pagina.totalElements;
+      },
+      error: () => {
+        this.statsAvaliacoesPendentes = 0;
+      },
+    });
+  }
+
+  /** Botão "Atualizar" da agenda — pega chegadas confirmadas pela recepção. */
+  refreshAgenda(): void {
+    this.loadAgendaDia(this.selectedDate);
+    this.loadAvaliacoesPendentes();
+  }
+
+  private toIso(d: Date): string {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
   toggleMeusPacientes(): void {
@@ -141,6 +183,11 @@ export class FisioterapeutaDashboardComponent implements OnInit {
         this.pacientesLoading   = false;
       },
     });
+  }
+
+  /** Avaliação da agenda que ainda está pendente (mesmo fluxo da aba Avaliações). */
+  avaliacaoPendente(item: Appointment): AvaliacaoPendenteApi | undefined {
+    return this.avaliacoesPendentes.find(a => a.idSessao === item.id);
   }
 
   iniciarAvaliacao(av: AvaliacaoPendenteApi): void {

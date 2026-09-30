@@ -1,0 +1,48 @@
+<div class="cal">
+  <div class="cal-header">
+    <div class="cal-nav">
+      <button class="btn btn-ghost btn-sm cal-arrow" (click)="prevMonth()" aria-label="Mês anterior">
+        <span class="material-symbols-outlined">chevron_left</span>
+      </button>
+      <h2 class="cal-title">{{ monthLabel }}</h2>
+      <button class="btn btn-ghost btn-sm cal-arrow" (click)="nextMonth()" aria-label="Próximo mês">
+        <span class="material-symbols-outlined">chevron_right</span>
+      </button>
+    </div>
+    <button class="btn btn-outline btn-sm" (click)="goToday()" [disabled]="isCurrentMonth && selectedDate === today">Hoje</button>
+  </div>
+
+  <div class="cal-summary text-sm">
+    <span *ngIf="loading" class="text-gray">Carregando mês...</span>
+    <span *ngIf="error" class="cal-error">Não foi possível carregar o mês. <button class="btn btn-ghost btn-sm" (click)="reload()">Tentar de novo</button></span>
+    <ng-container *ngIf="!loading && !error">
+      <span class="cal-legend"><i class="dot dot-sessao"></i>{{ totalSessoes }} {{ totalSessoes === 1 ? 'sessão' : 'sessões' }}</span>
+      <span class="cal-legend"><i class="dot dot-avaliacao"></i>{{ totalAvaliacoes }} {{ totalAvaliacoes === 1 ? 'avaliação' : 'avaliações' }}</span>
+    </ng-container>
+  </div>
+
+  <div class="cal-grid" [attr.aria-label]="monthLabel" [class.is-loading]="loading">
+    <div class="cal-weekday" *ngFor="let w of weekdays">{{ w }}</div>
+
+    <ng-container *ngFor="let week of weeks">
+      <ng-container *ngFor="let day of week">
+        <div *ngIf="!day" class="cal-cell cal-cell--empty" aria-hidden="true"></div>
+        <button *ngIf="day"
+          type="button"
+          class="cal-cell"
+          [class.is-today]="day.iso === today"
+          [class.is-selected]="day.iso === selectedDate"
+          [class.is-past]="day.iso < today"
+          [attr.aria-pressed]="day.iso === selectedDate"
+          [attr.aria-label]="day.day + ': ' + day.sessoes + ' sessões, ' + day.avaliacoes + ' avaliações'"
+          (click)="select(day.iso)">
+          <span class="cal-day">{{ day.day }}</span>
+          <span class="cal-counts" *ngIf="day.sessoes || day.avaliacoes">
+            <span class="cal-pill pill-sessao" *ngIf="day.sessoes" title="Sessões">{{ day.sessoes }}</span>
+            <span class="cal-pill pill-avaliacao" *ngIf="day.avaliacoes" title="Avaliações">{{ day.avaliacoes }}</span>
+          </span>
+        </button>
+      </ng-container>
+    </ng-container>
+  </div>
+</div>

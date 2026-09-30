@@ -200,3 +200,24 @@
     strong { font-size: .9rem; font-weight: 600; }
   }
 }
+
+/* Agenda: calendário do mês + lista do dia selecionado */
+.agenda-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
+
+  @media (max-width: 1024px) { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Avaliação ainda não liberada pela recepção */
+.aguardando-chegada {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  color: var(--gray-600);
+  font-style: italic;
+
+  .material-symbols-outlined { font-size: 16px; font-style: normal; }
+}

@@ -57,7 +57,7 @@
 
     <!-- TABS -->
     <div class="tab-group">
-      <button class="tab-btn" [class.active]="tab === 'agenda'"    (click)="tab = 'agenda'">Agenda de Hoje</button>
+      <button class="tab-btn" [class.active]="tab === 'agenda'"    (click)="tab = 'agenda'">Agenda</button>
       <button class="tab-btn" [class.active]="tab === 'pacientes'" (click)="tab = 'pacientes'">Meus Pacientes</button>
       <button class="tab-btn" [class.active]="tab === 'avaliacoes'"(click)="tab = 'avaliacoes'">
         Avaliações
@@ -69,10 +69,19 @@
     </div>
 
     <!-- AGENDA -->
-    <section *ngIf="tab === 'agenda'" class="card">
+    <div *ngIf="tab === 'agenda'" class="agenda-layout">
+    <section class="card">
+      <app-agenda-calendar [selectedDate]="selectedDate" (selectedDateChange)="loadAgendaDia($event)"></app-agenda-calendar>
+    </section>
+
+    <section class="card">
       <div class="section-title-row">
-        <h2>Agenda de Hoje</h2>
-        <span *ngIf="loading" class="text-sm text-gray">Carregando...</span>
+        <h2>{{ selectedDateLabel }}</h2>
+        <button class="btn btn-ghost btn-sm" (click)="refreshAgenda()" [disabled]="loading"
+          title="Atualizar — ver chegadas confirmadas pela recepção">
+          <span class="material-symbols-outlined">refresh</span>
+          {{ loading ? 'Carregando...' : 'Atualizar' }}
+        </button>
       </div>
       <div class="appointment-list" *ngIf="appointments.length > 0; else emptyAgenda">
         <div class="appointment-item" *ngFor="let item of appointments">
@@ -82,19 +91,43 @@
           </div>
           <div class="appt-right">
             <span class="badge" [ngClass]="statusBadge(item.status)">{{ statusLabel(item.status) }}</span>
-            <button class="btn btn-primary btn-sm" (click)="openRecord(item)">
-              {{ item.status === 'concluido' ? 'Ver prontuário' : 'Abrir prontuário' }}
-            </button>
+            <ng-container *ngIf="item.type === 'avaliacao'; else sessaoBtn">
+              <ng-container *ngIf="avaliacaoPendente(item) as av; else avaliacaoFeita">
+                <button class="btn btn-primary btn-sm"
+                  [disabled]="iniciandoAvaliacao === av.idSessao"
+                  (click)="iniciarAvaliacao(av)">
+                  <span class="material-symbols-outlined" *ngIf="iniciandoAvaliacao !== av.idSessao">play_arrow</span>
+                  {{ iniciandoAvaliacao === av.idSessao ? 'Iniciando...' : 'Iniciar Avaliação' }}
+                </button>
+              </ng-container>
+              <ng-template #avaliacaoFeita>
+                <button *ngIf="item.status === 'concluido'" class="btn btn-outline btn-sm"
+                  (click)="tab = 'historico'; loadHistoricoAvaliacoes()">
+                  Ver avaliação
+                </button>
+                <span *ngIf="item.status === 'agendado'" class="aguardando-chegada text-xs"
+                  title="A recepção confirma quando o paciente chegar. Depois clique em Atualizar.">
+                  <span class="material-symbols-outlined">schedule</span>
+                  Aguardando chegada
+                </span>
+              </ng-template>
+            </ng-container>
+            <ng-template #sessaoBtn>
+              <button class="btn btn-primary btn-sm" (click)="openRecord(item)">
+                {{ item.status === 'concluido' ? 'Ver prontuário' : 'Abrir prontuário' }}
+              </button>
+            </ng-template>
           </div>
         </div>
       </div>
       <ng-template #emptyAgenda>
         <div class="empty-state">
           <span class="empty-icon"><span class="material-symbols-outlined">calendar_month</span></span>
-          <p>Nenhuma sessão agendada para hoje</p>
+          <p>Nenhuma sessão agendada {{ selectedDate === today ? 'para hoje' : 'neste dia' }}</p>
         </div>
       </ng-template>
     </section>
+    </div>
 
     <!-- PATIENTS -->
     <section *ngIf="tab === 'pacientes'" class="card">

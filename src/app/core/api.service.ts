@@ -24,6 +24,8 @@ export interface SessaoApi {
   tipo: string;
   serieId: string | null;
   numeroOcorrencia: number | null;
+  fisioterapeutaId: string | null;
+  fisioterapeutaNome: string | null;
 }
 
 export interface PacienteAtivoApi {
@@ -34,6 +36,8 @@ export interface PacienteAtivoApi {
   totalSessoes: number;
   sessoesRealizadas: number;
   statusClinico: string;
+  fisioterapeutaId: string | null;
+  fisioterapeutaNome: string | null;
 }
 
 export interface LeadApi {
@@ -144,6 +148,7 @@ export interface AgendarAvaliacaoDto {
   quantidadeSessoes?: number;
   validadeGuiaDias?: number;
   diasSemanaPreferidos?: string[];
+  fisioterapeutaId?: string;
 }
 
 export interface AgendarSessoesDto {
@@ -287,15 +292,20 @@ export class ApiService {
 
   /* ── Pacientes ── */
 
-  getPacientesAtivos(page = 0, size = 20): Observable<PageResponse<PacienteAtivoApi>> {
-    const params = new HttpParams()
+  getPacientesAtivos(page = 0, size = 20, meusPacientes = false): Observable<PageResponse<PacienteAtivoApi>> {
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
+    if (meusPacientes) params = params.set('meusPacientes', 'true');
     return this.http.get<PageResponse<PacienteAtivoApi>>(`${this.base}/pacientes/ativos`, { params });
   }
 
   agendarSessoesPaciente(pacienteId: string, dto: AgendarSessoesDto): Observable<unknown> {
     return this.http.post(`${this.base}/pacientes/${pacienteId}/agendar-sessoes`, dto);
+  }
+
+  atribuirFisioterapeuta(pacienteId: string, fisioterapeutaId: string): Observable<void> {
+    return this.http.patch<void>(`${this.base}/pacientes/${pacienteId}/fisioterapeuta`, { fisioterapeutaId });
   }
 
   /* ── Leads ── */
@@ -330,9 +340,10 @@ export class ApiService {
 
   /* ── Agendamentos ── */
 
-  getDisponibilidade(date: string, excludeId?: string): Observable<DisponibilidadeApi[]> {
+  getDisponibilidade(date: string, excludeId?: string, fisioterapeutaId?: string): Observable<DisponibilidadeApi[]> {
     let params = new HttpParams().set('date', date);
     if (excludeId) params = params.set('excludeId', excludeId);
+    if (fisioterapeutaId) params = params.set('fisioterapeutaId', fisioterapeutaId);
     return this.http.get<DisponibilidadeApi[]>(`${this.base}/agendamentos/disponibilidade`, { params });
   }
 
@@ -340,6 +351,10 @@ export class ApiService {
 
   getUsuarios(): Observable<UsuarioApi[]> {
     return this.http.get<UsuarioApi[]>(`${this.base}/usuarios`);
+  }
+
+  getFisioterapeutas(): Observable<UsuarioApi[]> {
+    return this.http.get<UsuarioApi[]>(`${this.base}/usuarios/fisioterapeutas`);
   }
 
   criarUsuario(dto: CriarUsuarioDto): Observable<UsuarioApi> {

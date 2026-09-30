@@ -7,7 +7,7 @@ import { RescheduleDialogComponent } from '../../components/reschedule-dialog/re
 import { SchedulingDialogComponent } from '../../components/scheduling-dialog/scheduling-dialog.component';
 import { UserManagementPanelComponent } from '../../components/user-management-panel/user-management-panel.component';
 import { PatientSessionsDialogComponent } from '../../components/patient-sessions-dialog/patient-sessions-dialog.component';
-import { ApiService, LeadApi, SessaoApi } from '../../core/api.service';
+import { ApiService, LeadApi, SessaoApi, UsuarioApi } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { Appointment, Contact } from '../../core/models';
 
@@ -32,6 +32,7 @@ export class RecepcionistaDashboardComponent implements OnInit {
   contacts: Contact[] = [];
   allAppointments: Appointment[] = [];
   avaliacaoSessoes: SessaoApi[] = [];
+  fisioterapeutas: UsuarioApi[] = [];
   loading = false;
 
   /* Avaliações filter + pagination */
@@ -77,6 +78,17 @@ export class RecepcionistaDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadData();
+    this.api.getFisioterapeutas().subscribe({
+      next: (lista) => { this.fisioterapeutas = lista; },
+      error: () => { this.fisioterapeutas = []; },
+    });
+  }
+
+  onReassignFisio(evento: { pacienteId: string; fisioterapeutaId: string }): void {
+    this.api.atribuirFisioterapeuta(evento.pacienteId, evento.fisioterapeutaId).subscribe({
+      next: () => this.loadData(),
+      error: () => this.loadData(),
+    });
   }
 
   loadData(): void {
@@ -147,6 +159,8 @@ export class RecepcionistaDashboardComponent implements OnInit {
       duration: 45,
       pacienteId: s.pacienteId ?? undefined,
       serieId: s.serieId ?? undefined,
+      fisioterapeuta: s.fisioterapeutaNome ?? undefined,
+      fisioterapeutaId: s.fisioterapeutaId ?? undefined,
     };
   }
 

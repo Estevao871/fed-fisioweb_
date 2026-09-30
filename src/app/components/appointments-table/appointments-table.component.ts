@@ -2,11 +2,14 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Appointment } from '../../core/models';
+import { UsuarioApi } from '../../core/api.service';
 
 interface PatientGroup {
   key: string;
   name: string;
   phone: string | undefined;
+  fisioterapeuta: string | undefined;
+  pacienteId: string | undefined;
   sessions: Appointment[];
 }
 
@@ -19,9 +22,14 @@ interface PatientGroup {
 })
 export class AppointmentsTableComponent {
   @Input()  appointments: Appointment[] = [];
-  @Output() edit       = new EventEmitter<Appointment>();
-  @Output() remove     = new EventEmitter<string>();
-  @Output() reschedule = new EventEmitter<Appointment>();
+  @Input()  fisioterapeutas: UsuarioApi[] = [];
+  @Output() edit         = new EventEmitter<Appointment>();
+  @Output() remove       = new EventEmitter<string>();
+  @Output() reschedule   = new EventEmitter<Appointment>();
+  @Output() reassignFisio = new EventEmitter<{ pacienteId: string; fisioterapeutaId: string }>();
+
+  reassigningKey: string | null = null;
+  reassignValue = '';
 
   searchTerm   = '';
   filterStatus = 'all';
@@ -65,9 +73,14 @@ export class AppointmentsTableComponent {
     for (const appt of this.filtered()) {
       const key = appt.pacienteId ?? appt.patient;
       if (!map.has(key)) {
-        map.set(key, { key, name: appt.patient, phone: appt.phone, sessions: [] });
+        map.set(key, {
+          key, name: appt.patient, phone: appt.phone,
+          fisioterapeuta: appt.fisioterapeuta, pacienteId: appt.pacienteId, sessions: [],
+        });
       }
-      map.get(key)!.sessions.push(appt);
+      const group = map.get(key)!;
+      if (!group.fisioterapeuta && appt.fisioterapeuta) group.fisioterapeuta = appt.fisioterapeuta;
+      group.sessions.push(appt);
     }
     // ordena grupos pelo nome do paciente
     return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
@@ -84,6 +97,24 @@ export class AppointmentsTableComponent {
 
   toggleGroup(key: string): void {
     this.expandedGroups.has(key) ? this.expandedGroups.delete(key) : this.expandedGroups.add(key);
+  }
+
+  startReassign(group: PatientGroup, event: Event): void {
+    event.stopPropagation();
+    this.reassigningKey = group.key;
+    this.reassignValue = this.fisioterapeutas.find(f => f.nome === group.fisioterapeuta)?.id ?? '';
+  }
+
+  cancelReassign(event: Event): void {
+    event.stopPropagation();
+    this.reassigningKey = null;
+  }
+
+  confirmReassign(group: PatientGroup, event: Event): void {
+    event.stopPropagation();
+    if (!group.pacienteId || !this.reassignValue) return;
+    this.reassignFisio.emit({ pacienteId: group.pacienteId, fisioterapeutaId: this.reassignValue });
+    this.reassigningKey = null;
   }
 
   /* ── Helpers ── */

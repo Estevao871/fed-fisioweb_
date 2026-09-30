@@ -188,9 +188,11 @@
       <h2 style="margin-bottom:1.25rem">Gerenciar Agendamentos</h2>
       <app-appointments-table
         [appointments]="allAppointments"
+        [fisioterapeutas]="fisioterapeutas"
         (reschedule)="onReschedule($event)"
         (edit)="onEdit($event)"
         (remove)="onDelete($event)"
+        (reassignFisio)="onReassignFisio($event)"
       />
     </section>
 

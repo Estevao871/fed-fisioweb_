@@ -10,6 +10,7 @@ export interface Appointment {
   status: 'agendado' | 'em-andamento' | 'concluido' | 'confirmado' | 'pendente' | 'cancelado';
   duration?: number;
   fisioterapeuta?: string;
+  fisioterapeutaId?: string;
   pacienteId?: string;
   serieId?: string;
 }
@@ -33,6 +34,7 @@ export interface Patient {
   totalSessions: number;
   progress: number;
   nextAppointment: string;
+  fisioterapeuta?: string;
 }
 
 export interface SessionHistory {

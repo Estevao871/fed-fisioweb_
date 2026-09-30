@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService, UsuarioApi } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { UserRecord, UserRole } from '../../core/models';
-import { isValidEmail } from '../../core/validators';
+import { isValidEmail, isValidPhone } from '../../core/validators';
 
 @Component({
   selector: 'app-create-user-dialog',
@@ -51,11 +51,13 @@ export class CreateUserDialogComponent {
   }
 
   get emailValido(): boolean { return isValidEmail(this.email); }
+  get phoneValido(): boolean { return !this.phone.trim() || isValidPhone(this.phone); }
 
   get isValid(): boolean {
     return !!(
       this.name.trim() &&
       this.email && this.emailValido &&
+      this.phoneValido &&
       this.password && this.password.length >= 8 &&
       this.password === this.confirmPassword
     );

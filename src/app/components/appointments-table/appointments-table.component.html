@@ -54,6 +54,33 @@
           <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle">phone</span>
           {{ group.phone }}
         </span>
+
+        <span class="text-xs text-purple" *ngIf="group.pacienteId && reassigningKey !== group.key">
+          <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle">stethoscope</span>
+          {{ group.fisioterapeuta || 'Sem fisio vinculada' }}
+          <button type="button" class="btn btn-ghost btn-sm" style="padding:0 .25rem;min-height:auto"
+                  title="Trocar fisioterapeuta" (click)="startReassign(group, $event)">
+            <span class="material-symbols-outlined" style="font-size:14px">edit</span>
+          </button>
+        </span>
+
+        <span class="text-xs text-purple" *ngIf="group.fisioterapeuta && !group.pacienteId">
+          <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle">stethoscope</span>
+          {{ group.fisioterapeuta }}
+        </span>
+
+        <div *ngIf="reassigningKey === group.key" style="display:flex;align-items:center;gap:.4rem" (click)="$event.stopPropagation()">
+          <select class="input" style="padding:.25rem .5rem;font-size:.8rem;height:auto" [(ngModel)]="reassignValue">
+            <option value="" disabled>Selecione a fisio...</option>
+            <option *ngFor="let f of fisioterapeutas" [value]="f.id">{{ f.nome }}</option>
+          </select>
+          <button class="btn btn-primary btn-sm" [disabled]="!reassignValue" (click)="confirmReassign(group, $event)">
+            <span class="material-symbols-outlined" style="font-size:14px">check</span>
+          </button>
+          <button class="btn btn-ghost btn-sm" (click)="cancelReassign($event)">
+            <span class="material-symbols-outlined" style="font-size:14px">close</span>
+          </button>
+        </div>
       </div>
       <div class="accordion-meta">
         <span class="text-xs text-gray">{{ sessoesAtivas(group.sessions) }} sessões ativas</span>

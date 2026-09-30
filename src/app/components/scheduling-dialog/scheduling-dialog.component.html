@@ -53,19 +53,36 @@
                 <span class="material-symbols-outlined" style="font-size:1rem;animation:spin 1s linear infinite">refresh</span>
               </span>
             </div>
+            <span *ngIf="patientEmail && !patientEmailValido" style="color:var(--red-600);font-size:.8rem;margin-top:.25rem;display:block">
+              E-mail inválido.
+            </span>
             <div *ngIf="cadastroEncontrado" style="display:flex;align-items:center;gap:.4rem;margin-top:.4rem;font-size:.8rem;color:var(--green-700,#15803d)">
               <span class="material-symbols-outlined" style="font-size:1rem">check_circle</span>
               Cadastro encontrado — dados preenchidos automaticamente
             </div>
           </div>
         </div>
-        <div class="field-group">
-          <label for="sd-type">Tipo de Consulta</label>
-          <select id="sd-type" class="input" [(ngModel)]="appointmentType">
-            <option value="avaliacao">Avaliação Inicial</option>
-            <option value="sessao">Sessão de Tratamento</option>
-            <option value="reavaliacao">Reavaliação</option>
-          </select>
+        <div class="grid grid-2" style="gap:.875rem">
+          <div class="field-group">
+            <label for="sd-type">Tipo de Consulta</label>
+            <select id="sd-type" class="input" [(ngModel)]="appointmentType">
+              <option value="avaliacao">Avaliação Inicial</option>
+              <option value="sessao">Sessão de Tratamento</option>
+              <option value="reavaliacao">Reavaliação</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="sd-fisio">Fisioterapeuta Responsável <span style="color:var(--red-600)">*</span></label>
+            <select id="sd-fisio" class="input" [(ngModel)]="fisioterapeutaId" (ngModelChange)="onDateOrFisioChange()">
+              <option value="" disabled>Selecione...</option>
+              <option *ngFor="let f of fisioterapeutas" [value]="f.id">
+                {{ f.nome }} — {{ contagemHoje(f.id) }} hoje
+              </option>
+            </select>
+            <span *ngIf="fisioterapeutas.length === 0" style="color:var(--gray-500);font-size:.8rem;margin-top:.25rem;display:block">
+              Nenhuma fisioterapeuta cadastrada.
+            </span>
+          </div>
         </div>
       </div>
 
@@ -73,14 +90,23 @@
       <div *ngIf="step === 2" class="tab-content">
         <div class="field-group">
           <label for="sd-date">Data da Consulta</label>
-          <input id="sd-date" class="input" type="date" [(ngModel)]="date" [min]="today" />
+          <input id="sd-date" class="input" type="date" [(ngModel)]="date"
+            (ngModelChange)="onDateOrFisioChange()" [min]="today" />
         </div>
         <div class="field-group">
           <label>Horário</label>
           <div class="time-grid">
             <button *ngFor="let t of times" type="button"
-              class="time-btn" [class.selected]="time === t" (click)="time = t">{{ t }}</button>
+              class="time-btn" [class.selected]="time === t"
+              [disabled]="horariosDisponiveis[t] === false"
+              (click)="time = t">{{ t }}</button>
           </div>
+          <span *ngIf="loadingHorarios" style="color:var(--gray-500);font-size:.8rem;margin-top:.5rem;display:block">
+            Verificando agenda da fisioterapeuta...
+          </span>
+          <span *ngIf="!loadingHorarios && date && !algumHorarioDisponivel" style="color:var(--red-600);font-size:.8rem;margin-top:.5rem;display:block">
+            Sem horários disponíveis para esta fisioterapeuta nesta data.
+          </span>
         </div>
       </div>
 
@@ -92,6 +118,7 @@
             <div class="confirm-row"><span class="confirm-label">Paciente</span><span>{{ patientName }}</span></div>
             <div class="confirm-row"><span class="confirm-label">Telefone</span><span>{{ patientPhone }}</span></div>
             <div class="confirm-row"><span class="confirm-label">Tipo</span><span>{{ typeLabel }}</span></div>
+            <div class="confirm-row"><span class="confirm-label">Fisioterapeuta</span><span>{{ fisioterapeutaSelecionadaNome }}</span></div>
             <div class="confirm-row"><span class="confirm-label">Data/Hora</span><span>{{ date }} às {{ time }}</span></div>
           </div>
         </div>

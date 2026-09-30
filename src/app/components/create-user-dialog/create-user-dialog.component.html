@@ -22,7 +22,8 @@
         </div>
         <div class="field-group">
           <label>Telefone</label>
-          <input class="input" [(ngModel)]="phone" placeholder="(11) 99999-9999" />
+          <input class="input" [(ngModel)]="phone" placeholder="(11) 99999-9999" autocomplete="tel" />
+          <span class="field-error" *ngIf="phone && !phoneValido">Formato de telefone inválido</span>
         </div>
       </div>
 

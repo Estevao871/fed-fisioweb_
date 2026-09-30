@@ -57,6 +57,7 @@ export class FisioterapeutaDashboardComponent implements OnInit {
   pacientePage       = 0;
   pacienteTotalPages = 0;
   pacientesLoading   = false;
+  meusPacientes      = true;
   readonly pacientePageSize = 20;
 
   statsConsultasHoje = 0;
@@ -119,10 +120,15 @@ export class FisioterapeutaDashboardComponent implements OnInit {
     });
   }
 
+  toggleMeusPacientes(): void {
+    this.meusPacientes = !this.meusPacientes;
+    this.loadPacientes(0);
+  }
+
   loadPacientes(page: number): void {
     this.pacientePage     = page;
     this.pacientesLoading = true;
-    this.api.getPacientesAtivos(page, this.pacientePageSize).subscribe({
+    this.api.getPacientesAtivos(page, this.pacientePageSize, this.meusPacientes).subscribe({
       next: (result) => {
         this.patients              = result.content.map(p => this.pacienteToPatient(p));
         this.pacienteTotalPages    = result.totalPages;
@@ -197,6 +203,8 @@ export class FisioterapeutaDashboardComponent implements OnInit {
       duration: 45,
       pacienteId: s.pacienteId ?? undefined,
       serieId: s.serieId ?? undefined,
+      fisioterapeuta: s.fisioterapeutaNome ?? undefined,
+      fisioterapeutaId: s.fisioterapeutaId ?? undefined,
     };
   }
 
@@ -220,6 +228,7 @@ export class FisioterapeutaDashboardComponent implements OnInit {
       nextAppointment:   p.proximaSessao
         ? new Date(p.proximaSessao).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
         : '—',
+      fisioterapeuta:    p.fisioterapeutaNome ?? undefined,
     };
   }
 

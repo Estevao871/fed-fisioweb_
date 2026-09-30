@@ -9,7 +9,7 @@
       </div>
       <div class="dash-title-info">
         <h1>Meu Tratamento</h1>
-        <p>João Santos</p>
+        <p>{{ userName }}</p>
       </div>
     </div>
     <button class="btn btn-ghost btn-sm logout-btn" (click)="logout()">↗ Sair</button>
@@ -21,11 +21,11 @@
     <!-- WELCOME CARD -->
     <section class="welcome-card">
       <div class="welcome-card__text">
-        <h2>Olá, João!</h2>
-        <p>Você está indo muito bem no seu tratamento de lombalgia!</p>
-        <div class="welcome-card__next">
+        <h2>Olá, {{ userName }}!</h2>
+        <p>Acompanhe aqui o andamento do seu tratamento.</p>
+        <div class="welcome-card__next" *ngIf="nextAppointment as next">
           <span class="next-label">Próxima Sessão</span>
-          <span class="next-date">22/04/2026 às 09:30</span>
+          <span class="next-date">{{ next.date }} às {{ next.time }}</span>
         </div>
       </div>
     </section>
@@ -79,11 +79,12 @@
         <h3 class="section-subtitle">
           <span class="material-symbols-outlined">calendar_month</span> Próximos Agendamentos
         </h3>
+        <div class="empty-state" *ngIf="!upcoming.length">Nenhum agendamento encontrado.</div>
         <div class="appt-upcoming-list">
           <div class="appt-upcoming-item" *ngFor="let a of upcoming">
             <div class="appt-upcoming-item__left">
               <span class="appt-date">{{ a.date }}</span>
-              <span class="appt-type text-xs text-gray">Sessão de Fisioterapia · Dra. Juliana Ferreira</span>
+              <span class="appt-type text-xs text-gray">Sessão de Fisioterapia<span *ngIf="therapistName"> · {{ therapistName }}</span></span>
             </div>
             <span class="badge badge-blue">{{ a.time }}</span>
           </div>
@@ -94,11 +95,12 @@
         <h3 class="section-subtitle">
           <span class="material-symbols-outlined">check_circle</span> Sessões Concluídas
         </h3>
+        <div class="empty-state" *ngIf="!completed.length">Nenhuma sessão concluída.</div>
         <div class="appt-done-list">
           <div class="appt-done-item" *ngFor="let a of completed">
             <div class="appt-done-item__info">
               <span class="appt-date">{{ a.date }}</span>
-              <span class="text-xs text-gray">Sessão de Fisioterapia · Dra. Juliana Ferreira</span>
+              <span class="text-xs text-gray">Sessão de Fisioterapia<span *ngIf="therapistName"> · {{ therapistName }}</span></span>
             </div>
             <span class="badge badge-green">Concluído</span>
           </div>

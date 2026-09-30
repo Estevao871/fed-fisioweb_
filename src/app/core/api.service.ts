@@ -208,12 +208,14 @@ export class ApiService {
 
   /* ── Sessões ── */
 
-  getSessoes(params: { periodo?: string; date?: string; status?: string[] } = {}): Observable<SessaoApi[]> {
-    let p = new HttpParams();
+  getSessoes(params: { periodo?: string; date?: string; status?: string[]; page?: number; size?: number } = {}): Observable<PageResponse<SessaoApi>> {
+    let p = new HttpParams()
+      .set('page', String(params.page ?? 0))
+      .set('size', String(params.size ?? 200));
     if (params.periodo) p = p.set('periodo', params.periodo);
     if (params.date)    p = p.set('date', params.date);
     if (params.status?.length) params.status.forEach(s => { p = p.append('status', s); });
-    return this.http.get<SessaoApi[]>(`${this.base}/sessoes`, { params: p });
+    return this.http.get<PageResponse<SessaoApi>>(`${this.base}/sessoes`, { params: p });
   }
 
   getEstatisticas(): Observable<EstatisticasApi> {
@@ -262,12 +264,14 @@ export class ApiService {
 
   /* ── Avaliações ── */
 
-  getAvaliacoesPendentes(): Observable<AvaliacaoPendenteApi[]> {
-    return this.http.get<AvaliacaoPendenteApi[]>(`${this.base}/avaliacoes/pendentes`);
+  getAvaliacoesPendentes(page = 0, size = 50): Observable<PageResponse<AvaliacaoPendenteApi>> {
+    const params = new HttpParams().set('page', String(page)).set('size', String(size));
+    return this.http.get<PageResponse<AvaliacaoPendenteApi>>(`${this.base}/avaliacoes/pendentes`, { params });
   }
 
-  getAvaliacoesHistorico(): Observable<AvaliacaoHistoricoApi[]> {
-    return this.http.get<AvaliacaoHistoricoApi[]>(`${this.base}/avaliacoes/historico`);
+  getAvaliacoesHistorico(page = 0, size = 20): Observable<PageResponse<AvaliacaoHistoricoApi>> {
+    const params = new HttpParams().set('page', String(page)).set('size', String(size));
+    return this.http.get<PageResponse<AvaliacaoHistoricoApi>>(`${this.base}/avaliacoes/historico`, { params });
   }
 
   getAvaliacaoDetalhe(id: string): Observable<AvaliacaoDetalheApi> {
@@ -310,10 +314,10 @@ export class ApiService {
 
   /* ── Leads ── */
 
-  getLeads(ativos?: boolean): Observable<LeadApi[]> {
-    let p = new HttpParams();
+  getLeads(ativos?: boolean, page = 0, size = 50): Observable<PageResponse<LeadApi>> {
+    let p = new HttpParams().set('page', String(page)).set('size', String(size));
     if (ativos !== undefined) p = p.set('ativos', String(ativos));
-    return this.http.get<LeadApi[]>(`${this.base}/leads`, { params: p });
+    return this.http.get<PageResponse<LeadApi>>(`${this.base}/leads`, { params: p });
   }
 
   criarLead(dto: CriarLeadDto): Observable<LeadApi> {
@@ -349,8 +353,9 @@ export class ApiService {
 
   /* ── Usuários ── */
 
-  getUsuarios(): Observable<UsuarioApi[]> {
-    return this.http.get<UsuarioApi[]>(`${this.base}/usuarios`);
+  getUsuarios(page = 0, size = 50): Observable<PageResponse<UsuarioApi>> {
+    const params = new HttpParams().set('page', String(page)).set('size', String(size));
+    return this.http.get<PageResponse<UsuarioApi>>(`${this.base}/usuarios`, { params });
   }
 
   getFisioterapeutas(): Observable<UsuarioApi[]> {

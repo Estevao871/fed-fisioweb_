@@ -83,9 +83,9 @@ export class FisioterapeutaDashboardComponent implements OnInit {
     const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
     this.api.getSessoes({ date: today }).subscribe({
-      next: (sessoes) => {
-        this.appointments = sessoes.map(s => this.sessaoToAppointment(s));
-        this.statsConsultasHoje = sessoes.length;
+      next: (pagina) => {
+        this.appointments = pagina.content.map(s => this.sessaoToAppointment(s));
+        this.statsConsultasHoje = pagina.totalElements;
         this.loading = false;
       },
       error: () => {
@@ -97,10 +97,10 @@ export class FisioterapeutaDashboardComponent implements OnInit {
 
     this.loadPacientes(0);
 
-    this.api.getAvaliacoesPendentes().subscribe({
-      next: (avs) => {
-        this.avaliacoesPendentes = avs;
-        this.statsAvaliacoesPendentes = avs.length;
+    this.api.getAvaliacoesPendentes(0, 100).subscribe({
+      next: (pagina) => {
+        this.avaliacoesPendentes = pagina.content;
+        this.statsAvaliacoesPendentes = pagina.totalElements;
       },
       error: () => {
         this.statsAvaliacoesPendentes = 0;
@@ -309,8 +309,8 @@ export class FisioterapeutaDashboardComponent implements OnInit {
   loadHistoricoAvaliacoes(): void {
     this.loadingHistorico = true;
     this.historicoPage    = 0;
-    this.api.getAvaliacoesHistorico().subscribe({
-      next: (h) => { this.avaliacoesHistorico = h; this.loadingHistorico = false; },
+    this.api.getAvaliacoesHistorico(0, 200).subscribe({
+      next: (pagina) => { this.avaliacoesHistorico = pagina.content; this.loadingHistorico = false; },
       error: () => { this.loadingHistorico = false; },
     });
   }

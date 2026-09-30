@@ -18,6 +18,11 @@ export class UserManagementPanelComponent implements OnInit {
   searchTerm = '';
   createOpen = false;
   users: UserRecord[] = [];
+  usersLoading = false;
+  page = 0;
+  totalPages = 0;
+  totalElements = 0;
+  readonly pageSize = 20;
 
   resetOpen = false;
   resetUser: UserRecord | null = null;
@@ -55,9 +60,15 @@ export class UserManagementPanelComponent implements OnInit {
   get isAdmin(): boolean { return this.auth.getRole()?.toLowerCase() === 'admin'; }
 
   ngOnInit(): void {
-    this.api.getUsuarios().subscribe({
-      next: (lista) => {
-        this.users = lista.map(u => ({
+    this.loadUsers(0);
+  }
+
+  loadUsers(page: number): void {
+    this.page = page;
+    this.usersLoading = true;
+    this.api.getUsuarios(page, this.pageSize).subscribe({
+      next: (pagina) => {
+        this.users = pagina.content.map(u => ({
           id:        u.id,
           name:      u.nome,
           email:     u.email,
@@ -66,9 +77,16 @@ export class UserManagementPanelComponent implements OnInit {
           status:    u.ativo ? 'ativo' : 'inativo',
           createdAt: new Date(u.criadoEm).toLocaleDateString('pt-BR'),
         }));
+        this.totalPages    = pagina.totalPages;
+        this.totalElements = pagina.totalElements;
+        this.usersLoading  = false;
       },
+      error: () => { this.usersLoading = false; },
     });
   }
+
+  nextPage(): void { if (this.page < this.totalPages - 1) this.loadUsers(this.page + 1); }
+  previousPage(): void { if (this.page > 0) this.loadUsers(this.page - 1); }
 
   filteredUsers(): UserRecord[] {
     const s = this.searchTerm.toLowerCase();

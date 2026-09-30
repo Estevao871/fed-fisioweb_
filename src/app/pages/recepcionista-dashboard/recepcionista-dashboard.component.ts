@@ -94,10 +94,10 @@ export class RecepcionistaDashboardComponent implements OnInit {
   loadData(): void {
     this.loading = true;
 
-    this.api.getLeads(true).subscribe({
-      next: (leads) => {
-        this.contacts = leads.map(l => this.leadToContact(l));
-        this.statsContatos = leads.length;
+    this.api.getLeads(true, 0, 200).subscribe({
+      next: (pagina) => {
+        this.contacts = pagina.content.map(l => this.leadToContact(l));
+        this.statsContatos = pagina.totalElements;
         this.loading = false;
       },
       error: () => {
@@ -107,8 +107,9 @@ export class RecepcionistaDashboardComponent implements OnInit {
       },
     });
 
-    this.api.getSessoes({ periodo: 'todos' }).subscribe({
-      next: (sessoes) => {
+    this.api.getSessoes({ periodo: 'todos', size: 500 }).subscribe({
+      next: (pagina) => {
+        const sessoes = pagina.content;
         this.allAppointments = sessoes.map(s => this.sessaoToAppointment(s));
         this.avaliacaoSessoes = sessoes.filter(s => s.tipo === 'avaliacao');
 

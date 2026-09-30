@@ -53,7 +53,8 @@ export class PacienteDashboardComponent implements OnInit {
   private loadData(): void {
     this.loading = true;
     this.api.getSessoes({ periodo: 'todos' }).subscribe({
-      next: (sessoes) => {
+      next: (pagina) => {
+        const sessoes = pagina.content;
         const appointments = sessoes.map(s => this.sessaoToAppointment(s));
         this.upcoming = appointments
           .filter(a => a.status !== 'concluido' && a.status !== 'cancelado')

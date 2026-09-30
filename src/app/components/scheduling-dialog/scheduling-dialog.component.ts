@@ -108,9 +108,9 @@ export class SchedulingDialogComponent implements OnChanges {
 
   private loadContagemHoje(): void {
     this.api.getSessoes({ date: this.today }).subscribe({
-      next: (sessoes) => {
+      next: (pagina) => {
         const contagem: Record<string, number> = {};
-        for (const s of sessoes) {
+        for (const s of pagina.content) {
           if (!s.fisioterapeutaId || s.status === 'cancelada' || s.status === 'faltou') continue;
           contagem[s.fisioterapeutaId] = (contagem[s.fisioterapeutaId] ?? 0) + 1;
         }

@@ -70,9 +70,20 @@
     </table>
   </div>
 
-  <p class="results-count text-xs text-gray" style="margin-top:.75rem">
-    Mostrando <strong>{{ filteredUsers().length }}</strong> de <strong>{{ users.length }}</strong> usuários
-  </p>
+  <div class="pagination-bar" style="display:flex;align-items:center;justify-content:space-between;margin-top:.75rem">
+    <p class="results-count text-xs text-gray" style="margin:0">
+      Página <strong>{{ page + 1 }}</strong> de <strong>{{ totalPages || 1 }}</strong>
+      — <strong>{{ totalElements }}</strong> usuários no total
+    </p>
+    <div style="display:flex;gap:.5rem">
+      <button class="btn btn-outline btn-sm" (click)="previousPage()" [disabled]="page === 0 || usersLoading">
+        Anterior
+      </button>
+      <button class="btn btn-outline btn-sm" (click)="nextPage()" [disabled]="page >= totalPages - 1 || usersLoading">
+        Próxima
+      </button>
+    </div>
+  </div>
 
 </div>
 

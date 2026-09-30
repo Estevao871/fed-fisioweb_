@@ -95,6 +95,9 @@ export class AppointmentsTableComponent {
   nextPage(): void { if (this.page < this.totalPages - 1) this.page++; }
   prevPage(): void { if (this.page > 0) this.page--; }
 
+  trackByGroupKey(_index: number, group: PatientGroup): string { return group.key; }
+  trackBySessionId(_index: number, session: Appointment): string { return session.id; }
+
   toggleGroup(key: string): void {
     this.expandedGroups.has(key) ? this.expandedGroups.delete(key) : this.expandedGroups.add(key);
   }

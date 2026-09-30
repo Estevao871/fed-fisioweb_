@@ -44,7 +44,7 @@
 
 <!-- Accordion por paciente -->
 <div class="accordion-list">
-  <div class="accordion-card" *ngFor="let group of pagedGroups">
+  <div class="accordion-card" *ngFor="let group of pagedGroups; trackBy: trackByGroupKey">
 
     <!-- Cabeçalho do paciente -->
     <div class="accordion-header" (click)="toggleGroup(group.key)">
@@ -93,7 +93,7 @@
 
     <!-- Lista de sessões (expandível) -->
     <div class="accordion-body" *ngIf="expandedGroups.has(group.key)">
-      <div class="session-row" *ngFor="let s of group.sessions">
+      <div class="session-row" *ngFor="let s of group.sessions; trackBy: trackBySessionId">
         <div class="session-datetime">
           <span class="text-sm"><strong>{{ s.date }}</strong></span>
           <span class="text-xs text-gray">{{ s.time }}</span>

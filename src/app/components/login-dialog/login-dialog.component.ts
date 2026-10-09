@@ -49,8 +49,15 @@ export class LoginDialogComponent {
     this.errorMessage = '';
     this.loading = true;
     this.authService.login({ email: this.email, password: this.password }).subscribe({
-      next: (result) => {
-        const dest = result.role === 'admin' ? 'recepcionista' : result.role;
+      next: () => {
+        const dest = this.authService.dashboardFor(this.selectedType!);
+        if (!dest) {
+          this.authService.logout();
+          const found = this.profiles.find(p => p.type === this.selectedType);
+          this.errorMessage = `Seu usuário não tem acesso ao perfil ${found?.title ?? this.selectedType}.`;
+          this.loading      = false;
+          return;
+        }
         void this.router.navigateByUrl(`/dashboard/${dest}`);
         this.close();
       },

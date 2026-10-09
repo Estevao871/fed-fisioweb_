@@ -6,11 +6,12 @@ import { AuthService } from '../../core/auth.service';
 import { CreateUserDialogComponent } from '../create-user-dialog/create-user-dialog.component';
 import { UserRecord, UserRole } from '../../core/models';
 import { isValidEmail } from '../../core/validators';
+import { RolePickerComponent, rolesFromApi } from '../role-picker/role-picker.component';
 
 @Component({
   selector: 'app-user-management-panel',
   standalone: true,
-  imports: [CommonModule, FormsModule, CreateUserDialogComponent],
+  imports: [CommonModule, FormsModule, CreateUserDialogComponent, RolePickerComponent],
   templateUrl: './user-management-panel.component.html',
   styleUrl: './user-management-panel.component.scss',
 })
@@ -38,26 +39,19 @@ export class UserManagementPanelComponent implements OnInit {
   editUser: UserRecord | null = null;
   editName = '';
   editEmail = '';
-  editRole: UserRole = 'recepcionista';
+  editRoles: UserRole[] = [];
   editError = '';
   editLoading = false;
 
-  readonly roles: Array<{ value: UserRole; label: string }> = [
-    { value: 'admin',          label: 'Admin'          },
-    { value: 'fisioterapeuta', label: 'Fisioterapeuta' },
-    { value: 'recepcionista',  label: 'Recepcionista'  },
-    { value: 'paciente',       label: 'Paciente'       },
-  ];
-
   get editEmailValido(): boolean { return isValidEmail(this.editEmail); }
-  get editValido(): boolean { return !!(this.editName.trim() && this.editEmail && this.editEmailValido); }
+  get editValido(): boolean { return !!(this.editName.trim() && this.editEmail && this.editEmailValido && this.editRoles.length); }
 
   constructor(
     private readonly api: ApiService,
     private readonly auth: AuthService,
   ) {}
 
-  get isAdmin(): boolean { return this.auth.getRole()?.toLowerCase() === 'admin'; }
+  get isAdmin(): boolean { return this.auth.hasRole('admin'); }
 
   ngOnInit(): void {
     this.loadUsers(0);
@@ -68,15 +62,19 @@ export class UserManagementPanelComponent implements OnInit {
     this.usersLoading = true;
     this.api.getUsuarios(page, this.pageSize).subscribe({
       next: (pagina) => {
-        this.users = pagina.content.map(u => ({
-          id:        u.id,
-          name:      u.nome,
-          email:     u.email,
-          phone:     '',
-          role:      u.role as UserRole,
-          status:    u.ativo ? 'ativo' : 'inativo',
-          createdAt: new Date(u.criadoEm).toLocaleDateString('pt-BR'),
-        }));
+        this.users = pagina.content.map((u): UserRecord => {
+          const roles = rolesFromApi(u);
+          return {
+            id:        u.id,
+            name:      u.nome,
+            email:     u.email,
+            phone:     '',
+            role:      roles[0],
+            roles,
+            status:    u.ativo ? 'ativo' : 'inativo',
+            createdAt: new Date(u.criadoEm).toLocaleDateString('pt-BR'),
+          };
+        });
         this.totalPages    = pagina.totalPages;
         this.totalElements = pagina.totalElements;
         this.usersLoading  = false;
@@ -146,7 +144,7 @@ export class UserManagementPanelComponent implements OnInit {
     this.editUser    = user;
     this.editName    = user.name;
     this.editEmail   = user.email;
-    this.editRole    = user.role;
+    this.editRoles   = [...user.roles];
     this.editError   = '';
     this.editLoading = false;
     this.editOpen    = true;
@@ -160,14 +158,16 @@ export class UserManagementPanelComponent implements OnInit {
     const dto: AtualizarUsuarioDto = {
       nome:  this.editName.trim(),
       email: this.editEmail,
-      role:  this.editRole.toUpperCase(),
+      role:  this.editRoles[0].toUpperCase(),
+      roles: this.editRoles.map(r => r.toUpperCase()),
     };
 
     this.api.atualizarUsuario(this.editUser.id, dto).subscribe({
       next: (updated) => {
+        const roles = rolesFromApi(updated);
         this.users = this.users.map(u =>
           u.id === this.editUser!.id
-            ? { ...u, name: updated.nome, email: updated.email, role: updated.role as UserRole }
+            ? { ...u, name: updated.nome, email: updated.email, role: roles[0], roles }
             : u,
         );
         this.editLoading = false;

@@ -28,10 +28,9 @@
       </div>
 
       <div class="field-group">
-        <label>Tipo de Usuário</label>
-        <select class="input" [(ngModel)]="role">
-          <option *ngFor="let r of roles" [value]="r.value">{{ r.label }}</option>
-        </select>
+        <label>Perfis de Acesso</label>
+        <span class="text-xs text-gray" *ngIf="isAdmin">Selecione um ou mais perfis</span>
+        <app-role-picker [options]="roles" [(selected)]="selectedRoles" [disabled]="!isAdmin" />
       </div>
 
       <div class="grid grid-2" style="gap:.875rem">

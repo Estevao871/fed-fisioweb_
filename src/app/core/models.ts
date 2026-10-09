@@ -66,7 +66,8 @@ export interface UserRecord {
   name: string;
   email: string;
   phone: string;
-  role: UserRole;
+  role: UserRole;       // perfil principal (roles[0])
+  roles: UserRole[];
   status: 'ativo' | 'inativo';
   createdAt: string;
 }

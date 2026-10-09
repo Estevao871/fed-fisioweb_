@@ -33,7 +33,9 @@
           <td class="text-sm text-gray">{{ user.email }}</td>
           <td class="text-sm text-gray">{{ user.phone }}</td>
           <td>
-            <span class="badge" [ngClass]="roleBadge(user.role)">{{ roleLabel(user.role) }}</span>
+            <div class="role-badges">
+              <span class="badge" *ngFor="let r of user.roles" [ngClass]="roleBadge(r)">{{ roleLabel(r) }}</span>
+            </div>
           </td>
           <td>
             <span class="badge" [ngClass]="user.status === 'ativo' ? 'badge-green' : 'badge-gray'">
@@ -122,10 +124,9 @@
       </div>
 
       <div class="field-group" *ngIf="isAdmin">
-        <label for="edit-role">Tipo de Usuario</label>
-        <select id="edit-role" class="input" [(ngModel)]="editRole">
-          <option *ngFor="let r of roles" [value]="r.value">{{ r.label }}</option>
-        </select>
+        <label>Perfis de Acesso</label>
+        <span class="text-xs text-gray">Selecione um ou mais perfis</span>
+        <app-role-picker [(selected)]="editRoles" />
       </div>
 
       <p *ngIf="editError" style="color:var(--red-600,#dc2626);font-size:.85rem;margin:0">{{ editError }}</p>

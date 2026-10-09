@@ -1,0 +1,15 @@
+<div class="role-picker" role="group">
+  <button *ngFor="let o of options"
+    type="button"
+    class="role-chip"
+    [class.selected]="isSelected(o.value)"
+    [disabled]="disabled"
+    [attr.aria-pressed]="isSelected(o.value)"
+    (click)="toggle(o.value)">
+    <span class="material-symbols-outlined chip-icon" aria-hidden="true">{{ o.icon }}</span>
+    <span>{{ o.label }}</span>
+    <span class="material-symbols-outlined chip-check" aria-hidden="true">
+      {{ isSelected(o.value) ? 'check_circle' : 'radio_button_unchecked' }}
+    </span>
+  </button>
+</div>

@@ -5,11 +5,12 @@ import { ApiService, UsuarioApi } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { UserRecord, UserRole } from '../../core/models';
 import { isValidEmail, isValidPhone } from '../../core/validators';
+import { ALL_ROLE_OPTIONS, RoleOption, RolePickerComponent, rolesFromApi } from '../role-picker/role-picker.component';
 
 @Component({
   selector: 'app-create-user-dialog',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RolePickerComponent],
   templateUrl: './create-user-dialog.component.html',
   styleUrl: './create-user-dialog.component.scss',
 })
@@ -21,7 +22,7 @@ export class CreateUserDialogComponent {
   name            = '';
   email           = '';
   phone           = '';
-  role: UserRole;
+  selectedRoles: UserRole[];
   password        = '';
   confirmPassword = '';
   errorMessage    = '';
@@ -29,25 +30,18 @@ export class CreateUserDialogComponent {
   showPassword    = false;
   showConfirm     = false;
 
-  private readonly allRoles: Array<{ value: UserRole; label: string }> = [
-    { value: 'admin',          label: 'Admin'          },
-    { value: 'fisioterapeuta', label: 'Fisioterapeuta' },
-    { value: 'recepcionista',  label: 'Recepcionista'  },
-    { value: 'paciente',       label: 'Paciente'       },
-  ];
-
   constructor(
     private readonly api: ApiService,
     private readonly auth: AuthService,
   ) {
-    this.role = this.defaultRole();
+    this.selectedRoles = this.defaultRoles();
   }
 
-  get isAdmin(): boolean { return this.auth.getRole()?.toLowerCase() === 'admin'; }
+  get isAdmin(): boolean { return this.auth.hasRole('admin'); }
 
   // Só o admin cria funcionários; a recepção cria apenas pacientes.
-  get roles(): Array<{ value: UserRole; label: string }> {
-    return this.isAdmin ? this.allRoles : this.allRoles.filter(r => r.value === 'paciente');
+  get roles(): RoleOption[] {
+    return this.isAdmin ? ALL_ROLE_OPTIONS : ALL_ROLE_OPTIONS.filter(r => r.value === 'paciente');
   }
 
   get emailValido(): boolean { return isValidEmail(this.email); }
@@ -58,6 +52,7 @@ export class CreateUserDialogComponent {
       this.name.trim() &&
       this.email && this.emailValido &&
       this.phoneValido &&
+      this.selectedRoles.length > 0 &&
       this.password && this.password.length >= 8 &&
       this.password === this.confirmPassword
     );
@@ -72,15 +67,18 @@ export class CreateUserDialogComponent {
       nome:  this.name,
       email: this.email,
       senha: this.password,
-      role:  this.role.toUpperCase(),
+      role:  this.selectedRoles[0].toUpperCase(),
+      roles: this.selectedRoles.map(r => r.toUpperCase()),
     }).subscribe({
       next: (u: UsuarioApi) => {
+        const roles = rolesFromApi(u);
         const record: UserRecord = {
           id:        u.id,
           name:      u.nome,
           email:     u.email,
           phone:     this.phone,
-          role:      u.role as UserRole,
+          role:      roles[0],
+          roles,
           status:    u.ativo ? 'ativo' : 'inativo',
           createdAt: new Date(u.criadoEm).toLocaleDateString('pt-BR'),
         };
@@ -100,15 +98,15 @@ export class CreateUserDialogComponent {
     this.reset();
   }
 
-  private defaultRole(): UserRole {
-    return this.isAdmin ? 'recepcionista' : 'paciente';
+  private defaultRoles(): UserRole[] {
+    return [this.isAdmin ? 'recepcionista' : 'paciente'];
   }
 
   private reset(): void {
     this.name            = '';
     this.email           = '';
     this.phone           = '';
-    this.role            = this.defaultRole();
+    this.selectedRoles   = this.defaultRoles();
     this.password        = '';
     this.confirmPassword = '';
     this.errorMessage    = '';

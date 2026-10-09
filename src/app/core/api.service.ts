@@ -167,6 +167,7 @@ export interface UsuarioApi {
   nome: string;
   email: string;
   role: string;
+  roles?: string[];
   ativo: boolean;
   criadoEm: string;
 }
@@ -176,12 +177,14 @@ export interface CriarUsuarioDto {
   email: string;
   senha: string;
   role: string;
+  roles: string[];
 }
 
 export interface AtualizarUsuarioDto {
   nome: string;
   email: string;
   role: string;
+  roles: string[];
 }
 
 export interface FinalizarAvaliacaoDto {

@@ -33,3 +33,11 @@
   display: flex;
   gap: .25rem;
 }
+
+// Vários perfis quebram em linhas em vez de alargar a coluna "Tipo"
+.role-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+  max-width: 200px;
+}

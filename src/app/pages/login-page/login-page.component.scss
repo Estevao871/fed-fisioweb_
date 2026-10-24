@@ -35,7 +35,7 @@
 /* --- Profiles --- */
 .profiles-section {
   h2 {
-    font-family: 'DM Serif Display', Georgia, serif;
+    font-family: var(--font-display);
     font-size: 1.75rem;
     font-weight: 400;
     color: var(--gray-900);
@@ -70,14 +70,14 @@
   transition: all .18s;
 
   &:hover {
-    border-color: rgba(124,58,237,.35);
-    box-shadow: 0 0 0 3px rgba(124,58,237,.06);
+    border-color: rgba(var(--purple-rgb),.35);
+    box-shadow: 0 0 0 3px rgba(var(--purple-rgb),.06);
   }
 
   &.active {
     border-color: var(--purple-600);
     background: var(--purple-50);
-    box-shadow: 0 0 0 3px rgba(124,58,237,.1);
+    box-shadow: 0 0 0 3px rgba(var(--purple-rgb),.1);
   }
 
   &:focus-visible {
@@ -233,7 +233,7 @@
   align-items: flex-start;
   gap: .6rem;
   background: var(--purple-50, #f5f3ff);
-  border: 1px solid rgba(124,58,237,.2);
+  border: 1px solid rgba(var(--purple-rgb),.2);
   border-radius: var(--radius);
   padding: .75rem 1rem;
   font-size: .85rem;

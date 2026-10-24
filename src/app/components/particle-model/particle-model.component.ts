@@ -21,7 +21,7 @@ const TRAIL_STEPS = 5;
 })
 export class ParticleModelComponent implements AfterViewInit, OnDestroy {
   @Input() modelUrl         = 'assets/runner.glb';
-  @Input() colorMain        = '#7c3aed';
+  @Input() colorMain        = '#7545c8';
   @Input() colorHl          = '#a78bfa';
   @Input() enableTrail      = true;
   @Input() rotationY        = Math.PI / 5;

@@ -1,14 +1,42 @@
 <div class="page landing">
 
   <!-- HEADER -->
-  <header class="lp-header" role="banner">
-    <div class="container lp-header__inner">
+  <header class="lp-header" role="banner" [class.is-scrolled]="scrolled || menuOpen">
+    <div class="lp-header__inner">
       <a routerLink="/" class="brand" aria-label="Vida em Movimento — página inicial">
         <img src="assets/Logo_Movimento.png" alt="Vida em Movimento" class="brand-logo" />
       </a>
-      <div style="display:flex;gap:.75rem;align-items:center">
-        <button class="btn btn-ghost btn-sm" (click)="loginOpen = true">Entrar</button>
-        <button class="btn btn-primary btn-sm" (click)="contactOpen = true">Agendar Avaliação</button>
+
+      <nav class="lp-nav" role="navigation" aria-label="Menu principal">
+        <ul class="lp-nav__list">
+          <li><a routerLink="/" fragment="process-heading">Como funciona</a></li>
+          <li><a routerLink="/" fragment="sobre-heading">Regiões</a></li>
+          <li><a routerLink="/" fragment="pose-heading">Especialidades</a></li>
+          <li><a routerLink="/" fragment="recovery-heading">Sobre</a></li>
+          <li><a routerLink="/" fragment="contato-heading">Contato</a></li>
+        </ul>
+      </nav>
+
+      <div class="lp-header__actions">
+        <button type="button" class="lp-cta-link" (click)="loginOpen = true">Área do Paciente</button>
+        <button type="button" class="lp-cta" (click)="contactOpen = true">Agendar avaliação</button>
+      </div>
+
+      <button type="button" class="lp-burger" (click)="menuOpen = !menuOpen"
+        [attr.aria-expanded]="menuOpen" [attr.aria-label]="menuOpen ? 'Fechar menu' : 'Abrir menu'">
+        <span></span><span></span>
+      </button>
+    </div>
+
+    <div class="lp-mobile-menu" *ngIf="menuOpen">
+      <a routerLink="/" fragment="process-heading"  (click)="menuOpen = false">Como funciona</a>
+      <a routerLink="/" fragment="sobre-heading"    (click)="menuOpen = false">Regiões</a>
+      <a routerLink="/" fragment="pose-heading"     (click)="menuOpen = false">Especialidades</a>
+      <a routerLink="/" fragment="recovery-heading" (click)="menuOpen = false">Sobre</a>
+      <a routerLink="/" fragment="contato-heading"  (click)="menuOpen = false">Contato</a>
+      <div class="lp-mobile-menu__actions">
+        <button type="button" class="lp-cta-link" (click)="menuOpen = false; loginOpen = true">Área do Paciente</button>
+        <button type="button" class="lp-cta" (click)="menuOpen = false; contactOpen = true">Agendar avaliação</button>
       </div>
     </div>
   </header>

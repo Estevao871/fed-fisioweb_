@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
@@ -18,6 +18,11 @@ import { ParticleModelComponent } from '../../components/particle-model/particle
 export class LandingPageComponent {
   contactOpen = false;
   loginOpen   = false;
+  menuOpen    = false;
+  scrolled    = false;
+
+  @HostListener('window:scroll')
+  onScroll(): void { this.scrolled = window.scrollY > 24; }
 
   /* Fale Conosco */
   contatoNome      = '';

@@ -204,6 +204,7 @@
     radial-gradient(ellipse 40% 40% at 20% 80%, rgba(252,231,243,.35) 0%, transparent 60%);
   padding: 7.5rem 0 4.5rem; // 5rem + espaço do header fixo
   min-height: 520px;
+  overflow-x: clip; // ilustração vaza da coluna sem criar rolagem lateral
 
   &__inner {
     display: grid;
@@ -251,6 +252,30 @@
     height: 360px;
 
     @media (max-width: 768px) { display: none; }
+
+    // Ilustração do redesign: maior que a coluna, vaza para a direita e some nas bordas
+    &--image {
+      height: clamp(360px, 40vw, 560px);
+      overflow: visible;
+
+      @media (max-width: bp.$site-mobile) { display: flex; height: 300px; }
+
+      img {
+        position: absolute;
+        top: 50%;
+        right: -12%;
+        width: 160%;
+        height: auto;
+        aspect-ratio: 1672 / 941;
+        transform: translateY(-50%);
+        pointer-events: none;
+        mix-blend-mode: multiply;
+        -webkit-mask-image: radial-gradient(75% 80% at 62% 50%, #000 62%, transparent 100%);
+        mask-image: radial-gradient(75% 80% at 62% 50%, #000 62%, transparent 100%);
+
+        @media (max-width: bp.$site-mobile) { right: -20%; width: 140%; }
+      }
+    }
 
     &--3d {
       height: 520px;

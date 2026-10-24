@@ -1,0 +1,10 @@
+// Breakpoints do "Guia de Estilo" (Claude Design).
+// Uso nos componentes:  @use 'breakpoints' as bp;   @media (max-width: bp.$site-menu) { ... }
+// Sempre max-width = "abaixo de" o valor do guia (ex.: "< 1180" → max-width: 1179px).
+
+$site-menu:      1179px; // menu do site vira botão redondo (< 1180)
+$site-mobile:     859px; // site vira celular (< 860)
+$login-mobile:    899px; // login vira celular (< 900)
+$fisio-mobile:    819px; // painéis da fisio e do paciente viram celular (< 820)
+$paciente-mobile: 819px;
+$recep-mobile:    759px; // painel da recepção vira celular (< 760)

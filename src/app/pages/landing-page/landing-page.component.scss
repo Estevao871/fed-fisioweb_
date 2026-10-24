@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 /* ===== Landing Page ===== */
 
 // Header flutuante em pílula — transparente no topo, branco translúcido ao rolar
@@ -25,7 +27,7 @@
     -webkit-backdrop-filter: blur(14px);
     transition: background .4s, box-shadow .4s;
 
-    @media (max-width: 900px) { background: rgba(255,255,255,.82); }
+    @media (max-width: bp.$site-menu) { background: rgba(255,255,255,.82); }
   }
 
   &.is-scrolled &__inner {
@@ -39,10 +41,10 @@
     gap: 6px;
     white-space: nowrap;
 
-    @media (max-width: 900px) { display: none; }
+    @media (max-width: bp.$site-menu) { display: none; }
   }
 
-  .brand-logo { height: 44px; max-width: 180px; }
+  .brand-logo { height: 44px; max-width: 180px; } // guia: ícone 38 — mantido o PNG atual
 }
 
 // Âncoras do menu não ficam escondidas atrás do header fixo
@@ -52,7 +54,7 @@
   display: flex;
   align-items: center;
 
-  @media (max-width: 900px) { display: none; }
+  @media (max-width: bp.$site-menu) { display: none; }
 
   a {
     font-size: 15px;
@@ -123,7 +125,7 @@
   span:first-child { width: 18px; }
   span:last-child  { width: 12px; margin-left: 6px; }
 
-  @media (max-width: 900px) { display: flex; }
+  @media (max-width: bp.$site-menu) { display: flex; }
 }
 
 .lp-mobile-menu {
@@ -160,7 +162,7 @@
     .lp-cta-link, .lp-cta { width: 100%; text-align: center; }
   }
 
-  @media (min-width: 901px) { display: none; }
+  @media (min-width: bp.$site-menu + 1) { display: none; }
 }
 /* --- Logo --- */
 .brand-logo {

@@ -23,6 +23,7 @@
               { "glob": "favicon.ico", "input": "src", "output": "" }
             ],
             "styles": ["src/styles.scss"],
+            "stylePreprocessorOptions": { "includePaths": ["src/styles"] },
             "scripts": []
           },
           "configurations": {

@@ -3,6 +3,7 @@ import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core
 import { FormsModule } from '@angular/forms';
 import { ApiService, UsuarioApi } from '../../core/api.service';
 import { isValidEmail, isValidPhone } from '../../core/validators';
+import { HORARIOS_ATENDIMENTO } from '../../core/agenda';
 
 @Component({
   selector: 'app-scheduling-dialog',
@@ -29,11 +30,7 @@ export class SchedulingDialogComponent implements OnChanges {
   appointmentType: 'avaliacao' | 'sessao' | 'reavaliacao' = 'avaliacao';
   date = this.today;
   time = '09:30';
-  times = [
-    '08:00','08:45','09:30','10:15','11:00','11:45',
-    '13:00','13:45','14:00','14:45','15:30','16:15',
-    '17:00','17:45','18:30','19:00',
-  ];
+  readonly times = HORARIOS_ATENDIMENTO;
 
   fisioterapeutas: UsuarioApi[] = [];
   fisioterapeutaId = '';

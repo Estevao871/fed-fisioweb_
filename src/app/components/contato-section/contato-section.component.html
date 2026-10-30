@@ -1,0 +1,45 @@
+<section class="contato" aria-labelledby="contato-heading">
+  <div class="contato__card">
+    <svg class="contato__lines" viewBox="0 0 1200 500" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <path *ngFor="let l of linhas" [attr.d]="l.d" [attr.stroke-opacity]="l.o" />
+    </svg>
+
+    <div class="contato__body">
+      <h2 id="contato-heading" appRevealOnScroll>Seu próximo movimento <span class="accent">começa aqui.</span></h2>
+      <p appRevealOnScroll [revealDelay]="100">Agende sua avaliação inicial e dê o primeiro passo.</p>
+
+      <button type="button" class="contato__cta" (click)="agendar.emit()" appRevealOnScroll [revealDelay]="200">
+        Agendar avaliação
+        <span class="contato__cta-icon material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+      </button>
+
+      <dl class="contato__info">
+        <div>
+          <dt>Endereço</dt>
+          <dd>Estrada da Aldeinha, 1110</dd>
+        </div>
+        <div>
+          <dt>Telefone · WhatsApp</dt>
+          <dd><a href="tel:+5511952790078">(11) 95279-0078</a></dd>
+        </div>
+        <div>
+          <dt>E-mail</dt>
+          <dd><a href="mailto:cunhathalia10@gmail.com">cunhathalia10&#64;gmail.com</a></dd>
+        </div>
+        <div>
+          <dt>Horário</dt>
+          <dd>Seg–Sex: 8h às 18h · Sáb: 8h às 12h</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <footer class="contato__footer" role="contentinfo">
+    <span class="contato__slogan">Movimento é liberdade. Cuidar de você é o primeiro passo.</span>
+    <div class="contato__links">
+      <a routerLink="/login" [queryParams]="{ perfil: 'paciente' }">Área do Paciente</a>
+      <a routerLink="/login" [queryParams]="{ perfil: 'fisioterapeuta' }">Área do Fisioterapeuta</a>
+      <span>© {{ ano }} Vida em Movimento</span>
+    </div>
+  </footer>
+</section>

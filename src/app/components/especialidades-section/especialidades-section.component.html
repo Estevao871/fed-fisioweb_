@@ -1,0 +1,36 @@
+<section class="esp" aria-labelledby="especialidades-heading">
+  <div class="esp__inner">
+
+    <div class="esp__head" appRevealOnScroll>
+      <div class="esp__title">
+        <span class="eyebrow">Especialidades</span>
+        <h2 id="especialidades-heading">Tratamentos para cada <span class="accent">fase da recuperação.</span></h2>
+      </div>
+      <p>Escolha uma especialidade e deixe seu contato. Nossa equipe retorna para agendar sua avaliação.</p>
+    </div>
+
+    <div class="esp__grid">
+      <article *ngFor="let e of especialidades; let i = index"
+        class="esp-card esp-card--{{ i + 1 }}"
+        appRevealOnScroll
+        [revealDelay]="i * 100">
+
+        <div class="esp-card__art">
+          <img [src]="e.img" [alt]="e.alt" [style.object-position]="e.imgPos" loading="lazy" width="1200" height="900" />
+        </div>
+
+        <div class="esp-card__body">
+          <span class="esp-card__num">0{{ i + 1 }}</span>
+          <h3>{{ e.title }}</h3>
+          <p>{{ e.desc }}</p>
+          <!-- ::after cobre o card inteiro: clicar em qualquer lugar do card agenda -->
+          <button type="button" class="esp-card__cta" (click)="agendar.emit(e.title)"
+            [attr.aria-label]="'Agendar avaliação de ' + e.title">
+            Agendar avaliação
+            <span class="esp-card__arrow material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+          </button>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

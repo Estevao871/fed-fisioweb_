@@ -25,35 +25,48 @@ export class AuthService {
 
   constructor(private readonly http: HttpClient) {}
 
-  login(payload: LoginPayload): Observable<LoginResult> {
+  /**
+   * `lembrar` = true grava a sessão no localStorage (continua logado ao fechar o navegador);
+   * false usa o sessionStorage (sai ao fechar a aba/navegador).
+   */
+  login(payload: LoginPayload, lembrar = false): Observable<LoginResult> {
     return this.http.post<LoginResult>(`${environment.apiUrl}/auth/login`, payload).pipe(
       tap(result => {
-        sessionStorage.setItem(this.TOKEN_KEY, result.token);
-        sessionStorage.setItem(this.ROLE_KEY,  result.role);
-        sessionStorage.setItem(this.ROLES_KEY, JSON.stringify(result.roles?.length ? result.roles : [result.role]));
-        sessionStorage.setItem(this.NOME_KEY,  result.nome ?? '');
+        this.logout(); // limpa sessão antiga dos dois storages antes de gravar a nova
+        const store = lembrar ? localStorage : sessionStorage;
+        store.setItem(this.TOKEN_KEY, result.token);
+        store.setItem(this.ROLE_KEY,  result.role);
+        store.setItem(this.ROLES_KEY, JSON.stringify(result.roles?.length ? result.roles : [result.role]));
+        store.setItem(this.NOME_KEY,  result.nome ?? '');
       })
     );
   }
 
   logout(): void {
-    sessionStorage.removeItem(this.TOKEN_KEY);
-    sessionStorage.removeItem(this.ROLE_KEY);
-    sessionStorage.removeItem(this.ROLES_KEY);
-    sessionStorage.removeItem(this.NOME_KEY);
+    for (const store of [sessionStorage, localStorage]) {
+      store.removeItem(this.TOKEN_KEY);
+      store.removeItem(this.ROLE_KEY);
+      store.removeItem(this.ROLES_KEY);
+      store.removeItem(this.NOME_KEY);
+    }
+  }
+
+  /** Lê da sessão atual (sessionStorage) ou da lembrada (localStorage). */
+  private read(key: string): string | null {
+    return sessionStorage.getItem(key) ?? localStorage.getItem(key);
   }
 
   getToken(): string | null {
-    return sessionStorage.getItem(this.TOKEN_KEY);
+    return this.read(this.TOKEN_KEY);
   }
 
   getRole(): string | null {
-    return sessionStorage.getItem(this.ROLE_KEY);
+    return this.read(this.ROLE_KEY);
   }
 
   getRoles(): string[] {
     try {
-      const roles = JSON.parse(sessionStorage.getItem(this.ROLES_KEY) ?? '[]') as string[];
+      const roles = JSON.parse(this.read(this.ROLES_KEY) ?? '[]') as string[];
       if (roles.length) return roles.map(r => r.toLowerCase());
     } catch { /* cai no role único */ }
     const role = this.getRole();
@@ -73,7 +86,7 @@ export class AuthService {
   }
 
   getNome(): string {
-    return sessionStorage.getItem(this.NOME_KEY) ?? '';
+    return this.read(this.NOME_KEY) ?? '';
   }
 
   isAuthenticated(): boolean {

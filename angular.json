@@ -23,13 +23,14 @@
               { "glob": "favicon.ico", "input": "src", "output": "" }
             ],
             "styles": ["src/styles.scss"],
+            "stylePreprocessorOptions": { "includePaths": ["src/styles"] },
             "scripts": []
           },
           "configurations": {
             "production": {
               "budgets": [
                 { "type": "initial", "maximumWarning": "500kb", "maximumError": "1mb" },
-                { "type": "anyComponentStyle", "maximumWarning": "15kb", "maximumError": "25kb" }
+                { "type": "anyComponentStyle", "maximumWarning": "30kb", "maximumError": "40kb" }
               ],
               "fileReplacements": [
                 { "replace": "src/environments/environment.ts", "with": "src/environments/environment.prod.ts" }

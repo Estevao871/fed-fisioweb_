@@ -1,0 +1,41 @@
+<section class="sobre" aria-labelledby="sobre-heading">
+  <svg class="sobre__wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 0 L1440 0 L1440 56 C 1220 26, 1000 72, 720 44 C 460 18, 220 62, 0 36 Z" />
+  </svg>
+
+  <div class="sobre__inner">
+    <div class="sobre__visual enter-scale">
+      <div class="sobre__blob" aria-hidden="true"></div>
+      <div class="sobre__photo">
+        <img src="assets/fisio-thalia.webp" alt="Thalia Cunha, fisioterapeuta, de jaleco branco"
+          width="900" height="900" loading="lazy" />
+      </div>
+      <div class="sobre__badge">
+        <span class="sobre__badge-icon material-symbols-outlined" aria-hidden="true">verified</span>
+        <span class="sobre__badge-text">
+          <strong>Thalia Cunha</strong>
+          <span>Fisioterapeuta</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="sobre__content" appRevealOnScroll>
+      <span class="eyebrow">Sobre a fisioterapeuta</span>
+      <h2 id="sobre-heading">Cuidado com quem <span class="accent">realmente importa.</span></h2>
+      <p>
+        A Vida em Movimento nasceu da vontade de oferecer fisioterapia de verdade — onde o paciente
+        é ouvido, o tratamento é personalizado e os resultados são monitorados de perto.
+      </p>
+      <p>
+        Cada protocolo é desenvolvido individualmente, com base na avaliação clínica completa e nas
+        metas de vida de cada paciente.
+      </p>
+      <ul class="sobre__list">
+        <li *ngFor="let b of bullets">
+          <span class="sobre__check material-symbols-outlined" aria-hidden="true">check</span>
+          <span>{{ b }}</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

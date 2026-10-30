@@ -1,0 +1,138 @@
+.contato {
+  position: relative;
+  background: var(--gray-50);
+  padding: 0 clamp(10px, 2.5vw, 32px) clamp(10px, 2.5vw, 32px);
+
+  // Cartão roxo grande com gradiente noturno
+  &__card {
+    position: relative;
+    max-width: 1376px;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: clamp(28px, 4vw, 56px);
+    background: var(--grad-night);
+    color: #fff;
+    padding: clamp(72px, 10vw, 140px) clamp(24px, 6vw, 96px) clamp(36px, 5vw, 64px);
+  }
+
+  &__lines {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+
+    path { fill: none; stroke: #fff; stroke-width: 1.5; }
+  }
+
+  &__body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+
+    h2 {
+      max-width: 900px;
+      font-size: clamp(42px, 7vw, 108px);
+      line-height: .98;
+      letter-spacing: -0.05em;
+      text-wrap: balance;
+      scroll-margin-top: 110px;
+    }
+
+    .accent { color: var(--purple-100); }
+
+    > p { max-width: 480px; font-size: 18px; line-height: 1.6; color: #ede5fa; }
+  }
+
+  // Chamada final: h 64 · padding 0 10 0 28 · 18/600 · ícone 44 (guia)
+  &__cta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 64px;
+    padding: 0 10px 0 28px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: #fff;
+    color: var(--purple-800);
+    font: inherit;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .3s, box-shadow .3s;
+
+    &:hover { transform: translateY(-2px); box-shadow: 0 24px 40px -20px rgba(0,0,0,.45); }
+    &:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  }
+
+  &__cta-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-pill);
+    background: var(--purple-600);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+
+  &__info {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 28px;
+    margin: clamp(48px, 8vw, 110px) 0 0;
+    padding-top: 32px;
+    border-top: 1px solid rgba(255,255,255,.22);
+
+    > div { display: flex; flex-direction: column; gap: 6px; }
+
+    dt { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--purple-300); }
+    dd { margin: 0; font-size: 16px; line-height: 1.5; color: #fff; word-break: break-word; }
+
+    a {
+      color: #fff;
+      &:hover { text-decoration: underline; }
+    }
+  }
+
+  // Rodapé discreto abaixo do cartão
+  &__footer {
+    max-width: 1376px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 28px clamp(12px, 3vw, 40px) 18px;
+    font-size: 14px;
+    color: var(--gray-600);
+  }
+
+  &__slogan {
+    font-family: var(--font-accent);
+    font-style: italic;
+    font-size: 19px;
+    color: var(--purple-800);
+  }
+
+  &__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+
+    a {
+      font-weight: 500;
+      color: var(--purple-800);
+      cursor: pointer;
+
+      &:hover { color: var(--purple-600); text-decoration: underline; }
+      &:focus-visible { outline: 2px solid var(--purple-600); outline-offset: 3px; border-radius: 4px; }
+    }
+  }
+}

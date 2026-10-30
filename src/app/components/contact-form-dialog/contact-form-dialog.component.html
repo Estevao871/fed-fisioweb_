@@ -1,65 +1,126 @@
-<div class="modal-backdrop" *ngIf="open" role="dialog" aria-modal="true" aria-labelledby="cf-title">
-  <div class="modal">
+<div class="modal-backdrop" *ngIf="open" (click)="onBackdrop($event)">
+  <div class="modal cf" #panel role="dialog" aria-modal="true" aria-labelledby="cf-title">
 
-    <!-- SUCCESS STATE -->
-    <div *ngIf="step === 2" class="success-state">
-      <div class="success-icon" aria-hidden="true">
-        <span class="material-symbols-outlined">check_circle</span>
-      </div>
-      <h2>Solicitação Enviada!</h2>
-      <p>Obrigado, <strong>{{ firstName }}</strong>. Entraremos em contato pelo número <strong>{{ phone }}</strong> em até 24h.</p>
-      <button class="btn btn-primary" style="margin-top:1rem" (click)="close()">Fechar</button>
+    <!-- ============ SUCESSO ============ -->
+    <div *ngIf="step === 2" class="cf-success" role="status">
+      <span class="cf-success__icon material-symbols-outlined" aria-hidden="true">check</span>
+      <h2 id="cf-title">Solicitação enviada!</h2>
+      <p>
+        Obrigado, <strong>{{ firstName }}</strong>. Nossa equipe vai entrar em contato pelo
+        <strong>{{ phone }}</strong> em até 24h para agendar sua avaliação.
+      </p>
+
+      <ol class="cf-success__steps">
+        <li><span>1</span>A recepção analisa sua solicitação.</li>
+        <li><span>2</span>Ligamos ou enviamos mensagem para combinar o horário.</li>
+        <li><span>3</span>Você faz a avaliação inicial com a fisioterapeuta.</li>
+      </ol>
+
+      <button type="button" class="btn btn-dark btn-lg cf-success__btn" (click)="close()">Fechar</button>
     </div>
 
-    <!-- FORM STATE -->
+    <!-- ============ FORMULÁRIO ============ -->
     <ng-container *ngIf="step === 1">
       <div class="modal-header">
         <div>
           <h2 id="cf-title">Solicite uma Avaliação</h2>
-          <p class="text-sm text-gray" style="margin-top:.25rem">Preencha seus dados e retornaremos em até 24h.</p>
+          <p class="cf-sub">Preencha seus dados e retornaremos em até 24h.</p>
         </div>
-        <button class="modal-close" (click)="close()" aria-label="Fechar">
+        <button type="button" class="modal-close" (click)="close()" aria-label="Fechar">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
-      <div class="form-body">
+      <form class="cf-form" (ngSubmit)="submit()" novalidate>
+
+        <p *ngIf="assunto" class="cf-assunto">
+          <span class="material-symbols-outlined" aria-hidden="true">label</span>
+          Interesse: <strong>{{ assunto }}</strong>
+        </p>
+
+        <!-- Nome -->
         <div class="field-group">
-          <label for="cf-name">Nome completo <span aria-hidden="true" style="color:var(--red-600)">*</span></label>
-          <input id="cf-name" class="input" name="name" [(ngModel)]="name" placeholder="Seu nome completo" autocomplete="name" required />
+          <label for="cf-name">Nome completo <span class="cf-req" aria-hidden="true">*</span></label>
+          <div class="cf-input">
+            <input #nameInput id="cf-name" name="name" class="input" [class.is-invalid]="erro('name')"
+              [(ngModel)]="name" (blur)="tocar('name')"
+              placeholder="Seu nome completo" autocomplete="name"
+              [attr.aria-invalid]="!!erro('name')" aria-describedby="cf-name-err" />
+            <span *ngIf="ok('name')" class="cf-ok material-symbols-outlined" aria-hidden="true">check_circle</span>
+          </div>
+          <p *ngIf="erro('name')" id="cf-name-err" class="field-error" role="alert">
+            <span class="material-symbols-outlined" aria-hidden="true">error</span>{{ erro('name') }}
+          </p>
         </div>
 
-        <div class="grid grid-2" style="gap:.875rem">
+        <div class="cf-row">
+          <!-- Telefone -->
           <div class="field-group">
-            <label for="cf-phone">Telefone <span aria-hidden="true" style="color:var(--red-600)">*</span></label>
-            <input id="cf-phone" class="input" name="phone" [(ngModel)]="phone" placeholder="(11) 99999-9999" autocomplete="tel" required />
-            <span *ngIf="phone && !phoneValido" style="color:var(--red-600);font-size:.8rem;margin-top:.25rem;display:block">
-              Telefone inválido. Use: (11) 99999-9999
+            <label for="cf-phone">Telefone <span class="cf-req" aria-hidden="true">*</span></label>
+            <div class="cf-input">
+              <input id="cf-phone" name="phone" class="input" [class.is-invalid]="erro('phone')"
+                [ngModel]="phone" (ngModelChange)="onPhone($event)" (blur)="tocar('phone')"
+                placeholder="(11) 99999-9999" autocomplete="tel" inputmode="tel"
+                [attr.aria-invalid]="!!erro('phone')" aria-describedby="cf-phone-err" />
+              <span *ngIf="ok('phone')" class="cf-ok material-symbols-outlined" aria-hidden="true">check_circle</span>
+            </div>
+            <p *ngIf="erro('phone')" id="cf-phone-err" class="field-error" role="alert">
+              <span class="material-symbols-outlined" aria-hidden="true">error</span>{{ erro('phone') }}
+            </p>
+          </div>
+
+          <!-- E-mail -->
+          <div class="field-group">
+            <label for="cf-email">E-mail <span class="cf-req" aria-hidden="true">*</span></label>
+            <div class="cf-input">
+              <input id="cf-email" name="email" type="email" class="input" [class.is-invalid]="erro('email')"
+                [(ngModel)]="email" (blur)="tocar('email')"
+                placeholder="seu@email.com" autocomplete="email" inputmode="email"
+                [attr.aria-invalid]="!!erro('email')" aria-describedby="cf-email-err" />
+              <span *ngIf="ok('email')" class="cf-ok material-symbols-outlined" aria-hidden="true">check_circle</span>
+            </div>
+            <p *ngIf="erro('email')" id="cf-email-err" class="field-error" role="alert">
+              <span class="material-symbols-outlined" aria-hidden="true">error</span>{{ erro('email') }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Queixa -->
+        <div class="field-group">
+          <div class="cf-label-row">
+            <label for="cf-complaint">Queixa principal <span class="cf-req" aria-hidden="true">*</span></label>
+            <span class="cf-count" [class.is-near]="complaint.length > maxQueixa - 50" aria-live="polite">
+              {{ complaint.length }}/{{ maxQueixa }}
             </span>
           </div>
-          <div class="field-group">
-            <label for="cf-email">E-mail <span aria-hidden="true" style="color:var(--red-600)">*</span></label>
-            <input id="cf-email" class="input" name="email" type="email" [(ngModel)]="email" placeholder="seu@email.com" autocomplete="email" required />
-            <span *ngIf="email && !emailValido" style="color:var(--red-600);font-size:.8rem;margin-top:.25rem;display:block">
-              Formato de e-mail inválido
-            </span>
+          <textarea id="cf-complaint" name="complaint" class="input" [class.is-invalid]="erro('complaint')"
+            [(ngModel)]="complaint" (blur)="tocar('complaint')" rows="4" [attr.maxlength]="maxQueixa"
+            placeholder="Ex.: dor no joelho direito há 2 meses, piora ao subir escadas."
+            [attr.aria-invalid]="!!erro('complaint')" aria-describedby="cf-complaint-err"></textarea>
+          <p *ngIf="erro('complaint')" id="cf-complaint-err" class="field-error" role="alert">
+            <span class="material-symbols-outlined" aria-hidden="true">error</span>{{ erro('complaint') }}
+          </p>
+        </div>
+
+        <div *ngIf="error" class="alert-error" role="alert">
+          <span class="material-symbols-outlined" aria-hidden="true">error</span>
+          <span>{{ error }}</span>
+        </div>
+
+        <div class="modal-footer cf-footer">
+          <p class="cf-privacy">
+            <span class="material-symbols-outlined" aria-hidden="true">lock</span>
+            Seus dados são usados só para o contato sobre a avaliação.
+          </p>
+          <div class="cf-actions">
+            <button type="button" class="btn btn-outline" (click)="close()" [disabled]="loading">Cancelar</button>
+            <button type="submit" class="btn btn-primary" [disabled]="loading">
+              <span *ngIf="loading" class="cf-spinner" aria-hidden="true"></span>
+              {{ loading ? 'Enviando…' : 'Enviar solicitação' }}
+            </button>
           </div>
         </div>
-
-        <div class="field-group">
-          <label for="cf-complaint">Queixa principal <span aria-hidden="true" style="color:var(--red-600)">*</span></label>
-          <textarea id="cf-complaint" class="input" name="complaint" [(ngModel)]="complaint" rows="4" placeholder="Descreva sua dor ou limitação..."></textarea>
-        </div>
-
-        <p *ngIf="error" role="alert" style="color:var(--red-600);font-size:.85rem;margin:0">{{ error }}</p>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-outline" (click)="close()" [disabled]="loading">Cancelar</button>
-        <button class="btn btn-primary" (click)="submit()" [disabled]="!isValid || loading">
-          {{ loading ? 'Enviando...' : 'Enviar Solicitação' }}
-        </button>
-      </div>
+      </form>
     </ng-container>
 
   </div>

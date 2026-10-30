@@ -1,0 +1,28 @@
+<section class="ben" aria-labelledby="beneficios-heading">
+  <svg class="ben__wave" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 0 L1440 0 L1440 22 C 1160 66, 860 18, 560 50 C 320 74, 140 40, 0 60 Z" />
+  </svg>
+
+  <div class="ben__lines" aria-hidden="true">
+    <svg viewBox="0 0 600 500" preserveAspectRatio="xMidYMid meet">
+      <path *ngFor="let l of linhas" [attr.d]="l.d" [attr.stroke-opacity]="l.o" />
+    </svg>
+  </div>
+
+  <div class="ben__inner">
+    <div class="ben__head" appRevealOnScroll>
+      <span class="eyebrow">Como a fisioterapia ajuda</span>
+      <h2 id="beneficios-heading">Mais do que tratar a dor: <span class="accent">voltar a viver bem.</span></h2>
+    </div>
+
+    <ol class="ben__list">
+      <li *ngFor="let b of beneficios; let i = index" class="ben__item" appRevealOnScroll [revealDelay]="i * 80">
+        <span class="ben__num" aria-hidden="true">0{{ i + 1 }}</span>
+        <div>
+          <h3>{{ b.title }}</h3>
+          <p>{{ b.desc }}</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>

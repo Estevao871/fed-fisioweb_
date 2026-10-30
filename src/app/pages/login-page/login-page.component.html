@@ -1,95 +1,151 @@
-<div class="login-page">
-  <div class="login-container">
+<div class="login">
 
-    <!-- TOP BAR -->
-    <div class="login-topbar">
-      <a routerLink="/" class="brand" aria-label="Vida em Movimento — página inicial">
-        <img src="assets/Logo_Movimento.png" alt="Vida em Movimento" class="brand-logo" />
-      </a>
-      <a routerLink="/" class="btn btn-ghost btn-sm">← Voltar ao Site</a>
+  <!-- Painel roxo (some abaixo de 900px) -->
+  <aside class="login__aside">
+    <svg class="login__lines" viewBox="0 0 600 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <path *ngFor="let l of linhas" [attr.d]="l.d" [attr.stroke-opacity]="l.o" />
+    </svg>
+
+    <a routerLink="/" class="login__brand" aria-label="Vida em Movimento — página inicial">
+      <img src="assets/Logo_Movimento.png" alt="Vida em Movimento" />
+    </a>
+
+    <div class="login__pitch">
+      <h1>Seu cuidado, <span class="accent">em movimento.</span></h1>
+      <p>Agenda, prontuários e evolução do tratamento reunidos em um só lugar.</p>
     </div>
 
-    <!-- GRID -->
-    <div class="login-grid">
+    <div class="login__slogan">
+      <span aria-hidden="true"></span>
+      Movimento é liberdade.
+    </div>
+  </aside>
 
-      <!-- LEFT: Profile Select -->
-      <section class="profiles-section">
-        <h2>Selecione seu Perfil</h2>
-        <p class="profiles-subtitle">Escolha o tipo de acesso para continuar</p>
+  <main class="login__main">
+    <div class="login__box">
 
-        <div class="profiles-list">
-          <button
-            class="profile-card"
-            *ngFor="let p of profiles"
-            [class.active]="selectedType === p.type"
-            (click)="selectedType = p.type"
-            [attr.aria-pressed]="selectedType === p.type"
-          >
-            <div class="profile-icon icon-container" [ngClass]="'profile-icon--' + p.colorClass" aria-hidden="true">
-              <span class="material-symbols-outlined">{{ p.symbol }}</span>
-            </div>
-            <div class="profile-info">
-              <strong>{{ p.title }}</strong>
-              <small>{{ p.description }}</small>
-            </div>
-            <span class="profile-check material-symbols-outlined" aria-hidden="true">check</span>
-          </button>
-        </div>
-      </section>
+      <div class="login__top">
+        <a routerLink="/" class="login__brand-mobile" aria-label="Vida em Movimento — página inicial">
+          <img src="assets/Logo_Movimento.png" alt="Vida em Movimento" />
+        </a>
+        <a routerLink="/" class="login__back">
+          <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+          Voltar ao site
+        </a>
+      </div>
 
-      <!-- RIGHT: Login Form -->
-      <section class="login-form-card card">
-
-        <h2>Entrar na Plataforma</h2>
-
-        <div class="field-group">
-          <label for="email">E-mail</label>
-          <input id="email" class="input" type="email" name="email"
-            [(ngModel)]="email" placeholder="seu@email.com" autocomplete="email" />
+      <!-- ============ LOGIN ============ -->
+      <ng-container *ngIf="modo === 'login'">
+        <div class="login__head">
+          <h2>Entrar na <span class="accent">plataforma</span></h2>
+          <p>Escolha seu perfil e acesse com o e-mail cadastrado.</p>
         </div>
 
-        <div class="field-group">
-          <label for="password">Senha</label>
-          <div class="password-wrap">
-            <input id="password" class="input" [type]="showPassword ? 'text' : 'password'" name="password"
-              [(ngModel)]="password" placeholder="••••••••" autocomplete="current-password"
-              (keydown.enter)="login()" />
-            <button type="button" class="eye-btn" (click)="showPassword = !showPassword"
-              [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'">
-              <span class="material-symbols-outlined">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
-            </button>
+        <form class="login__form" (ngSubmit)="login()" novalidate>
+
+          <!-- Perfil -->
+          <div class="login__field">
+            <span id="lbl-perfil" class="login__label">Perfil de acesso</span>
+            <div class="login__roles" role="radiogroup" aria-labelledby="lbl-perfil" [class.is-invalid]="erroPerfil">
+              <button *ngFor="let p of profiles" type="button" role="radio" class="login__role"
+                [class.active]="selectedType === p.type"
+                [attr.aria-checked]="selectedType === p.type"
+                (click)="selecionarPerfil(p.type)">
+                <span class="login__role-icon material-symbols-outlined" aria-hidden="true">{{ p.symbol }}</span>
+                <span class="login__role-name">{{ p.title }}</span>
+                <span *ngIf="selectedType === p.type" class="login__role-check material-symbols-outlined" aria-hidden="true">check</span>
+              </button>
+            </div>
+            <p *ngIf="erroPerfil" class="field-error" role="alert">
+              <span class="material-symbols-outlined" aria-hidden="true">error</span>{{ erroPerfil }}
+            </p>
           </div>
-        </div>
 
-        <div class="login-meta">
-          <label class="remember-label">
-            <input type="checkbox" />
-            <span>Lembrar-me</span>
-          </label>
-          <button type="button" class="forgot-link btn-link" (click)="showForgot = !showForgot">
-            Esqueci minha senha
+          <!-- E-mail -->
+          <div class="login__field">
+            <label for="f-email" class="login__label">E-mail</label>
+            <div class="login__input-wrap">
+              <span class="login__input-icon material-symbols-outlined" aria-hidden="true">mail</span>
+              <input id="f-email" name="email" type="email" class="input input-lg" [class.is-invalid]="erroEmail"
+                [(ngModel)]="email" (ngModelChange)="authErro = null" (blur)="emailTouched = !!email"
+                placeholder="nome@email.com" autocomplete="email" inputmode="email"
+                [attr.aria-invalid]="!!erroEmail" />
+              <span *ngIf="emailOk" class="login__ok material-symbols-outlined" aria-label="E-mail válido">check_circle</span>
+            </div>
+            <p *ngIf="erroEmail" class="field-error" role="alert">
+              <span class="material-symbols-outlined" aria-hidden="true">error</span>{{ erroEmail }}
+            </p>
+          </div>
+
+          <!-- Senha -->
+          <div class="login__field">
+            <label for="f-senha" class="login__label">Senha</label>
+            <div class="login__input-wrap">
+              <span class="login__input-icon material-symbols-outlined" aria-hidden="true">lock</span>
+              <input id="f-senha" name="senha" class="input input-lg login__senha" [class.is-invalid]="erroSenha"
+                [type]="showPassword ? 'text' : 'password'"
+                [(ngModel)]="password" (ngModelChange)="authErro = null"
+                (keyup)="onSenhaKey($event)" (keydown)="onSenhaKey($event)"
+                placeholder="Sua senha" autocomplete="current-password"
+                [attr.aria-invalid]="!!erroSenha" />
+              <button type="button" class="login__eye" (click)="showPassword = !showPassword"
+                [attr.aria-label]="showPassword ? 'Ocultar senha' : 'Mostrar senha'">
+                <span class="material-symbols-outlined" aria-hidden="true">{{ showPassword ? 'visibility_off' : 'visibility' }}</span>
+              </button>
+            </div>
+            <p *ngIf="erroSenha" class="field-error" role="alert">
+              <span class="material-symbols-outlined" aria-hidden="true">error</span>{{ erroSenha }}
+            </p>
+            <p *ngIf="capsLock" class="login__caps">
+              <span class="material-symbols-outlined" aria-hidden="true">warning</span>Caps Lock está ativado.
+            </p>
+          </div>
+
+          <div class="login__meta">
+            <label class="login__remember">
+              <input type="checkbox" name="lembrar" [(ngModel)]="lembrar" />
+              Lembrar de mim
+            </label>
+            <button type="button" class="login__link" (click)="modo = 'esqueci'">Esqueci minha senha</button>
+          </div>
+
+          <div *ngIf="authErro" class="alert-error" role="alert">
+            <span class="material-symbols-outlined" aria-hidden="true">error</span>
+            <span class="login__alert-text">
+              <strong>{{ authErro.titulo }}</strong>
+              <span>{{ authErro.msg }}</span>
+            </span>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-xl login__submit" [class.is-success]="sucesso" [disabled]="loading">
+            <span *ngIf="loading" class="login__spinner" aria-hidden="true"></span>
+            {{ btnLabel }}
           </button>
+        </form>
+      </ng-container>
+
+      <!-- ============ ESQUECI A SENHA ============ -->
+      <ng-container *ngIf="modo === 'esqueci'">
+        <div class="login__head">
+          <h2>Recuperar <span class="accent">senha</span></h2>
+          <p>A redefinição de senha é feita pela recepção da clínica, com segurança.</p>
         </div>
 
-        <div *ngIf="showForgot" class="forgot-box">
-          <span class="material-symbols-outlined" style="font-size:1.1rem;color:var(--purple-600)">info</span>
+        <div class="login__help card">
+          <span class="login__help-icon material-symbols-outlined" aria-hidden="true">support_agent</span>
           <p>
-            Para redefinir sua senha, entre em contato com a recepção:
-            <br>
-            <strong>📞 (11) 9 9999-9999</strong>
-            <br>
-            <span class="text-xs text-gray">A recepcionista pode redefinir sua senha no painel de administração.</span>
+            Fale com a recepção pelo telefone
+            <a href="tel:+5511952790078"><strong>(11) 95279-0078</strong></a>.
+            Depois de confirmar seus dados, a equipe define uma nova senha para você.
           </p>
         </div>
 
-        <p *ngIf="errorMessage" class="error-msg" role="alert" aria-live="polite">{{ errorMessage }}</p>
+        <button type="button" class="btn btn-dark btn-xl" (click)="modo = 'login'">Voltar para o login</button>
+      </ng-container>
 
-        <button class="btn btn-primary login-btn" [disabled]="!selectedType || loading" (click)="login()">
-          {{ selectedLabel }}
-        </button>
-
-      </section>
-
+      <p class="login__footer">
+        Precisa de ajuda? <a href="tel:+5511952790078">Fale com a clínica</a>
+      </p>
     </div>
-  </div>
+  </main>
 </div>

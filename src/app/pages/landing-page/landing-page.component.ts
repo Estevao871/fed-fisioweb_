@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, NgZone, OnDestroy, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../core/api.service';
@@ -15,7 +15,7 @@ import { ParticleModelComponent } from '../../components/particle-model/particle
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.scss',
 })
-export class LandingPageComponent {
+export class LandingPageComponent implements AfterViewInit, OnDestroy {
   contactOpen = false;
   loginOpen   = false;
   menuOpen    = false;
@@ -32,7 +32,76 @@ export class LandingPageComponent {
   contatoSucesso   = false;
   contatoLoading   = false;
 
-  constructor(private readonly api: ApiService) {}
+  /* Como funciona — caminho que se desenha com o scroll (ver docs/animacao-caminho.md) */
+  readonly journeySteps = [
+    { title: 'Avaliação inicial',     desc: 'Uma avaliação completa para entender sua história, sua rotina e o que está limitando o seu movimento.' },
+    { title: 'Plano personalizado',   desc: 'Um plano de tratamento único, construído a partir da avaliação e das suas metas de vida.' },
+    { title: 'Tratamento e evolução', desc: 'A cada sessão, a evolução é registrada — dor, mobilidade e exercícios — e o tratamento é ajustado ao longo do processo.' },
+    { title: 'Retorno às atividades', desc: 'O objetivo é voltar a fazer o que importa para você, com mais autonomia e qualidade de vida.' },
+  ];
+  // viewBox 100×400 (desktop) e 48×400 (celular): uma curva por etapa, bolinha em y = 50/150/250/350
+  readonly pathDesktop = 'M50 0 L50 50 C50 85 82 65 82 100 C82 135 50 115 50 150 C50 185 18 165 18 200 C18 235 50 215 50 250 C50 285 82 265 82 300 C82 335 50 315 50 350 L50 400';
+  readonly pathMobile  = 'M24 0 L24 50 C24 85 40 65 40 100 C40 135 24 115 24 150 C24 185 8 165 8 200 C8 235 24 215 24 250 C24 285 40 265 40 300 C40 335 24 315 24 350 L24 400';
+  activeStep    = -1;    // -1 = nenhuma etapa acesa
+  journeyMobile = false; // < 860 (bp.$site-mobile)
+
+  @ViewChild('journeyTrack') private journeyTrack?: ElementRef<HTMLElement>;
+  @ViewChild('journeyClip')  private journeyClip?: ElementRef<SVGRectElement>;
+
+  private journeyRaf = 0;
+  private readonly reduceMotion =
+    typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  private readonly onJourneyScroll = (): void => {
+    if (this.journeyRaf) return; // no máximo 1 cálculo por quadro
+    this.journeyRaf = requestAnimationFrame(() => { this.journeyRaf = 0; this.updateJourney(); });
+  };
+
+  constructor(
+    private readonly api: ApiService,
+    private readonly zone: NgZone,
+  ) {}
+
+  ngAfterViewInit(): void {
+    // Fora do Angular: rolar não dispara detecção de mudanças a cada pixel
+    this.zone.runOutsideAngular(() => {
+      window.addEventListener('scroll', this.onJourneyScroll, { passive: true });
+      window.addEventListener('resize', this.onJourneyScroll);
+    });
+    this.updateJourney();
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('scroll', this.onJourneyScroll);
+    window.removeEventListener('resize', this.onJourneyScroll);
+    cancelAnimationFrame(this.journeyRaf);
+  }
+
+  private updateJourney(): void {
+    const track = this.journeyTrack?.nativeElement;
+    const clip  = this.journeyClip?.nativeElement;
+    if (!track || !clip) return;
+
+    // Progresso: quanto da trilha já passou de uma linha imaginária a 60% da altura da tela
+    let p = 1;
+    if (!this.reduceMotion) {
+      const rect = track.getBoundingClientRect();
+      p = Math.min(1, Math.max(0, (window.innerHeight * 0.6 - rect.top) / rect.height));
+    }
+    // Revela a linha até a altura p (viewBox tem 400 de altura; +10 compensa o y=-10 do retângulo)
+    clip.setAttribute('height', String(p * 400 + 10));
+
+    // Etapa i acende quando a linha chega na bolinha dela (y = 50, 150, 250, 350 → (i + 0.5) / 4)
+    let step = -1;
+    for (let i = 0; i < this.journeySteps.length; i++) {
+      if (p >= (i + 0.5) / this.journeySteps.length) step = i;
+    }
+    const mobile = window.innerWidth < 860;
+
+    // Só volta para o Angular quando algo visível no template muda
+    if (step !== this.activeStep || mobile !== this.journeyMobile) {
+      this.zone.run(() => { this.activeStep = step; this.journeyMobile = mobile; });
+    }
+  }
 
   enviarContato(): void {
     this.contatoErro = '';
@@ -60,13 +129,6 @@ export class LandingPageComponent {
       },
     });
   }
-
-  processSteps = [
-    { title: 'Agendamento',         description: 'Agende sua primeira consulta de forma rápida e fácil',             symbol: 'calendar_month', icon: 'purple' },
-    { title: 'Avaliação Inicial',   description: 'Realizamos uma avaliação completa para entender suas necessidades', symbol: 'bar_chart',      icon: 'pink'   },
-    { title: 'Plano Personalizado', description: 'Criamos um plano de tratamento único para você',                    symbol: 'favorite',       icon: 'violet' },
-    { title: 'Acompanhamento',      description: 'Monitoramento contínuo do seu progresso e recuperação',             symbol: 'group',          icon: 'blue'   },
-  ];
 
   diferenciais = [
     {

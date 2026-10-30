@@ -46,57 +46,42 @@
     <div class="container hero__inner">
 
       <div class="hero__text enter-up">
+        <span class="hero__eyebrow">Fisioterapia personalizada</span>
         <h1 class="hero__title">
-          Sua <em class="highlight">saúde</em> em<br />
-          <span class="highlight-dark">movimento</span>
+          Recupere seus movimentos. Redescubra sua <span class="accent">liberdade.</span>
         </h1>
         <p class="hero__sub">
-          Tratamentos de fisioterapia personalizados com tecnologia avançada e
-          profissionais especializados para sua recuperação completa.
+          Tratamentos de fisioterapia personalizados, com avaliação clínica detalhada e
+          acompanhamento de perto em cada etapa da sua recuperação.
         </p>
         <div class="hero__actions">
-          <button class="btn btn-primary btn-lg" (click)="contactOpen = true">
-            Agende sua Consulta <span aria-hidden="true">→</span>
+          <button type="button" class="hero__cta" (click)="contactOpen = true">
+            Agendar avaliação
+            <span class="hero__cta-icon material-symbols-outlined" aria-hidden="true">arrow_forward</span>
           </button>
-          <button class="btn btn-outline btn-lg" (click)="loginOpen = true">Área do Paciente</button>
+          <a class="hero__cta-secondary" routerLink="/" fragment="pose-heading">Conhecer tratamentos</a>
         </div>
       </div>
 
-    
       <div class="hero__visual hero__visual--image enter-scale">
         <img src="assets/hero-movimento.webp" width="1672" height="941" fetchpriority="high"
           alt="Ilustração de uma mulher em movimento livre, em tons de roxo" />
       </div>
 
     </div>
-  </section>
-
-  <!-- PROCESS -->
-  <section class="section section--white" aria-labelledby="process-heading">
-    <div class="container">
-      <div class="section-heading" appRevealOnScroll>
-        <h2 id="process-heading">Como Funciona Nosso Processo</h2>
-        <p>Um caminho claro para sua recuperação completa</p>
-      </div>
-      <div class="grid grid-4 steps-grid">
-        <article
-          class="step-card card"
-          *ngFor="let step of processSteps; let i = index"
-          appRevealOnScroll
-          [revealDelay]="i * 100"
-        >
-          <div class="step-icon" [ngClass]="'step-icon--' + step.icon" aria-hidden="true">
-            <span class="material-symbols-outlined">{{ step.symbol }}</span>
-          </div>
-          <h3>{{ step.title }}</h3>
-          <p>{{ step.description }}</p>
-        </article>
-      </div>
-    </div>
+    <a class="hero__scroll" routerLink="/" fragment="spine-heading" aria-label="Rolar para a próxima seção">
+      <span>Role</span>
+      <span class="hero__scroll-mouse" style="position: relative;">
+        <span class="hero__scroll-dot"></span>
+      </span>
+    </a>
   </section>
 
   <!-- COLUNA 3D -->
-  <section class="section spine-section" aria-labelledby="spine-heading">
+  <section class="section section--white spine-section" aria-labelledby="spine-heading">
+    <svg class="wave-top" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 80 C 320 10, 620 70, 900 34 C 1140 4, 1300 30, 1440 18 L1440 80 Z" fill="#fff" />
+    </svg>
     <div class="container spine-grid">
 
       <div class="spine-content" appRevealOnScroll>
@@ -121,6 +106,50 @@
         </app-particle-model>
       </div>
 
+    </div>
+  </section>
+
+  <!-- COMO FUNCIONA — caminho que se desenha com o scroll (ver docs/animacao-caminho.md) -->
+  <section class="journey" aria-labelledby="process-heading">
+    <div class="journey__inner">
+
+      <header class="journey__head" appRevealOnScroll>
+        <span class="eyebrow">Como funciona</span>
+        <h2 id="process-heading">Um caminho claro, <span class="accent">no seu ritmo.</span></h2>
+        <p>Da primeira avaliação ao retorno às atividades, cada etapa é planejada e acompanhada de perto.</p>
+      </header>
+
+      <div class="journey__track" #journeyTrack>
+        <svg class="journey__svg" [attr.viewBox]="journeyMobile ? '0 0 48 400' : '0 0 100 400'"
+          preserveAspectRatio="none" aria-hidden="true">
+          <!-- "Janela" que abre de cima para baixo e revela a linha roxa (altura = progresso × 400) -->
+          <defs>
+            <clipPath id="journey-clip" clipPathUnits="userSpaceOnUse">
+              <rect #journeyClip x="-20" y="-10" width="140" height="0" />
+            </clipPath>
+          </defs>
+          <path class="journey__rail" [attr.d]="journeyMobile ? pathMobile : pathDesktop" vector-effect="non-scaling-stroke" />
+          <path class="journey__line" [attr.d]="journeyMobile ? pathMobile : pathDesktop"
+            clip-path="url(#journey-clip)" vector-effect="non-scaling-stroke" />
+        </svg>
+
+        <div *ngFor="let s of journeySteps; let i = index; let even = even"
+          class="journey__step"
+          [class.is-left]="even"
+          [class.is-right]="!even"
+          [class.is-on]="i <= activeStep">
+
+          <span class="journey__dot" aria-hidden="true"></span>
+
+          <div class="journey__text">
+            <div class="journey__label">Etapa {{ i + 1 }}</div>
+            <h3>{{ s.title }}</h3>
+            <p>{{ s.desc }}</p>
+          </div>
+
+          <div class="journey__num" aria-hidden="true">0{{ i + 1 }}</div>
+        </div>
+      </div>
     </div>
   </section>
 

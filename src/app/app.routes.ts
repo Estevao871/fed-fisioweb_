@@ -13,6 +13,12 @@ export const routes: Routes = [
       import('./pages/login-page/login-page.component').then((m) => m.LoginPageComponent),
   },
   {
+    path: 'privacidade',
+    title: 'Política de Privacidade — Vida em Movimento',
+    loadComponent: () =>
+      import('./pages/privacidade-page/privacidade-page.component').then((m) => m.PrivacidadePageComponent),
+  },
+  {
     path: 'dashboard/fisioterapeuta',
     canActivate: [authGuard, roleGuard(['fisioterapeuta'])],
     loadComponent: () =>

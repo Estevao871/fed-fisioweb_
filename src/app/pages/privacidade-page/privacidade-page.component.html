@@ -1,0 +1,163 @@
+<div class="priv">
+  <header class="priv__top">
+    <a routerLink="/" class="priv__brand" aria-label="Vida em Movimento — página inicial">
+      <img src="assets/Logo_Movimento.png" alt="Vida em Movimento" />
+    </a>
+    <a routerLink="/" class="priv__back">
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+      Voltar ao site
+    </a>
+  </header>
+
+  <main class="priv__main">
+    <span class="eyebrow">LGPD · Lei nº 13.709/2018</span>
+    <h1>Política de <span class="accent">Privacidade</span></h1>
+    <p class="priv__lead">
+      Esta política explica quais dados pessoais a Vida em Movimento coleta, por que coleta, como protege
+      e quais são os seus direitos. Atualizada em {{ atualizadoEm }}.
+    </p>
+
+    <nav class="priv__toc" aria-label="Nesta página">
+      <a href="#quem-somos" (click)="irPara('quem-somos', $event)">1. Quem somos</a>
+      <a href="#dados" (click)="irPara('dados', $event)">2. Dados que coletamos</a>
+      <a href="#finalidades" (click)="irPara('finalidades', $event)">3. Para que usamos</a>
+      <a href="#compartilhamento" (click)="irPara('compartilhamento', $event)">4. Com quem compartilhamos</a>
+      <a href="#navegador" (click)="irPara('navegador', $event)">5. Armazenamento no navegador</a>
+      <a href="#seguranca" (click)="irPara('seguranca', $event)">6. Segurança</a>
+      <a href="#retencao" (click)="irPara('retencao', $event)">7. Por quanto tempo guardamos</a>
+      <a href="#direitos" (click)="irPara('direitos', $event)">8. Seus direitos</a>
+      <a href="#contato" (click)="irPara('contato', $event)">9. Contato</a>
+    </nav>
+
+    <section id="quem-somos">
+      <h2>1. Quem somos</h2>
+      <p>
+        A responsável pelo tratamento dos seus dados (controladora) é
+        <mark>[RAZÃO SOCIAL ou NOME COMPLETO]</mark>, <mark>[CNPJ ou CPF]</mark>, com sede na Estrada da Aldeinha, 1110 –
+        <mark>[BAIRRO, CIDADE – UF, CEP]</mark>, que atua com o nome Vida em Movimento.
+      </p>
+      <p>
+        Encarregado(a) pelo tratamento de dados pessoais: <mark>[NOME DO(A) ENCARREGADO(A)]</mark> —
+        <mark>[E-MAIL PARA ASSUNTOS DE PRIVACIDADE]</mark>.
+      </p>
+    </section>
+
+    <section id="dados">
+      <h2>2. Dados que coletamos</h2>
+      <h3>Quando você pede uma avaliação pelo site</h3>
+      <ul>
+        <li>Nome completo, telefone e e-mail.</li>
+        <li>Queixa principal (o que você está sentindo) e o assunto de interesse.</li>
+      </ul>
+      <p class="priv__note">
+        A queixa é um <strong>dado de saúde</strong>, considerado <strong>dado pessoal sensível</strong> pela LGPD.
+        Por isso ela só é usada para organizar o seu atendimento.
+      </p>
+
+      <h3>Quando você é paciente</h3>
+      <ul>
+        <li>Dados de cadastro e da conta de acesso (nome, e-mail, telefone e perfil). A senha é guardada criptografada.</li>
+        <li>Prontuário: avaliação clínica, diagnóstico fisioterapêutico, plano de tratamento e evolução de cada sessão.</li>
+        <li>Agenda: datas, horários, presenças, faltas e remarcações.</li>
+      </ul>
+
+      <h3>O que não coletamos</h3>
+      <p>Não usamos cookies de publicidade, pixels de redes sociais nem ferramentas de rastreamento de terceiros.</p>
+    </section>
+
+    <section id="finalidades">
+      <h2>3. Para que usamos</h2>
+      <div class="priv__table" role="table" aria-label="Finalidades e bases legais">
+        <div role="row" class="priv__row priv__row--head">
+          <span role="columnheader">Finalidade</span>
+          <span role="columnheader">Base legal (LGPD)</span>
+        </div>
+        <div role="row" class="priv__row">
+          <span role="cell">Retornar o seu pedido de avaliação e combinar o horário</span>
+          <span role="cell">Procedimentos preliminares ao atendimento (art. 7º, V) e consentimento para o dado de saúde (art. 11, I)</span>
+        </div>
+        <div role="row" class="priv__row">
+          <span role="cell">Realizar o atendimento e manter o prontuário</span>
+          <span role="cell">Tutela da saúde por profissional da saúde (art. 11, II, "f") e cumprimento de obrigação legal e regulatória (art. 11, II, "a")</span>
+        </div>
+        <div role="row" class="priv__row">
+          <span role="cell">Dar acesso à plataforma (login) e manter a conta segura</span>
+          <span role="cell">Execução do serviço contratado (art. 7º, V) e legítimo interesse em segurança (art. 7º, IX)</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="compartilhamento">
+      <h2>4. Com quem compartilhamos</h2>
+      <p>Não vendemos nem alugamos seus dados. Eles são acessados apenas por:</p>
+      <ul>
+        <li><strong>Equipe da clínica</strong>, de acordo com a função: a recepção vê dados de contato e agenda; o prontuário é acessado pelo(a) fisioterapeuta responsável.</li>
+        <li><strong>Provedores de tecnologia</strong> que hospedam o site, o servidor e o banco de dados, apenas para manter o sistema funcionando.
+          Alguns desses provedores podem armazenar dados fora do Brasil, com garantias contratuais de proteção. <mark>[CONFIRMAR PROVEDORES E PAÍSES]</mark></li>
+        <li><strong>Autoridades</strong>, quando houver obrigação legal ou ordem judicial.</li>
+      </ul>
+    </section>
+
+    <section id="navegador">
+      <h2>5. Armazenamento no navegador</h2>
+      <p>
+        Ao entrar na plataforma, guardamos no seu navegador apenas o necessário para manter você conectado (um código de acesso,
+        seu nome e seu perfil). Esse armazenamento é essencial e é apagado quando você sai da conta. Com a opção
+        <strong>“Lembrar de mim”</strong> desmarcada, ele também é apagado ao fechar o navegador.
+      </p>
+    </section>
+
+    <section id="seguranca">
+      <h2>6. Segurança</h2>
+      <ul>
+        <li>Todo o site e a plataforma usam conexão criptografada (HTTPS).</li>
+        <li>Senhas são armazenadas criptografadas, nunca em texto aberto.</li>
+        <li>Cada pessoa só acessa o que o seu perfil permite (paciente, recepção, fisioterapeuta).</li>
+        <li>Tentativas de login em excesso são bloqueadas temporariamente.</li>
+      </ul>
+    </section>
+
+    <section id="retencao">
+      <h2>7. Por quanto tempo guardamos</h2>
+      <ul>
+        <li><strong>Pedidos de avaliação</strong> que não viram atendimento: até <mark>[PRAZO, ex.: 12 meses]</mark>, e depois são excluídos.</li>
+        <li><strong>Prontuário</strong>: pelo prazo exigido pelas normas do conselho profissional (COFFITO) e pela legislação de saúde. <mark>[CONFIRMAR PRAZO]</mark></li>
+        <li><strong>Conta de acesso</strong>: enquanto você for paciente ou até pedir o encerramento, respeitando o prazo do prontuário.</li>
+      </ul>
+    </section>
+
+    <section id="direitos">
+      <h2>8. Seus direitos</h2>
+      <p>Pela LGPD (art. 18), você pode pedir a qualquer momento:</p>
+      <ul>
+        <li>Confirmação de que tratamos seus dados e acesso a eles.</li>
+        <li>Correção de dados incompletos, inexatos ou desatualizados.</li>
+        <li>Anonimização, bloqueio ou eliminação de dados desnecessários.</li>
+        <li>Portabilidade dos dados para outro profissional.</li>
+        <li>Informação sobre com quem compartilhamos.</li>
+        <li>Revogação do consentimento, quando ele for a base legal.</li>
+      </ul>
+      <p class="priv__note">
+        Alguns dados, como o prontuário, precisam ser mantidos pelo prazo legal mesmo após um pedido de exclusão.
+        Nesses casos, explicamos o motivo na resposta.
+      </p>
+      <p>
+        Se não ficar satisfeito com a nossa resposta, você também pode procurar a Autoridade Nacional de Proteção de Dados (ANPD).
+      </p>
+    </section>
+
+    <section id="contato">
+      <h2>9. Contato</h2>
+      <p>
+        Para exercer seus direitos ou tirar dúvidas sobre esta política, fale com a gente pelo e-mail
+        <mark>[E-MAIL PARA ASSUNTOS DE PRIVACIDADE]</mark> ou pelo telefone
+        <a href="tel:+5511952790078">(11) 95279-0078</a>. Respondemos em até 15 dias.
+      </p>
+    </section>
+  </main>
+
+  <footer class="priv__footer">
+    <span>© Vida em Movimento</span>
+    <a routerLink="/">Voltar ao site</a>
+  </footer>
+</div>

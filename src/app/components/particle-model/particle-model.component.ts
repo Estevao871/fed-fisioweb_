@@ -34,7 +34,7 @@ export class ParticleModelComponent implements AfterViewInit, OnDestroy {
   private camera!: THREE.PerspectiveCamera;
   private group = new THREE.Group();
   private frameId = 0;
-  private clock = new THREE.Clock();
+  private timer = new THREE.Timer();
 
   private mouseX = 0;
   private mouseY = 0;
@@ -87,6 +87,7 @@ export class ParticleModelComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     cancelAnimationFrame(this.frameId);
+    this.timer.dispose();
     window.removeEventListener('mousemove', this.onMouseMove);
     window.removeEventListener('resize', this.onResize);
     this.resizeObserver?.disconnect();
@@ -238,8 +239,6 @@ export class ParticleModelComponent implements AfterViewInit, OnDestroy {
         this.mixer = new THREE.AnimationMixer(gltf.scene);
         this.mixer.clipAction(gltf.animations[0]).play();
       }
-
-      console.log(`[ParticleModel] ${this.modelUrl} carregado — ${this.particleCount} partículas`);
     },
     undefined,
     (err) => console.error(`[ParticleModel] Falha ao carregar ${this.modelUrl}`, err)
@@ -388,8 +387,9 @@ export class ParticleModelComponent implements AfterViewInit, OnDestroy {
         this.frameId = requestAnimationFrame(tick);
         if (!this.sizeReady) this.resizeToCanvas();
 
-        const delta = this.clock.getDelta();
-        const t     = this.clock.elapsedTime;
+        this.timer.update();
+        const delta = this.timer.getDelta();
+        const t     = this.timer.getElapsed();
 
         if (this.mainAttr) {
           if (this.mixer) {

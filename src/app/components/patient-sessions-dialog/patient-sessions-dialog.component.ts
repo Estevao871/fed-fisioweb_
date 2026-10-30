@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
+import { HORARIOS_ATENDIMENTO } from '../../core/agenda';
 
 const DIAS = [
   { code: 'SEG', label: 'Segunda' },
@@ -10,13 +11,6 @@ const DIAS = [
   { code: 'QUI', label: 'Quinta' },
   { code: 'SEX', label: 'Sexta' },
 ];
-
-const HORARIOS = Array.from({ length: 25 }, (_, i) => {
-  const h = Math.floor(i / 2) + 8;
-  const m = i % 2 === 0 ? '00' : '30';
-  if (h > 19 || (h === 19 && m === '30')) return null;
-  return `${String(h).padStart(2, '0')}:${m}`;
-}).filter(Boolean) as string[];
 
 @Component({
   selector: 'app-patient-sessions-dialog',
@@ -34,7 +28,7 @@ export class PatientSessionsDialogComponent implements OnChanges {
   @Output() sessionsScheduled = new EventEmitter<void>();
 
   readonly dias = DIAS;
-  readonly horarios = HORARIOS;
+  readonly horarios = HORARIOS_ATENDIMENTO;
 
   quantidadeSessoes = 9;
   frequenciaSemanal = 2;

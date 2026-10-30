@@ -9,17 +9,17 @@
 
       <nav class="lp-nav" role="navigation" aria-label="Menu principal">
         <ul class="lp-nav__list">
-          <li><a routerLink="/" fragment="process-heading">Como funciona</a></li>
-          <li><a routerLink="/" fragment="sobre-heading">Regiões</a></li>
-          <li><a routerLink="/" fragment="pose-heading">Especialidades</a></li>
-          <li><a routerLink="/" fragment="recovery-heading">Sobre</a></li>
-          <li><a routerLink="/" fragment="contato-heading">Contato</a></li>
+          <li *ngFor="let l of navLinks">
+            <a [href]="'#' + l.id" (click)="irPara(l.id, $event)"
+              [class.active]="activeSection === l.id"
+              [attr.aria-current]="activeSection === l.id ? 'location' : null">{{ l.label }}</a>
+          </li>
         </ul>
       </nav>
 
       <div class="lp-header__actions">
-        <button type="button" class="lp-cta-link" (click)="loginOpen = true">Área do Paciente</button>
-        <button type="button" class="lp-cta" (click)="contactOpen = true">Agendar avaliação</button>
+        <a class="lp-cta-link" routerLink="/login" [queryParams]="{ perfil: 'paciente' }">Área do Paciente</a>
+        <button type="button" class="lp-cta" (click)="abrirContato()">Agendar avaliação</button>
       </div>
 
       <button type="button" class="lp-burger" (click)="menuOpen = !menuOpen"
@@ -29,14 +29,12 @@
     </div>
 
     <div class="lp-mobile-menu" *ngIf="menuOpen">
-      <a routerLink="/" fragment="process-heading"  (click)="menuOpen = false">Como funciona</a>
-      <a routerLink="/" fragment="sobre-heading"    (click)="menuOpen = false">Regiões</a>
-      <a routerLink="/" fragment="pose-heading"     (click)="menuOpen = false">Especialidades</a>
-      <a routerLink="/" fragment="recovery-heading" (click)="menuOpen = false">Sobre</a>
-      <a routerLink="/" fragment="contato-heading"  (click)="menuOpen = false">Contato</a>
+      <a *ngFor="let l of navLinks" [href]="'#' + l.id" (click)="irPara(l.id, $event)"
+        [class.active]="activeSection === l.id"
+        [attr.aria-current]="activeSection === l.id ? 'location' : null">{{ l.label }}</a>
       <div class="lp-mobile-menu__actions">
-        <button type="button" class="lp-cta-link" (click)="menuOpen = false; loginOpen = true">Área do Paciente</button>
-        <button type="button" class="lp-cta" (click)="menuOpen = false; contactOpen = true">Agendar avaliação</button>
+        <a class="lp-cta-link" routerLink="/login" [queryParams]="{ perfil: 'paciente' }" (click)="menuOpen = false">Área do Paciente</a>
+        <button type="button" class="lp-cta" (click)="menuOpen = false; abrirContato()">Agendar avaliação</button>
       </div>
     </div>
   </header>
@@ -55,11 +53,11 @@
           acompanhamento de perto em cada etapa da sua recuperação.
         </p>
         <div class="hero__actions">
-          <button type="button" class="hero__cta" (click)="contactOpen = true">
+          <button type="button" class="hero__cta" (click)="abrirContato()">
             Agendar avaliação
             <span class="hero__cta-icon material-symbols-outlined" aria-hidden="true">arrow_forward</span>
           </button>
-          <a class="hero__cta-secondary" routerLink="/" fragment="pose-heading">Conhecer tratamentos</a>
+          <a class="hero__cta-secondary" href="#especialidades-heading" (click)="irPara('especialidades-heading', $event)">Conhecer tratamentos</a>
         </div>
       </div>
 
@@ -69,7 +67,7 @@
       </div>
 
     </div>
-    <a class="hero__scroll" routerLink="/" fragment="spine-heading" aria-label="Rolar para a próxima seção">
+    <a class="hero__scroll" href="#spine-heading" (click)="irPara('spine-heading', $event)" aria-label="Rolar para a próxima seção">
       <span>Role</span>
       <span class="hero__scroll-mouse" style="position: relative;">
         <span class="hero__scroll-dot"></span>
@@ -91,7 +89,7 @@
           Unimos tecnologia, conhecimento e um olhar humanizado para entregar
           resultados reais e duradouros.
         </p>
-        <button class="btn btn-primary" (click)="contactOpen = true">
+        <button class="btn btn-primary" (click)="abrirContato()">
           Conheça nossos tratamentos
         </button>
       </div>
@@ -153,254 +151,94 @@
     </div>
   </section>
 
-  <!-- SOBRE -->
-  <section class="section section--soft" aria-labelledby="sobre-heading">
-    <div class="container">
-      <div class="sobre-grid">
+  <!-- CORPO — Tratamentos por região (boneco de partículas com pontos clicáveis) -->
+  <section class="body-regions" aria-labelledby="pose-heading">
+    <svg class="body-regions__wave body-regions__wave--top" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 0 L1440 0 L1440 30 C 1180 70, 900 10, 620 46 C 380 76, 160 30, 0 52 Z" />
+    </svg>
 
-        <div class="sobre-visual enter-scale">
-          <div class="sobre-img-wrap">
-            <img src="assets/Fisio.png" alt="Fisioterapia de verdade" class="sobre-img-label" loading="lazy">
-          </div>
-        </div>
-
-        <div class="sobre-content" appRevealOnScroll>
-          <span class="lp-chip">Sobre</span>
-          <h2 id="sobre-heading">Cuidado com quem<br/>realmente importa</h2>
-          <p class="sobre-desc">
-            A Vida em Movimento nasceu da vontade de oferecer fisioterapia de verdade — onde
-            o paciente é ouvido, o tratamento é personalizado e os resultados são monitorados
-            de perto.
-          </p>
-          <p class="sobre-desc">
-            Cada protocolo é desenvolvido individualmente, com base na avaliação clínica
-            completa e nas metas de vida de cada paciente.
-          </p>
-          <ul class="sobre-list">
-            <li *ngFor="let b of sobreBullets">
-              <span class="sobre-check material-symbols-outlined" aria-hidden="true">check_circle</span>
-              {{ b }}
-            </li>
-          </ul>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- CORPO EM T — Tratamentos por região -->
-  <section class="section section--soft pose-section" aria-labelledby="pose-heading">
-    <div class="container pose-grid">
-
-      <div class="pose-visual" aria-hidden="true">
-        <app-particle-model
-          modelUrl="assets/pose-t.glb"
-          colorMain="#7545c8"
-          colorHl="#c4b5fd"
-          [enableTrail]="false"
-          [rotationY]="rotationPoseT"
-          [enableMouseRotate]="false">
-        </app-particle-model>
-
-        <!-- Hotspots sobrepostos ao canvas -->
-        <div class="hotspot hotspot--ombro">
-          <div class="hotspot__dot"></div>
-          <div class="hotspot__line"></div>
-          <span class="hotspot__label">Ombro</span>
-        </div>
-        <div class="hotspot hotspot--coluna">
-          <div class="hotspot__dot"></div>
-          <div class="hotspot__line"></div>
-          <span class="hotspot__label">Coluna</span>
-        </div>
-        <div class="hotspot hotspot--quadril">
-          <div class="hotspot__dot"></div>
-          <div class="hotspot__line"></div>
-          <span class="hotspot__label">Quadril</span>
-        </div>
-        <div class="hotspot hotspot--joelho">
-          <div class="hotspot__dot"></div>
-          <div class="hotspot__line"></div>
-          <span class="hotspot__label">Joelho</span>
-        </div>
-      </div>
-
-      <div class="pose-content" appRevealOnScroll>
-        <span class="lp-chip">Tratamentos Personalizados</span>
-        <h2 id="pose-heading">Cada corpo<br/>é <em class="highlight">único.</em></h2>
-        <p class="pose-desc">
-          Avaliação individualizada e tratamentos focados na causa do problema,
-          não apenas nos sintomas.
+    <div class="body-regions__inner">
+      <div class="body-regions__content" appRevealOnScroll>
+        <span class="eyebrow">Tratamentos por região</span>
+        <h2 id="pose-heading">Cada corpo é <span class="accent">único.</span></h2>
+        <p class="body-regions__desc">
+          Avaliação individualizada e tratamentos focados na causa do problema, não apenas nos sintomas.
+          Toque em uma região para saber mais.
         </p>
-        <ul class="pose-areas">
-          <li *ngFor="let a of bodyAreas" class="pose-area-item">
-            <span class="material-symbols-outlined pose-area-icon">{{ a.icon }}</span>
-            <div>
-              <strong>{{ a.label }}</strong>
-              <span>{{ a.desc }}</span>
-            </div>
-          </li>
-        </ul>
-      </div>
 
-    </div>
-  </section>
-
-  <!-- HOW IT HELPS -->
-  <section class="section section--white" aria-labelledby="recovery-heading">
-    <div class="container">
-      <div class="section-heading" appRevealOnScroll>
-        <h2 id="recovery-heading">Como a Fisioterapia Ajuda</h2>
-        <p>Diferenciais do nosso atendimento</p>
-      </div>
-      <div class="grid grid-3 benefits-grid">
-        <article
-          class="benefit-card card"
-          *ngFor="let d of diferenciais; let i = index"
-          appRevealOnScroll
-          [revealDelay]="i * 100"
-        >
-          <div class="benefit-icon" aria-hidden="true">
-            <span class="material-symbols-outlined">{{ d.icon }}</span>
-          </div>
-          <h3>{{ d.title }}</h3>
-          <p>{{ d.description }}</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- WHY Vida em Movimento -->
-  <section class="section section--soft" aria-labelledby="benefits-heading">
-    <div class="container">
-      <div class="section-heading" appRevealOnScroll>
-        <h2 id="benefits-heading">Por Que Escolher Vida em Movimento</h2>
-        <p>Excelência em cada detalhe do seu tratamento</p>
-      </div>
-      <div class="grid grid-3 benefits-grid">
-        <article
-          class="benefit-card card"
-          *ngFor="let benefit of benefits; let i = index"
-          appRevealOnScroll
-          [revealDelay]="i * 80"
-        >
-          <div class="benefit-icon" aria-hidden="true"><span class="material-symbols-outlined">{{ benefit.icon }}</span></div>
-          <h3>{{ benefit.title }}</h3>
-          <p>{{ benefit.description }}</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA BAND -->
-  <section class="cta-band" appRevealOnScroll aria-labelledby="cta-heading">
-    <div class="container cta-band__inner">
-      <div class="cta-band__text">
-        <h2 id="cta-heading">Pronto para começar?</h2>
-        <p>Agende sua avaliação inicial e dê o primeiro passo.</p>
-      </div>
-      <button class="btn cta-band__btn" (click)="contactOpen = true">
-        Agendar Avaliação <span aria-hidden="true">→</span>
-      </button>
-    </div>
-  </section>
-
-  <!-- FALE CONOSCO -->
-  <section class="section section--white" aria-labelledby="contato-heading">
-    <div class="container">
-      <div class="contato-grid">
-
-        <div class="contato-info" appRevealOnScroll>
-          <span class="lp-chip">Contato</span>
-          <h2 id="contato-heading">Fale conosco</h2>
-          <ul class="contato-list">
-            <li>
-              <span class="contato-icon"><span class="material-symbols-outlined">location_on</span></span>
-              <div><small>ENDEREÇO</small><p>Estrada da Aldeinha, 1110</p></div>
-            </li>
-            <li>
-              <span class="contato-icon"><span class="material-symbols-outlined">phone</span></span>
-              <div><small>TELEFONE</small><p>(11) 95279-0078</p></div>
-            </li>
-            <li>
-              <span class="contato-icon"><span class="material-symbols-outlined">mail</span></span>
-              <div><small>E-MAIL</small><p>cunhathalia10@gmail.com</p></div>
-            </li>
-            <li>
-              <span class="contato-icon"><span class="material-symbols-outlined">schedule</span></span>
-              <div><small>HORÁRIO</small><p>Seg–Sex: 8h às 18h · Sab: 8h às 12h</p></div>
-            </li>
-          </ul>
+        <div class="body-regions__chips" role="tablist" aria-label="Regiões do corpo">
+          <button *ngFor="let r of bodyRegions; let i = index"
+            type="button" role="tab" class="chip"
+            [class.active]="i === activeRegion"
+            [attr.aria-selected]="i === activeRegion"
+            (click)="activeRegion = i">{{ r.title }}</button>
         </div>
 
-        <div class="contato-form card" appRevealOnScroll [revealDelay]="100">
-          <div class="field-group">
-            <label for="ct-nome">Nome completo</label>
-            <input id="ct-nome" class="input" [(ngModel)]="contatoNome" placeholder="Seu nome" />
-          </div>
-          <div class="field-group">
-            <label for="ct-tel">Telefone</label>
-            <input id="ct-tel" class="input" [(ngModel)]="contatoTelefone" placeholder="(11) 99999-9999" />
-          </div>
-          <div class="field-group">
-            <label for="ct-msg">Mensagem</label>
-            <textarea id="ct-msg" class="input" [(ngModel)]="contatoMensagem"
-              rows="4" placeholder="Como podemos ajudar?"></textarea>
-          </div>
-          <p *ngIf="contatoErro" style="color:var(--red-600);font-size:.82rem;margin-top:.25rem">{{ contatoErro }}</p>
-          <p *ngIf="contatoSucesso" style="color:var(--green-700);font-size:.82rem;margin-top:.25rem">
-            Mensagem enviada! Entraremos em contato em breve.
-          </p>
-          <button class="btn btn-primary contato-btn" [disabled]="contatoLoading" (click)="enviarContato()">
-            {{ contatoLoading ? 'Enviando...' : 'Enviar mensagem' }}
+        <div class="body-regions__panel" role="tabpanel" aria-live="polite">
+          <!-- @for com track recria o bloco ao trocar de região → a animação de entrada roda de novo -->
+          @for (r of [bodyRegions[activeRegion]]; track r.title) {
+            <div class="body-regions__panel-body">
+              <span class="body-regions__trat">{{ r.trat }}</span>
+              <h3>{{ r.title }}</h3>
+              <p>{{ r.desc }}</p>
+              <button type="button" class="body-regions__cta" (click)="abrirContato(r.title)">
+                Agendar avaliação
+                <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+              </button>
+            </div>
+          }
+        </div>
+
+        <p class="body-regions__note">
+          Conteúdo educativo. O diagnóstico e o plano de tratamento são definidos na avaliação.
+        </p>
+      </div>
+
+      <div class="body-regions__visual">
+        <div class="body-regions__figure">
+          <div class="body-regions__glow" aria-hidden="true"></div>
+
+          <!-- Boneco em T de partículas: câmera fixa para os pontos não saírem do lugar -->
+          <app-particle-model
+            modelUrl="assets/pose-t.glb"
+            colorMain="#7545c8"
+            colorHl="#c4b5fd"
+            [enableTrail]="false"
+            [rotationY]="rotationPoseT"
+            [enableMouseRotate]="false">
+          </app-particle-model>
+
+          <button *ngFor="let r of bodyRegions; let i = index"
+            type="button" class="body-regions__spot"
+            [class.is-on]="i === activeRegion"
+            [class.label-left]="r.side === 'l'"
+            [style.left]="'calc(50% + var(--fig-h) * ' + r.dx + ')'"
+            [style.top]="'calc(50% + var(--fig-h) * ' + r.dy + ')'"
+            [attr.aria-label]="r.title"
+            (click)="activeRegion = i"
+            (mouseenter)="activeRegion = i">
+            <span class="body-regions__ring"></span>
+            <span class="body-regions__dot"></span>
+            <span class="body-regions__label">{{ r.title }}</span>
           </button>
         </div>
-
       </div>
     </div>
+
+    <svg class="body-regions__wave body-regions__wave--bottom" viewBox="0 0 1440 80" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 80 L0 40 C 260 70, 520 20, 820 44 C 1080 64, 1260 30, 1440 46 L1440 80 Z" />
+    </svg>
   </section>
 
-  <!-- FOOTER -->
-  <footer class="lp-footer" role="contentinfo">
-    <div class="container lp-footer__grid">
+  <!-- ESPECIALIDADES — componente próprio (components/especialidades-section) -->
+  <app-especialidades-section (agendar)="abrirContato($event)" />
 
-      <div class="lp-footer__brand">
-        <a routerLink="/" class="brand brand--white" aria-label="Vida em Movimento">
-          <img src="assets/Logo_Movimento.png" alt="Vida em Movimento" class="brand-logo brand-logo--white" />
-        </a>
-        <p>Fisioterapia personalizada, tecnologia a serviço do cuidado e da recuperação.</p>
-      </div>
-
-      <div class="lp-footer__col">
-        <h4>Serviços</h4>
-        <ul>
-          <li>Reabilitação Ortopédica</li>
-          <li>Fisioterapia Neurológica</li>
-          <li>Fisioterapia Respiratória</li>
-          <li>Reabilitação Funcional</li>
-        </ul>
-      </div>
-
-      <div class="lp-footer__col">
-        <h4>Acesso</h4>
-        <ul>
-          <li><button type="button" (click)="loginOpen = true">Área do Paciente</button></li>
-          <li><button type="button" (click)="loginOpen = true">Área do Fisioterapeuta</button></li>
-          <li><button type="button" (click)="loginOpen = true">Área da Recepção</button></li>
-          <li><button type="button" (click)="contactOpen = true">Contato</button></li>
-        </ul>
-      </div>
-
-    </div>
-    <div class="lp-footer__bottom">
-      <div class="container">
-        <p>© 2026 Vida em Movimento. Todos os direitos reservados.</p>
-      </div>
-    </div>
-  </footer>
+  <!-- BENEFÍCIOS · SOBRE · CONTATO + RODAPÉ — componentes próprios (components/*-section) -->
+  <app-beneficios-section />
+  <app-sobre-section />
+  <app-contato-section (agendar)="abrirContato()" />
 
 </div>
 
 <!-- MODALS -->
-<app-contact-form-dialog [(open)]="contactOpen" />
-<app-login-dialog [(open)]="loginOpen" />
+<app-contact-form-dialog [(open)]="contactOpen" [assunto]="contactAssunto" />

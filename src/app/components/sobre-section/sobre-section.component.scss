@@ -1,0 +1,157 @@
+@use 'breakpoints' as bp;
+
+.sobre {
+  position: relative;
+  background: var(--gray-50);
+  padding: clamp(110px, 13vw, 170px) clamp(20px, 5vw, 64px);
+
+  // Onda de cima: continua o roxo da seção de benefícios
+  &__wave {
+    position: absolute;
+    top: -1px;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    display: block;
+
+    path { fill: var(--purple-800); }
+  }
+
+  &__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
+    gap: clamp(48px, 6vw, 96px);
+    align-items: center;
+
+    @media (max-width: bp.$site-mobile) { grid-template-columns: minmax(0, 1fr); }
+  }
+
+  // Foto em arco com uma "mancha" lilás atrás e o selo com o nome
+  &__visual {
+    position: relative;
+    height: 600px;
+    min-width: 0;
+
+    @media (max-width: bp.$site-mobile) { height: 420px; }
+  }
+
+  &__blob {
+    position: absolute;
+    inset: -4% 14% 14% -4%;
+    border-radius: 52% 48% 40% 60% / 48% 56% 44% 52%;
+    background: var(--purple-100);
+    animation: sobreFloat 8s ease-in-out infinite alternate;
+  }
+
+  &__photo {
+    position: absolute;
+    inset: 6% 2% 0 8%;
+    border-radius: 220px 220px 36px 36px;
+    overflow: hidden;
+    background: var(--purple-100);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 30%;
+      display: block;
+      transform: scale(1.08);
+    }
+  }
+
+  &__badge {
+    position: absolute;
+    right: -8px;
+    bottom: 36px;
+    max-width: 230px;
+    padding: 16px 18px;
+    border-radius: var(--radius-md);
+    background: #fff;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    box-shadow: 0 24px 40px -24px rgba(68,33,120,.5);
+    animation: sobreFloat 6s ease-in-out infinite alternate-reverse;
+
+    @media (max-width: bp.$site-mobile) { right: 8px; }
+  }
+
+  &__badge-icon {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: var(--purple-100);
+    color: var(--purple-600);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  &__badge-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    strong { font-size: 16px; font-weight: 600; color: var(--gray-900); }
+    span   { font-size: 14px; color: var(--gray-600); }
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    min-width: 0;
+
+    h2 {
+      font-size: clamp(34px, 4.4vw, 60px);
+      line-height: 1.04;
+      letter-spacing: -0.04em;
+      text-wrap: balance;
+      scroll-margin-top: 110px;
+    }
+
+    > p { max-width: 540px; font-size: 17px; line-height: 1.7; color: var(--gray-600); text-wrap: pretty; }
+  }
+
+  &__list {
+    list-style: none;
+    margin: 6px 0 0;
+    padding: 0;
+
+    li {
+      display: grid;
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+      padding: 16px 0;
+      border-top: 1px solid #ede5fa;
+      font-size: 16px;
+      line-height: 1.5;
+      color: var(--gray-900);
+    }
+  }
+
+  &__check {
+    width: 22px;
+    height: 22px;
+    margin-top: 1px;
+    border-radius: var(--radius-pill);
+    background: var(--purple-100);
+    color: var(--purple-600);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+  }
+}
+
+@keyframes sobreFloat {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(4px, -8px); }
+}

@@ -1,36 +1,60 @@
 import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component, ElementRef, HostListener, NgZone, OnDestroy, ViewChild } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { ApiService } from '../../core/api.service';
 import { ContactFormDialogComponent } from '../../components/contact-form-dialog/contact-form-dialog.component';
-import { LoginDialogComponent } from '../../components/login-dialog/login-dialog.component';
 import { RevealOnScrollDirective } from '../../core/directives/reveal-on-scroll.directive';
 import { ParticleModelComponent } from '../../components/particle-model/particle-model.component';
+import { EspecialidadesSectionComponent } from '../../components/especialidades-section/especialidades-section.component';
+import { BeneficiosSectionComponent } from '../../components/beneficios-section/beneficios-section.component';
+import { SobreSectionComponent } from '../../components/sobre-section/sobre-section.component';
+import { ContatoSectionComponent } from '../../components/contato-section/contato-section.component';
 
 @Component({
   selector: 'app-landing-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, ContactFormDialogComponent, LoginDialogComponent, RevealOnScrollDirective, ParticleModelComponent],
+  imports: [
+    CommonModule, RouterLink, ContactFormDialogComponent, RevealOnScrollDirective, ParticleModelComponent,
+    EspecialidadesSectionComponent, BeneficiosSectionComponent, SobreSectionComponent, ContatoSectionComponent,
+  ],
   templateUrl: './landing-page.component.html',
   styleUrl: './landing-page.component.scss',
 })
 export class LandingPageComponent implements AfterViewInit, OnDestroy {
   contactOpen = false;
-  loginOpen   = false;
+  contactAssunto = ''; // de onde veio o clique (especialidade ou região) → vai junto no lead
+
+  abrirContato(assunto = ''): void {
+    this.contactAssunto = assunto;
+    this.contactOpen = true;
+  }
   menuOpen    = false;
   scrolled    = false;
 
   @HostListener('window:scroll')
   onScroll(): void { this.scrolled = window.scrollY > 24; }
 
-  /* Fale Conosco */
-  contatoNome      = '';
-  contatoTelefone  = '';
-  contatoMensagem  = '';
-  contatoErro      = '';
-  contatoSucesso   = false;
-  contatoLoading   = false;
+  /* Menu: âncoras nos títulos (h2) das seções. O scroll-margin-top de cada título desconta o header fixo. */
+  readonly navLinks = [
+    { id: 'process-heading',        label: 'Como funciona'  },
+    { id: 'pose-heading',           label: 'Regiões'        },
+    { id: 'especialidades-heading', label: 'Especialidades' },
+    { id: 'sobre-heading',          label: 'Sobre'          },
+    { id: 'contato-heading',        label: 'Contato'        },
+  ];
+  activeSection = ''; // seção visível agora → link marcado no menu
+
+  /**
+   * Rola até a seção com scrollIntoView (respeita o scroll-margin-top; o anchorScrolling do
+   * Angular não respeita e ignora clique repetido no mesmo link).
+   */
+  irPara(id: string, ev?: Event): void {
+    ev?.preventDefault();
+    this.menuOpen = false;
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: this.reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    history.replaceState(null, '', `#${id}`); // mantém o endereço compartilhável
+  }
 
   /* Como funciona — caminho que se desenha com o scroll (ver docs/animacao-caminho.md) */
   readonly journeySteps = [
@@ -53,13 +77,10 @@ export class LandingPageComponent implements AfterViewInit, OnDestroy {
     typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   private readonly onJourneyScroll = (): void => {
     if (this.journeyRaf) return; // no máximo 1 cálculo por quadro
-    this.journeyRaf = requestAnimationFrame(() => { this.journeyRaf = 0; this.updateJourney(); });
+    this.journeyRaf = requestAnimationFrame(() => { this.journeyRaf = 0; this.updateJourney(); this.updateActiveSection(); });
   };
 
-  constructor(
-    private readonly api: ApiService,
-    private readonly zone: NgZone,
-  ) {}
+  constructor(private readonly zone: NgZone) {}
 
   ngAfterViewInit(): void {
     // Fora do Angular: rolar não dispara detecção de mudanças a cada pixel
@@ -68,6 +89,10 @@ export class LandingPageComponent implements AfterViewInit, OnDestroy {
       window.addEventListener('resize', this.onJourneyScroll);
     });
     this.updateJourney();
+
+    // Entrou já com #secao no endereço (link compartilhado): espera o layout assentar e rola
+    const hash = decodeURIComponent(location.hash.slice(1));
+    if (hash) setTimeout(() => this.irPara(hash), 300);
   }
 
   ngOnDestroy(): void {
@@ -103,72 +128,31 @@ export class LandingPageComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  enviarContato(): void {
-    this.contatoErro = '';
-    if (!this.contatoNome.trim() || !this.contatoTelefone.trim() || !this.contatoMensagem.trim()) {
-      this.contatoErro = 'Preencha todos os campos.';
-      return;
+  /** Marca no menu a última seção cujo título já passou da faixa logo abaixo do header. */
+  private updateActiveSection(): void {
+    let atual = '';
+    for (const l of this.navLinks) {
+      const el = document.getElementById(l.id);
+      if (el && el.getBoundingClientRect().top <= 160) atual = l.id;
     }
-    this.contatoLoading = true;
-    const parts = this.contatoNome.trim().split(' ');
-    this.api.criarLead({
-      nome: parts[0],
-      sobrenome: parts.slice(1).join(' ') || parts[0],
-      telefone: this.contatoTelefone,
-      email: `${parts[0].toLowerCase()}.contato@fisiolife.temp`,
-      observacao: this.contatoMensagem,
-    }).subscribe({
-      next: () => {
-        this.contatoLoading = false;
-        this.contatoSucesso = true;
-        this.contatoNome = ''; this.contatoTelefone = ''; this.contatoMensagem = '';
-      },
-      error: () => {
-        this.contatoLoading = false;
-        this.contatoErro = 'Não foi possível enviar. Tente novamente.';
-      },
-    });
+    // Chegou ao fim da página: a última seção (Contato) fica marcada mesmo sem o título subir tanto
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) {
+      atual = this.navLinks[this.navLinks.length - 1].id;
+    }
+    if (atual !== this.activeSection) this.zone.run(() => (this.activeSection = atual));
   }
 
-  diferenciais = [
-    {
-      icon: 'assignment_ind',
-      title: 'Plano Individualizado',
-      description: 'Cada paciente recebe um protocolo desenvolvido especificamente para o seu quadro clínico, sem fórmulas genéricas.',
-    },
-    {
-      icon: 'monitoring',
-      title: 'Acompanhamento Contínuo',
-      description: 'O fisioterapeuta registra a evolução em cada sessão — nível de dor, mobilidade e exercícios — e ajusta o tratamento ao longo do processo.',
-    },
-    {
-      icon: 'fact_check',
-      title: 'Evolução Documentada',
-      description: 'Todo o histórico de sessões fica registrado e acessível, oferecendo visibilidade completa sobre o progresso do tratamento.',
-    },
-  ];
-
-  benefits = [
-    { icon: 'emoji_events',   title: 'Profissionais Qualificados',  description: 'Especialistas certificados com anos de experiência clínica' },
-    { icon: 'lightbulb',      title: 'Tecnologia Avançada',         description: 'Equipamentos modernos para diagnóstico e tratamento precisos' },
-    { icon: 'local_hospital', title: 'Ambiente Acolhedor',          description: 'Espaço confortável e moderno para a sua recuperação' },
-    { icon: 'schedule',       title: 'Horários Flexíveis',          description: 'Agendamentos que se adaptam à sua rotina diária' },
-    { icon: 'assignment',     title: 'Plano Personalizado',         description: 'Tratamento desenvolvido exclusivamente para as suas necessidades' },
-    { icon: 'support_agent',  title: 'Suporte Contínuo',            description: 'Atendimento dedicado durante todo o tratamento, do primeiro contato até a alta' },
-  ];
-
+  /* Cada corpo é único — boneco em T de partículas (assets/pose-t.glb)
+     dx/dy = distância do centro do quadro em frações da ALTURA do quadro (--fig-h).
+     O modelo escala pela altura (câmera com ângulo vertical fixo), então os pontos ficam
+     presos ao corpo em qualquer largura. Para ajustar um ponto, mexa só nesses números.
+     side = lado do rótulo (r = direita, l = esquerda). */
   readonly rotationPoseT = -Math.PI / 2;
-
-  bodyAreas = [
-    { icon: 'accessibility_new', label: 'Ombro',   desc: 'Tendinite, luxação, síndrome do impacto' },
-    { icon: 'line_axis',         label: 'Coluna',   desc: 'Hérnia de disco, lombalgia, escoliose' },
-    { icon: 'sports_martial_arts', label: 'Quadril', desc: 'Bursites, artroses, pós-operatório' },
-    { icon: 'directions_walk',   label: 'Joelho',   desc: 'Ligamento, menisco, condromalácia' },
+  readonly bodyRegions = [
+    { title: 'Ombro',   dx: 0.095, dy: -0.225, side: 'r', trat: 'Reabilitação ortopédica',            desc: 'Tendinite, luxação e síndrome do impacto.' },
+    { title: 'Coluna',  dx: 0,     dy: -0.085, side: 'l', trat: 'Reabilitação ortopédica · funcional', desc: 'Hérnia de disco, lombalgia e escoliose.' },
+    { title: 'Quadril', dx: 0.055, dy: -0.02,  side: 'r', trat: 'Reabilitação ortopédica',            desc: 'Bursites, artroses e pós-operatório.' },
+    { title: 'Joelho',  dx: 0.05,  dy: 0.17,   side: 'r', trat: 'Reabilitação ortopédica',            desc: 'Lesões de ligamento, menisco e condromalácia.' },
   ];
-
-  sobreBullets = [
-    'Avaliação clínica detalhada antes de iniciar qualquer tratamento',
-    'Prontuário digital com acompanhamento de evolução sessão a sessão',
-    'Comunicação direta entre paciente e equipe clínica',
-  ];
+  activeRegion = 0;
 }

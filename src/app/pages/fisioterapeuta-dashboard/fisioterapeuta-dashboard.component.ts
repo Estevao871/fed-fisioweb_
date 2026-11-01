@@ -1,17 +1,24 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AgendaCalendarComponent } from '../../components/agenda-calendar/agenda-calendar.component';
 import { MedicalRecordDialogComponent } from '../../components/medical-record-dialog/medical-record-dialog.component';
 import { ApiService, AvaliacaoPendenteApi, AvaliacaoHistoricoApi, PacienteAtivoApi, SessaoApi } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
 import { Appointment, Patient } from '../../core/models';
 
+/** Card da aba "Meus pacientes". */
+interface PacienteCard extends Patient {
+  iniciais:  string;
+  status:    'pendente' | 'avaliacao' | 'tratamento';
+  subtitulo: string;
+}
+
 @Component({
   selector: 'app-fisioterapeuta-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, MedicalRecordDialogComponent, AgendaCalendarComponent],
+  imports: [CommonModule, FormsModule, RouterLink, MedicalRecordDialogComponent, AgendaCalendarComponent],
   templateUrl: './fisioterapeuta-dashboard.component.html',
   styleUrl: './fisioterapeuta-dashboard.component.scss',
 })
@@ -45,7 +52,7 @@ export class FisioterapeutaDashboardComponent implements OnInit {
   }
 
   appointments: Appointment[] = [];
-  patients: Patient[] = [];
+  patients: PacienteCard[] = [];
   avaliacoesPendentes: AvaliacaoPendenteApi[] = [];
   avaliacoesHistorico: AvaliacaoHistoricoApi[] = [];
   loadingHistorico  = false;
@@ -79,8 +86,19 @@ export class FisioterapeutaDashboardComponent implements OnInit {
   statsPacientesAtivos = 0;
   statsAvaliacoesPendentes = 0;
   statsTaxaRecuperacao = '—';
+  /** Primeiro e último horário de hoje, ex.: "14:00 · 19:00". */
+  horariosHoje = '';
 
-  readonly userName = this.authService.getNome();
+  readonly userName    = this.authService.getNome();
+  readonly iniciais    = this.iniciaisDe(this.userName);
+  readonly primeiroNome = this.userName.trim().split(/\s+/)[0] ?? '';
+  readonly hojeExtenso = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+  readonly saudacao    = this.saudacaoAgora();
+
+  get atendimentosLabel(): string {
+    const n = this.appointments.length;
+    return n === 1 ? '1 atendimento' : `${n} atendimentos`;
+  }
 
   constructor(
     private readonly api:         ApiService,
@@ -99,7 +117,10 @@ export class FisioterapeutaDashboardComponent implements OnInit {
     // Se o dia selecionado é hoje, loadAgendaDia já atualiza o card "Consultas Hoje"
     if (this.selectedDate !== this.today) {
       this.api.getSessoes({ date: this.today }).subscribe({
-        next: (pagina) => { this.statsConsultasHoje = pagina.totalElements; },
+        next: (pagina) => {
+          this.statsConsultasHoje = pagina.totalElements;
+          this.horariosHoje = this.resumoHorarios(pagina.content.map(x => this.sessaoToAppointment(x)));
+        },
         error: () => { this.statsConsultasHoje = 0; },
       });
     }
@@ -129,7 +150,10 @@ export class FisioterapeutaDashboardComponent implements OnInit {
       next: (pagina) => {
         if (date !== this.selectedDate) return; // usuário já clicou em outro dia
         this.appointments = pagina.content.map(s => this.sessaoToAppointment(s));
-        if (date === this.today) this.statsConsultasHoje = pagina.totalElements;
+        if (date === this.today) {
+          this.statsConsultasHoje = pagina.totalElements;
+          this.horariosHoje = this.resumoHorarios(this.appointments);
+        }
         this.loading = false;
       },
       error: () => {
@@ -156,6 +180,28 @@ export class FisioterapeutaDashboardComponent implements OnInit {
   refreshAgenda(): void {
     this.loadAgendaDia(this.selectedDate);
     this.loadAvaliacoesPendentes();
+  }
+
+  private resumoHorarios(lista: Appointment[]): string {
+    const horas = lista.map(a => a.time).sort();
+    if (horas.length === 0) return '';
+    const primeira = horas[0];
+    const ultima   = horas[horas.length - 1];
+    return primeira === ultima ? primeira : `${primeira} · ${ultima}`;
+  }
+
+  private saudacaoAgora(): string {
+    const h = new Date().getHours();
+    if (h < 12) return 'Bom dia';
+    if (h < 18) return 'Boa tarde';
+    return 'Boa noite';
+  }
+
+  private iniciaisDe(nome: string): string {
+    const partes = nome.trim().split(/\s+/).filter(Boolean);
+    if (partes.length === 0) return '?';
+    const ultima = partes.length > 1 ? partes[partes.length - 1][0] : (partes[0][1] ?? '');
+    return (partes[0][0] + ultima).toUpperCase();
   }
 
   private toIso(d: Date): string {
@@ -255,7 +301,7 @@ export class FisioterapeutaDashboardComponent implements OnInit {
     };
   }
 
-  private pacienteToPatient(p: PacienteAtivoApi): Patient {
+  private pacienteToPatient(p: PacienteAtivoApi): PacienteCard {
     const statusMap: Record<string, string> = {
       aguardando:      'Aguardando avaliação',
       em_atendimento:  'Em avaliação',
@@ -264,6 +310,21 @@ export class FisioterapeutaDashboardComponent implements OnInit {
     };
     const total      = Number(p.totalSessoes);
     const realizadas = Number(p.sessoesRealizadas ?? 0);
+    const proxima    = p.proximaSessao ? new Date(p.proximaSessao) : null;
+
+    const status: PacienteCard['status'] =
+      p.statusClinico === 'finalizada'     ? 'tratamento' :
+      p.statusClinico === 'em_atendimento' ? 'avaliacao'  : 'pendente';
+
+    let subtitulo: string;
+    if (status === 'pendente') {
+      subtitulo = proxima ? `Avaliação marcada para ${this.diaRelativo(proxima)}` : 'Aguardando agendamento da avaliação';
+    } else if (status === 'avaliacao') {
+      subtitulo = 'Avaliação em andamento';
+    } else {
+      subtitulo = proxima ? `Próxima sessão ${this.diaRelativo(proxima)}` : 'Plano de tratamento ativo';
+    }
+
     return {
       id:                p.idPaciente,
       name:              p.nome,
@@ -272,11 +333,41 @@ export class FisioterapeutaDashboardComponent implements OnInit {
       sessionsCompleted: realizadas,
       totalSessions:     total,
       progress:          total > 0 ? Math.round((realizadas / total) * 100) : 0,
-      nextAppointment:   p.proximaSessao
-        ? new Date(p.proximaSessao).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+      nextAppointment:   proxima
+        ? proxima.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
         : '—',
       fisioterapeuta:    p.fisioterapeutaNome ?? undefined,
+      iniciais:          this.iniciaisDe(p.nome),
+      status,
+      subtitulo,
     };
+  }
+
+  /** "hoje, 14:00" · "amanhã, 09:00" · "22/10, 10:00" */
+  private diaRelativo(d: Date): string {
+    const hora = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const iso  = this.toIso(d);
+    const amanha = new Date(); amanha.setDate(amanha.getDate() + 1);
+    if (iso === this.today) return `hoje, ${hora}`;
+    if (iso === this.toIso(amanha)) return `amanhã, ${hora}`;
+    return `${d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}, ${hora}`;
+  }
+
+  pacienteBadge(p: PacienteCard): { label: string; css: string } {
+    if (p.status === 'tratamento') return { label: 'Em tratamento', css: 'badge-green' };
+    if (p.status === 'avaliacao')  return { label: 'Em avaliação', css: 'badge-purple' };
+    return { label: 'Avaliação pendente', css: 'badge-yellow' };
+  }
+
+  /** Avaliação pendente do paciente (para o botão "Iniciar avaliação" do card). */
+  avaliacaoDoPaciente(p: PacienteCard): AvaliacaoPendenteApi | undefined {
+    return this.avaliacoesPendentes.find(a => a.idPaciente === p.id);
+  }
+
+  acaoPaciente(p: PacienteCard): void {
+    const av = this.avaliacaoDoPaciente(p);
+    if (av) this.iniciarAvaliacao(av);
+    else this.openPatient(p);
   }
 
   private mapStatus(s: string): Appointment['status'] {
@@ -289,7 +380,7 @@ export class FisioterapeutaDashboardComponent implements OnInit {
     return map[s] ?? 'agendado';
   }
 
-  filteredPatients(): Patient[] {
+  filteredPatients(): PacienteCard[] {
     const s = this.searchTerm.toLowerCase();
     return this.patients.filter(p =>
       p.name.toLowerCase().includes(s) || p.condition.toLowerCase().includes(s),
@@ -335,7 +426,7 @@ export class FisioterapeutaDashboardComponent implements OnInit {
 
   statusBadge(status: string): string {
     const map: Record<string, string> = {
-      agendado: 'badge-blue', 'em-andamento': 'badge-yellow',
+      agendado: 'badge-purple', 'em-andamento': 'badge-yellow',
       concluido: 'badge-green', confirmado: 'badge-green',
       pendente: 'badge-yellow', cancelado: 'badge-red',
     };

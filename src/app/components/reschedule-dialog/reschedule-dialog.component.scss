@@ -1,77 +1,62 @@
-.reschedule-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
-}
+.rd-sub { margin-top: 4px; font-size: 15px; color: var(--gray-600); }
 
-/* Slots grid */
-.slots-loading, .slots-empty {
-  font-size: .85rem;
-  color: var(--gray-400);
-  padding: .5rem 0;
-}
-
-.slots-grid {
+.rd-form {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: .5rem;
-  margin-top: .25rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+
+  @media (max-width: 480px) { grid-template-columns: minmax(0, 1fr); }
 }
 
-.slot-btn {
-  padding: .5rem .25rem;
-  border-radius: var(--radius-sm);
-  border: 1.5px solid var(--gray-200);
-  font-size: .82rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all .15s;
+.rd-full { grid-column: 1 / -1; }
+
+.rd-req { color: var(--red-600); }
+
+.rd-label-row {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: .25rem;
-  text-align: center;
-
-  &:focus-visible { outline: 2px solid var(--purple-600); outline-offset: 2px; }
-
-  &.slot-livre {
-    background: #fff;
-    color: var(--gray-700);
-    &:hover { border-color: var(--purple-400); background: var(--purple-50); }
-  }
-
-  &.slot-selected {
-    background: var(--purple-600);
-    border-color: var(--purple-600);
-    color: #fff;
-  }
-
-  &.slot-cheio {
-    background: var(--red-100);
-    border-color: var(--red-100);
-    color: var(--red-600);
-    cursor: not-allowed;
-    opacity: .7;
-  }
-
-  .slot-full-icon { font-size: .65rem; }
+  align-items: baseline;
+  justify-content: space-between;
 }
 
-.error-msg {
-  font-size: .85rem;
-  color: var(--red-600);
-  margin: 0;
+.rd-count {
+  font-size: 13px;
+  color: var(--gray-600);
+  font-variant-numeric: tabular-nums;
 }
 
-.success-state {
+.alert-error .material-symbols-outlined { color: var(--red-600); font-size: 20px; }
+
+.modal-footer {
+  margin-top: var(--space-2);
+
+  @media (max-width: 480px) {
+    flex-direction: column-reverse;
+    .btn { width: 100%; justify-content: center; }
+  }
+}
+
+/* --- Sucesso --- */
+.rd-success {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: .75rem;
-  padding: 1.5rem 0;
   text-align: center;
+  gap: var(--space-3);
+  padding: var(--space-4) 0 var(--space-2);
 
-  .success-icon { font-size: 2.5rem; }
-  h2 { font-size: 1.2rem; font-weight: 700; }
-  p { font-size: .9rem; color: var(--gray-600); line-height: 1.6; }
+  h2 { font-family: var(--font-display); font-size: 26px; font-weight: 500; letter-spacing: -0.03em; }
+  p { font-size: 16px; color: var(--gray-600); }
+  strong { color: var(--gray-900); }
+  .btn { margin-top: var(--space-3); min-width: 160px; }
+
+  &__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    background: var(--green-100);
+    color: var(--green-700);
+    display: grid;
+    place-items: center;
+    font-size: 30px;
+  }
 }

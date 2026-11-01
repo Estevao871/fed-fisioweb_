@@ -1,144 +1,113 @@
-<div class="modal-backdrop" *ngIf="open" role="dialog" aria-modal="true">
-  <div class="modal">
+<div class="modal-backdrop" *ngIf="open" (click)="onBackdrop($event)" (keydown.escape)="close()">
+  <div class="modal sd" role="dialog" aria-modal="true" aria-labelledby="sd-title">
 
-    <!-- SUCCESS -->
-    <div *ngIf="success" class="success-state">
-      <div class="success-icon" aria-hidden="true">
-        <span class="material-symbols-outlined">check_circle</span>
-      </div>
-      <h2>Avaliação Agendada!</h2>
-      <p>Agendamento de <strong>{{ patientName }}</strong> confirmado para {{ date }} às {{ time }}.</p>
+    <!-- ============ SUCESSO ============ -->
+    <div *ngIf="success" class="sd-success" role="status">
+      <span class="sd-success__icon material-symbols-outlined" aria-hidden="true">check</span>
+      <h2 id="sd-title">{{ tipo === 'avaliacao' ? 'Avaliação agendada' : 'Sessão agendada' }}</h2>
+      <p><strong>{{ nome }}</strong> · {{ dataFormatada }} às {{ time }}</p>
+      <button type="button" class="btn btn-dark btn-lg" (click)="close()">Fechar</button>
     </div>
 
+    <!-- ============ FORMULÁRIO ============ -->
     <ng-container *ngIf="!success">
       <div class="modal-header">
-        <h2>Novo Agendamento</h2>
-        <button class="modal-close" (click)="close()" aria-label="Fechar">
+        <div>
+          <h2 id="sd-title">Novo agendamento</h2>
+          <p class="sd-sub">Preencha os dados do paciente e escolha um horário livre.</p>
+        </div>
+        <button type="button" class="modal-close" (click)="close()" aria-label="Fechar">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
-      <!-- Step indicator -->
-      <div class="step-indicator">
-        <div class="step-item" *ngFor="let s of [1,2,3]; let i = index" [class.active]="step === s" [class.done]="step > s">
-          <div class="step-circle">
-            <span class="material-symbols-outlined" *ngIf="step > s">check</span>
-            <span *ngIf="step <= s">{{ s }}</span>
-          </div>
-          <span>{{ stepLabels[i] }}</span>
-        </div>
-      </div>
+      <form class="sd-form" (ngSubmit)="confirm()" novalidate>
 
-      <!-- STEP 1 -->
-      <div *ngIf="step === 1" class="tab-content">
+        <!-- Paciente -->
         <div class="field-group">
-          <label for="sd-name">Nome do Paciente <span style="color:var(--red-600)">*</span></label>
-          <input id="sd-name" class="input" [(ngModel)]="patientName" placeholder="Nome completo" autocomplete="name" />
+          <label for="sd-nome">Paciente <span class="sd-req" aria-hidden="true">*</span></label>
+          <input id="sd-nome" name="nome" class="input" list="sd-sugestoes" autocomplete="off"
+            [class.is-invalid]="erro('nome')" [ngModel]="nome" (ngModelChange)="onNomeChange($event)" (blur)="tocar('nome')"
+            [placeholder]="tipo === 'avaliacao' ? 'Nome do paciente ou pedido do site' : 'Paciente em tratamento'" />
+          <datalist id="sd-sugestoes">
+            <option *ngFor="let s of sugestoes" [value]="s.nome"></option>
+          </datalist>
+          <p *ngIf="erro('nome')" class="field-error" role="alert">{{ erro('nome') }}</p>
+          <p *ngIf="!erro('nome') && tipo === 'avaliacao' && nome && !leadId" class="sd-hint">Paciente novo: o cadastro é criado junto.</p>
         </div>
-        <div class="grid grid-2" style="gap:.875rem">
-          <div class="field-group">
-            <label for="sd-phone">Telefone <span style="color:var(--red-600)">*</span></label>
-            <input id="sd-phone" class="input" [(ngModel)]="patientPhone" placeholder="(11) 99999-9999" autocomplete="tel" />
-            <span *ngIf="patientPhone && !patientPhoneValido" style="color:var(--red-600);font-size:.8rem;margin-top:.25rem;display:block">
-              Telefone inválido. Use: (11) 99999-9999
-            </span>
-          </div>
-          <div class="field-group">
-            <label for="sd-email">E-mail</label>
-            <div class="password-wrap">
-              <input id="sd-email" class="input" type="email" [(ngModel)]="patientEmail"
-                placeholder="email@exemplo.com" autocomplete="email"
-                (blur)="onEmailBlur()" [style.padding-right]="lookingUp ? '2.75rem' : null" />
-              <span *ngIf="lookingUp" class="eye-btn" style="cursor:default">
-                <span class="material-symbols-outlined" style="font-size:1rem;animation:spin 1s linear infinite">refresh</span>
-              </span>
-            </div>
-            <span *ngIf="patientEmail && !patientEmailValido" style="color:var(--red-600);font-size:.8rem;margin-top:.25rem;display:block">
-              E-mail inválido.
-            </span>
-            <div *ngIf="cadastroEncontrado" style="display:flex;align-items:center;gap:.4rem;margin-top:.4rem;font-size:.8rem;color:var(--green-700,#15803d)">
-              <span class="material-symbols-outlined" style="font-size:1rem">check_circle</span>
-              Cadastro encontrado — dados preenchidos automaticamente
-            </div>
-          </div>
-        </div>
-        <div class="grid grid-2" style="gap:.875rem">
-          <div class="field-group">
-            <label for="sd-type">Tipo de Consulta</label>
-            <select id="sd-type" class="input" [(ngModel)]="appointmentType">
-              <option value="avaliacao">Avaliação Inicial</option>
-              <option value="sessao">Sessão de Tratamento</option>
-              <option value="reavaliacao">Reavaliação</option>
-            </select>
-          </div>
-          <div class="field-group">
-            <label for="sd-fisio">Fisioterapeuta Responsável <span style="color:var(--red-600)">*</span></label>
-            <select id="sd-fisio" class="input" [(ngModel)]="fisioterapeutaId" (ngModelChange)="onDateOrFisioChange()">
-              <option value="" disabled>Selecione...</option>
-              <option *ngFor="let f of fisioterapeutas" [value]="f.id">
-                {{ f.nome }} — {{ contagemHoje(f.id) }} hoje
-              </option>
-            </select>
-            <span *ngIf="fisioterapeutas.length === 0" style="color:var(--gray-500);font-size:.8rem;margin-top:.25rem;display:block">
-              Nenhuma fisioterapeuta cadastrada.
-            </span>
-          </div>
-        </div>
-      </div>
 
-      <!-- STEP 2 -->
-      <div *ngIf="step === 2" class="tab-content">
+        <!-- Telefone -->
         <div class="field-group">
-          <label for="sd-date">Data da Consulta</label>
-          <input id="sd-date" class="input" type="date" [(ngModel)]="date"
-            (ngModelChange)="onDateOrFisioChange()" [min]="today" />
+          <label for="sd-tel">Telefone / WhatsApp <span class="sd-req" aria-hidden="true">*</span></label>
+          <input id="sd-tel" name="telefone" class="input" inputmode="tel" autocomplete="tel" placeholder="(11) 99999-9999"
+            [class.is-invalid]="erro('telefone')" [ngModel]="telefone" (ngModelChange)="onTelefone($event)" (blur)="tocar('telefone')"
+            [readonly]="tipo === 'sessao' && !!pacienteId" />
+          <p *ngIf="erro('telefone')" class="field-error" role="alert">{{ erro('telefone') }}</p>
         </div>
+
+        <!-- Tipo -->
         <div class="field-group">
-          <label>Horário</label>
-          <div class="time-grid">
-            <button *ngFor="let t of times" type="button"
-              class="time-btn" [class.selected]="time === t"
-              [disabled]="horariosDisponiveis[t] === false"
-              (click)="time = t">{{ t }}</button>
-          </div>
-          <span *ngIf="loadingHorarios" style="color:var(--gray-500);font-size:.8rem;margin-top:.5rem;display:block">
-            Verificando agenda da fisioterapeuta...
-          </span>
-          <span *ngIf="!loadingHorarios && date && !algumHorarioDisponivel" style="color:var(--red-600);font-size:.8rem;margin-top:.5rem;display:block">
-            Sem horários disponíveis para esta fisioterapeuta nesta data.
-          </span>
-        </div>
-      </div>
-
-      <!-- STEP 3 -->
-      <div *ngIf="step === 3" class="tab-content">
-        <div class="confirm-card card">
-          <h3>Confirmar Agendamento</h3>
-          <div class="confirm-list">
-            <div class="confirm-row"><span class="confirm-label">Paciente</span><span>{{ patientName }}</span></div>
-            <div class="confirm-row"><span class="confirm-label">Telefone</span><span>{{ patientPhone }}</span></div>
-            <div class="confirm-row"><span class="confirm-label">Tipo</span><span>{{ typeLabel }}</span></div>
-            <div class="confirm-row"><span class="confirm-label">Fisioterapeuta</span><span>{{ fisioterapeutaSelecionadaNome }}</span></div>
-            <div class="confirm-row"><span class="confirm-label">Data/Hora</span><span>{{ date }} às {{ time }}</span></div>
+          <span class="sd-label" id="sd-tipo-lbl">Tipo de atendimento <span class="sd-req" aria-hidden="true">*</span></span>
+          <div class="sd-seg" role="radiogroup" aria-labelledby="sd-tipo-lbl">
+            <button type="button" role="radio" [class.active]="tipo === 'avaliacao'" [attr.aria-checked]="tipo === 'avaliacao'" (click)="setTipo('avaliacao')">Avaliação</button>
+            <button type="button" role="radio" [class.active]="tipo === 'sessao'" [attr.aria-checked]="tipo === 'sessao'" (click)="setTipo('sessao')">Sessão</button>
           </div>
         </div>
-        <p *ngIf="error" role="alert" style="color:var(--red-600);font-size:.85rem;margin-top:.5rem">{{ error }}</p>
-      </div>
 
-      <div class="modal-footer">
-        <button class="btn btn-outline" (click)="back()" [disabled]="step === 1 || loading">Voltar</button>
-        <div style="display:flex;gap:.5rem">
-          <button class="btn btn-ghost" (click)="close()" [disabled]="loading">Cancelar</button>
-          <button *ngIf="step < 3" class="btn btn-primary" (click)="next()"
-            [disabled]="(step === 1 && !isStep1Valid) || (step === 2 && !isStep2Valid)">
-            Próximo →
-          </button>
-          <button *ngIf="step === 3" class="btn btn-primary" (click)="confirm()" [disabled]="loading">
-            <span class="material-symbols-outlined" *ngIf="!loading">check</span>
-            {{ loading ? 'Agendando...' : 'Confirmar' }}
+        <!-- Fisioterapeuta -->
+        <div class="field-group">
+          <label for="sd-fisio">Fisioterapeuta <span *ngIf="tipo === 'avaliacao'" class="sd-req" aria-hidden="true">*</span></label>
+          <select *ngIf="tipo === 'avaliacao'" id="sd-fisio" name="fisio" class="input" [class.is-invalid]="erro('fisio')"
+            [(ngModel)]="fisioterapeutaId" (ngModelChange)="carregarHorarios()" (blur)="tocar('fisio')">
+            <option value="" disabled>Selecione</option>
+            <option *ngFor="let f of fisioterapeutas" [value]="f.id">{{ f.nome }}</option>
+          </select>
+          <input *ngIf="tipo === 'sessao'" id="sd-fisio" name="fisioPaciente" class="input" readonly
+            [value]="pacienteId ? fisioDoPaciente : 'Escolha o paciente'" />
+          <p *ngIf="erro('fisio')" class="field-error" role="alert">{{ erro('fisio') }}</p>
+        </div>
+
+        <!-- Data -->
+        <div class="field-group">
+          <label for="sd-data">Data <span class="sd-req" aria-hidden="true">*</span></label>
+          <input id="sd-data" name="data" type="date" class="input" [min]="today" [class.is-invalid]="erro('date')"
+            [(ngModel)]="date" (ngModelChange)="tocar('date'); carregarHorarios()" />
+          <p *ngIf="erro('date')" class="field-error" role="alert">{{ erro('date') }}</p>
+        </div>
+
+        <!-- Horário -->
+        <div class="field-group">
+          <label for="sd-hora">Horário <span class="sd-req" aria-hidden="true">*</span></label>
+          <select id="sd-hora" name="hora" class="input" [class.is-invalid]="erro('time')"
+            [(ngModel)]="time" (blur)="tocar('time')" [disabled]="!date || fimDeSemana || loadingHorarios">
+            <option value="" disabled>{{ loadingHorarios ? 'Verificando agenda…' : 'Selecione' }}</option>
+            <option *ngFor="let h of horarios" [value]="h" [disabled]="!livre(h)">{{ h }}{{ livre(h) ? '' : ' · lotado' }}</option>
+          </select>
+          <p *ngIf="erro('time')" class="field-error" role="alert">{{ erro('time') }}</p>
+        </div>
+
+        <!-- Observações -->
+        <div class="field-group sd-full">
+          <div class="sd-label-row">
+            <label for="sd-obs">Observações</label>
+            <span class="sd-count" aria-live="polite">{{ observacao.length }}/{{ maxObs }}</span>
+          </div>
+          <textarea id="sd-obs" name="obs" class="input" rows="3" [attr.maxlength]="maxObs" [(ngModel)]="observacao"
+            placeholder="Queixa, preferência de horário ou recado para a fisioterapeuta"></textarea>
+        </div>
+
+        <div *ngIf="error" class="alert-error sd-full" role="alert">
+          <span class="material-symbols-outlined" aria-hidden="true">error</span>
+          <span>{{ error }}</span>
+        </div>
+
+        <div class="modal-footer sd-full">
+          <button type="button" class="btn btn-outline" (click)="close()" [disabled]="loading">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            {{ loading ? 'Agendando…' : 'Criar agendamento' }}
           </button>
         </div>
-      </div>
+      </form>
     </ng-container>
 
   </div>

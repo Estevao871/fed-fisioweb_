@@ -1,190 +1,204 @@
-<div class="dash-layout">
+<div class="recep">
 
-  <!-- HEADER -->
-  <header class="dash-header">
-    <div class="dash-title-group">
-      <div class="brand">
-        <img src="assets/Logo_Movimento.png" alt="Vida em Movimento" class="brand-logo" />
-      </div>
-      <div class="dash-title-info">
-        <h1>Painel da Recepção</h1>
-        <p>{{ userName }}</p>
+  <!-- ============ TOPO ============ -->
+  <header class="recep__top">
+    <div class="recep__top-inner">
+      <a class="recep__brand" routerLink="/" aria-label="Vida em Movimento">
+        <img src="assets/logo_fisio.png" alt="Vida em Movimento" />
+      </a>
+
+      <div class="recep__user">
+        <span class="recep__avatar" aria-hidden="true">{{ iniciais }}</span>
+        <span class="recep__user-info">
+          <strong>{{ userName }}</strong>
+          <span>Recepção</span>
+        </span>
+        <button type="button" class="btn btn-outline btn-xs recep__sair" (click)="logout()">
+          <span class="material-symbols-outlined" aria-hidden="true">logout</span> Sair
+        </button>
       </div>
     </div>
-    <button class="btn btn-ghost btn-sm logout-btn" (click)="logout()">↗ Sair</button>
   </header>
 
-  <main class="dash-body">
+  <main class="recep__body">
 
-    <!-- STATS -->
-    <section class="grid grid-4">
-      <div class="stat-card">
-        <div class="stat-info">
-          <p class="stat-label">Novos Contatos</p>
-          <p class="stat-value text-pink">{{ statsContatos }}</p>
-        </div>
-        <div class="stat-icon" style="background:#fce7f3;color:#db2777">
-          <span class="material-symbols-outlined">group</span>
-        </div>
+    <!-- ============ TÍTULO ============ -->
+    <section class="recep__hero">
+      <div>
+        <p class="eyebrow recep__date">{{ hojeExtenso }}</p>
+        <h1>Painel da <span class="accent">recepção</span></h1>
       </div>
-      <div class="stat-card">
-        <div class="stat-info">
-          <p class="stat-label">Agendamentos Hoje</p>
-          <p class="stat-value text-purple">{{ statsHoje }}</p>
-        </div>
-        <div class="stat-icon" style="background:var(--purple-100);color:var(--purple-600)">
-          <span class="material-symbols-outlined">calendar_month</span>
-        </div>
+      <button type="button" class="btn btn-primary btn-lg recep__novo" (click)="openScheduling()">
+        <span class="material-symbols-outlined" aria-hidden="true">add</span> Novo agendamento
+      </button>
+    </section>
+
+    <!-- ============ INDICADORES ============ -->
+    <section class="recep__stats" aria-label="Resumo do dia">
+      <div class="recep-stat">
+        <span class="recep-stat__dot is-yellow" aria-hidden="true"></span>
+        <p class="recep-stat__label">Novos contatos</p>
+        <p class="recep-stat__value">{{ statsContatos }}</p>
+        <p class="recep-stat__hint">aguardando primeiro contato</p>
       </div>
-      <div class="stat-card">
-        <div class="stat-info">
-          <p class="stat-label">Pendentes Confirmação</p>
-          <p class="stat-value" style="color:var(--yellow-600)">{{ statsPendentes }}</p>
-        </div>
-        <div class="stat-icon" style="background:#fef9c3;color:#ca8a04">
-          <span class="material-symbols-outlined">schedule</span>
-        </div>
+      <div class="recep-stat">
+        <span class="recep-stat__dot is-purple" aria-hidden="true"></span>
+        <p class="recep-stat__label">Agendamentos hoje</p>
+        <p class="recep-stat__value">{{ statsHoje }}</p>
+        <p class="recep-stat__hint">avaliações e sessões</p>
       </div>
-      <div class="stat-card">
-        <div class="stat-info">
-          <p class="stat-label">Pacientes em Tratamento</p>
-          <p class="stat-value text-purple">{{ statsTotal }}</p>
+      <div class="recep-stat">
+        <span class="recep-stat__dot is-yellow" aria-hidden="true"></span>
+        <p class="recep-stat__label">Pendentes de confirmação</p>
+        <p class="recep-stat__value">{{ statsPendentes }}</p>
+        <p class="recep-stat__hint">aguardando chegada do paciente</p>
+      </div>
+      <div class="recep-stat">
+        <span class="recep-stat__dot is-green" aria-hidden="true"></span>
+        <p class="recep-stat__label">Pacientes em tratamento</p>
+        <p class="recep-stat__value">{{ statsTotal }}</p>
+        <p class="recep-stat__hint">com sessões ativas</p>
+      </div>
+    </section>
+
+    <!-- ============ ABAS ============ -->
+    <nav class="tab-group recep__tabs" role="tablist" aria-label="Seções do painel">
+      <button type="button" role="tab" class="tab-btn" [class.active]="tab === 'contatos'" [attr.aria-selected]="tab === 'contatos'" (click)="tab = 'contatos'">
+        Novos contatos <span class="tab-count" *ngIf="leads.length">{{ leads.length }}</span>
+      </button>
+      <button type="button" role="tab" class="tab-btn" [class.active]="tab === 'avaliacoes'" [attr.aria-selected]="tab === 'avaliacoes'" (click)="tab = 'avaliacoes'">
+        Avaliações <span class="tab-count" *ngIf="avaliacoesFiltradas.length">{{ avaliacoesFiltradas.length }}</span>
+      </button>
+      <button type="button" role="tab" class="tab-btn" [class.active]="tab === 'agendamentos'" [attr.aria-selected]="tab === 'agendamentos'" (click)="tab = 'agendamentos'">
+        Todos os agendamentos
+      </button>
+      <button type="button" role="tab" class="tab-btn" [class.active]="tab === 'usuarios'" [attr.aria-selected]="tab === 'usuarios'" (click)="tab = 'usuarios'">
+        Gestão de usuários
+      </button>
+    </nav>
+
+    <!-- ============ NOVOS CONTATOS ============ -->
+    <section *ngIf="tab === 'contatos'" class="card recep__panel">
+      <div class="recep__panel-head">
+        <div>
+          <h2>Primeira triagem</h2>
+          <p>Pedidos de avaliação vindos do site</p>
         </div>
-        <div class="stat-icon" style="background:#dbeafe;color:#2563eb">
-          <span class="material-symbols-outlined">phone</span>
+        <label class="recep__search">
+          <span class="material-symbols-outlined" aria-hidden="true">search</span>
+          <input class="input input-search" [(ngModel)]="contactSearch" placeholder="Buscar contato..." aria-label="Buscar contato" />
+        </label>
+      </div>
+
+      <div class="lead-list">
+        <article class="lead" *ngFor="let l of filteredLeads()">
+          <div class="lead__top">
+            <span class="lead__avatar" aria-hidden="true">{{ l.iniciais }}</span>
+            <div class="lead__id">
+              <div class="lead__name-row">
+                <strong>{{ l.nome }}</strong>
+                <span class="badge" [ngClass]="l.status === 'novo' ? 'badge-yellow' : 'badge-purple'">
+                  {{ l.status === 'novo' ? 'Pendente' : 'Contatado' }}
+                </span>
+              </div>
+              <p class="lead__contact">
+                <a [href]="telLink(l.telefone)">{{ l.telefone }}</a>
+                <ng-container *ngIf="l.email"> · <a [href]="'mailto:' + l.email">{{ l.email }}</a></ng-container>
+              </p>
+            </div>
+            <span class="lead__meta">Site · {{ l.recebidoEm }}</span>
+          </div>
+
+          <div class="lead__queixa" *ngIf="l.queixa || l.interesse">
+            <p class="lead__queixa-head">
+              <span class="eyebrow">Queixa principal</span>
+              <span class="lead__tag" *ngIf="l.interesse">{{ l.interesse }}</span>
+            </p>
+            <p class="lead__queixa-text">{{ l.queixa || 'Sem descrição.' }}</p>
+          </div>
+
+          <div class="lead__actions">
+            <button type="button" class="btn btn-primary btn-sm" (click)="scheduleLead(l)">
+              <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span> Agendar avaliação
+            </button>
+            <a class="btn btn-outline btn-sm" [href]="telLink(l.telefone)" (click)="registrarLigacao(l)">Ligar</a>
+            <button type="button" class="lead__descartar" [disabled]="leadEmAcao === l.id" (click)="descartarLead(l)">
+              Descartar
+            </button>
+          </div>
+        </article>
+
+        <div class="empty-state" *ngIf="filteredLeads().length === 0">
+          <span class="empty-icon"><span class="material-symbols-outlined">inbox</span></span>
+          <p>{{ contactSearch ? 'Nenhum contato encontrado' : 'Nenhum pedido novo por enquanto' }}</p>
         </div>
       </div>
     </section>
 
-    <!-- TABS + ACTION -->
-    <div class="tabs-action-row">
-      <div class="tab-group">
-        <button class="tab-btn" [class.active]="tab === 'contatos'"     (click)="tab = 'contatos'">Novos Contatos</button>
-        <button class="tab-btn" [class.active]="tab === 'avaliacoes'"   (click)="tab = 'avaliacoes'">Avaliações</button>
-        <button class="tab-btn" [class.active]="tab === 'agendamentos'" (click)="tab = 'agendamentos'">Todos os Agendamentos</button>
-        <button class="tab-btn" [class.active]="tab === 'usuarios'"     (click)="tab = 'usuarios'">Gestão de Usuários</button>
-      </div>
-      <button class="btn btn-primary btn-sm" (click)="openScheduling()">+ Novo Agendamento</button>
-    </div>
-
-    <!-- CONTACTS TAB -->
-    <section *ngIf="tab === 'contatos'" class="card">
-      <div class="section-title-row">
-        <h2>Primeira Triagem</h2>
-        <div class="search-wrap">
-          <span class="search-icon"><span class="material-symbols-outlined">search</span></span>
-          <input class="input search-input" [(ngModel)]="contactSearch" placeholder="Buscar contato..." />
+    <!-- ============ AVALIAÇÕES ============ -->
+    <section *ngIf="tab === 'avaliacoes'" class="card recep__panel">
+      <div class="recep__panel-head">
+        <div>
+          <h2>Controle de avaliações</h2>
+          <p>{{ avaliacoesFiltradas.length }} avaliaç{{ avaliacoesFiltradas.length === 1 ? 'ão' : 'ões' }} {{ filtroDataLabel }}</p>
         </div>
-      </div>
-      <div class="contact-list">
-        <div class="contact-item card" *ngFor="let c of filteredContacts()">
-          <div class="contact-item__top">
-            <div class="contact-item__name-row">
-              <strong>{{ c.name }}</strong>
-              <span class="badge badge-yellow">Novo</span>
-              <span class="badge badge-gray contact-source">{{ sourceLabel(c.source) }}</span>
-            </div>
-            <div class="contact-item__details">
-              <span><span class="material-symbols-outlined">phone</span> {{ c.phone }}</span>
-              <span><span class="material-symbols-outlined">calendar_month</span> Recebido em {{ c.date }}</span>
-            </div>
-          </div>
-          <div class="contact-item__actions">
-            <button class="btn btn-primary" (click)="scheduleContact(c)">
-              <span class="material-symbols-outlined">calendar_month</span> Agendar Avaliação
-            </button>
-            <button class="btn btn-outline">
-              <span class="material-symbols-outlined">phone</span> Ligar
-            </button>
-          </div>
-        </div>
-        <div class="empty-state" *ngIf="filteredContacts().length === 0">
-          <span class="empty-icon"><span class="material-symbols-outlined">group</span></span>
-          <p>Nenhum contato encontrado</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- AVALIACOES TAB -->
-    <section *ngIf="tab === 'avaliacoes'" class="card">
-      <div class="section-title-row">
-        <h2>Controle de Avaliações</h2>
-        <div class="aval-filtro">
-          <input
-            class="input"
-            type="date"
-            [(ngModel)]="avaliacaoFiltroData"
-            (ngModelChange)="onFiltroDataChange()"
-            style="width:160px"
-          />
-          <span class="text-sm text-gray">
-            {{ avaliacoesFiltradas.length }} resultado{{ avaliacoesFiltradas.length !== 1 ? 's' : '' }}
-          </span>
-        </div>
+        <input class="input recep__date-input" type="date" [(ngModel)]="avaliacaoFiltroData"
+          (ngModelChange)="onFiltroDataChange()" aria-label="Filtrar por data" />
       </div>
 
       <div class="aval-list" *ngIf="avaliacoesPaginadas.length > 0; else emptyAval">
-        <div class="aval-item" *ngFor="let av of avaliacoesPaginadas">
+        <article class="aval" *ngFor="let av of avaliacoesPaginadas">
+          <span class="aval__hora">{{ hora(av.dataHora) }}</span>
 
-          <div class="aval-item__info">
+          <div class="aval__info">
             <strong>{{ av.pacienteNome ?? 'Aguardando nome' }}</strong>
-            <span class="text-sm text-gray">{{ formatDataHora(av.dataHora) }}</span>
-            <span *ngIf="av.pacienteTelefone" class="text-sm text-gray">
-              <span class="material-symbols-outlined">phone</span> {{ av.pacienteTelefone }}
+            <span>
+              {{ data(av.dataHora) }}
+              <ng-container *ngIf="av.pacienteTelefone"> · {{ av.pacienteTelefone }}</ng-container>
+              <ng-container *ngIf="av.fisioterapeutaNome"> · {{ av.fisioterapeutaNome }}</ng-container>
             </span>
           </div>
 
-          <span class="badge" [ngClass]="statusAvaliacaoBadge(av.status)">
-            {{ statusAvaliacaoLabel(av.status) }}
-          </span>
+          <div class="aval__actions">
+            <span class="badge" [ngClass]="statusAvaliacaoBadge(av.status)">{{ statusAvaliacaoLabel(av.status) }}</span>
 
-          <div class="aval-item__actions">
-            <!-- Aguardando chegada -->
-            <ng-container *ngIf="av.status === 'marcada' || av.status === 'remarcada'">
-              <button
-                class="btn btn-primary btn-sm"
-                [disabled]="confirmandoChegada === av.id"
-                (click)="confirmarChegada(av)"
-              >
-                <span class="material-symbols-outlined" *ngIf="confirmandoChegada !== av.id">check</span>
-                {{ confirmandoChegada === av.id ? 'Confirmando...' : 'Confirmar Chegada' }}
-              </button>
-            </ng-container>
+            <button *ngIf="av.status === 'marcada' || av.status === 'remarcada'" type="button"
+              class="btn btn-primary btn-sm" [disabled]="confirmandoChegada === av.id" (click)="confirmarChegada(av)">
+              <span class="material-symbols-outlined" aria-hidden="true">check</span>
+              {{ confirmandoChegada === av.id ? 'Confirmando…' : 'Confirmar chegada' }}
+            </button>
 
-            <!-- Em avaliação com o fisio -->
-            <ng-container *ngIf="av.status === 'aguardando_avaliacao'">
-              <span class="text-sm text-gray">Em avaliação com fisioterapeuta</span>
-            </ng-container>
+            <span *ngIf="av.status === 'aguardando_avaliacao'" class="aval__hint">Com a fisioterapeuta</span>
 
-            <!-- Avaliada — pronta para agendar sessões -->
-            <ng-container *ngIf="av.status === 'avaliada'">
-              <button class="btn btn-primary btn-sm" (click)="abrirAgendamentoSessoes(av)">
-                <span class="material-symbols-outlined">calendar_month</span> Agendar Sessões
-              </button>
-            </ng-container>
+            <button *ngIf="av.status === 'avaliada'" type="button" class="btn btn-primary btn-sm" (click)="abrirAgendamentoSessoes(av)">
+              <span class="material-symbols-outlined" aria-hidden="true">calendar_month</span> Agendar sessões
+            </button>
           </div>
-
-        </div>
+        </article>
       </div>
 
-      <!-- Paginação -->
       <div class="pagination-row" *ngIf="totalPaginas > 1">
-        <button class="btn btn-outline btn-sm" [disabled]="avaliacaoPage === 0" (click)="paginaAnterior()">← Anterior</button>
+        <button class="btn btn-outline btn-sm" [disabled]="avaliacaoPage === 0" (click)="paginaAnterior()">Anterior</button>
         <span class="text-sm text-gray">{{ avaliacaoPage + 1 }} / {{ totalPaginas }}</span>
-        <button class="btn btn-outline btn-sm" [disabled]="avaliacaoPage >= totalPaginas - 1" (click)="proximaPagina()">Próxima →</button>
+        <button class="btn btn-outline btn-sm" [disabled]="avaliacaoPage >= totalPaginas - 1" (click)="proximaPagina()">Próxima</button>
       </div>
 
       <ng-template #emptyAval>
         <div class="empty-state">
-          <span class="empty-icon"><span class="material-symbols-outlined">assignment</span></span>
+          <span class="empty-icon"><span class="material-symbols-outlined">event_available</span></span>
           <p>Nenhuma avaliação nesta data</p>
         </div>
       </ng-template>
     </section>
 
-    <!-- APPOINTMENTS TAB -->
-    <section *ngIf="tab === 'agendamentos'" class="card">
-      <h2 style="margin-bottom:1.25rem">Gerenciar Agendamentos</h2>
+    <!-- ============ TODOS OS AGENDAMENTOS ============ -->
+    <section *ngIf="tab === 'agendamentos'" class="card recep__panel">
+      <div class="recep__panel-head">
+        <div>
+          <h2>Gerenciar agendamentos</h2>
+          <p>Sessões agrupadas por paciente</p>
+        </div>
+      </div>
       <app-appointments-table
         [appointments]="allAppointments"
         [fisioterapeutas]="fisioterapeutas"
@@ -195,8 +209,8 @@
       />
     </section>
 
-    <!-- USERS TAB -->
-    <section *ngIf="tab === 'usuarios'" class="card">
+    <!-- ============ USUÁRIOS ============ -->
+    <section *ngIf="tab === 'usuarios'" class="card recep__panel">
       <app-user-management-panel />
     </section>
 
@@ -205,16 +219,17 @@
 
 <app-scheduling-dialog
   [(open)]="schedulingOpen"
-  [contactName]="selectedContactName"
-  [contactPhone]="selectedContactPhone"
-  [contactEmail]="selectedContactEmail"
-  [contactId]="selectedContactId"
+  [leads]="leadOpcoes"
+  [pacientes]="pacienteOpcoes"
+  [fisioterapeutas]="fisioterapeutas"
+  [leadInicialId]="selectedLeadId"
   (scheduled)="loadData()"
 />
 <app-reschedule-dialog
   [(open)]="rescheduleOpen"
   [patientName]="selectedPatient"
   [appointmentId]="selectedAppointmentId"
+  [atual]="selectedAppointmentAtual"
   [hasSerie]="selectedHasSerie"
   (rescheduled)="loadData()"
 />

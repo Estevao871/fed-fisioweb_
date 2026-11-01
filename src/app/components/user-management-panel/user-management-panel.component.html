@@ -1,37 +1,35 @@
 <div class="ump-wrap">
 
   <div class="ump-header">
-    <h2>Gestão de Usuários</h2>
-    <button class="btn btn-primary btn-sm" (click)="createOpen = true">
-      <span class="material-symbols-outlined">person_add</span> Novo Usuário
+    <h2>Gestão de usuários</h2>
+    <button type="button" class="btn btn-dark btn-sm" (click)="createOpen = true">
+      <span class="material-symbols-outlined" aria-hidden="true">add</span> Novo usuário
     </button>
   </div>
 
-  <div class="ump-search">
-    <div class="search-wrap">
-      <span class="search-icon"><span class="material-symbols-outlined">search</span></span>
-      <input class="input search-input" [(ngModel)]="searchTerm" placeholder="Buscar por nome, email ou telefone..." />
-    </div>
-  </div>
+  <label class="ump-search">
+    <span class="material-symbols-outlined" aria-hidden="true">search</span>
+    <input class="input input-search" [(ngModel)]="searchTerm" placeholder="Buscar por nome, e-mail ou telefone..." aria-label="Buscar usuário" />
+  </label>
 
-  <div class="table-container" style="overflow-x:auto;-webkit-overflow-scrolling:touch">
-    <table style="min-width:700px">
+  <div class="table-container ump-table">
+    <table>
       <thead>
         <tr>
           <th>Nome</th>
-          <th>Email</th>
+          <th>E-mail</th>
           <th>Telefone</th>
-          <th>Tipo</th>
+          <th>Perfis</th>
           <th>Status</th>
           <th>Criado em</th>
-          <th>Ações</th>
+          <th class="ump-col-acoes">Ações</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let user of filteredUsers()">
           <td><strong>{{ user.name }}</strong></td>
           <td class="text-sm text-gray">{{ user.email }}</td>
-          <td class="text-sm text-gray">{{ user.phone }}</td>
+          <td class="text-sm text-gray">{{ user.phone || '—' }}</td>
           <td>
             <div class="role-badges">
               <span class="badge" *ngFor="let r of user.roles" [ngClass]="roleBadge(r)">{{ roleLabel(r) }}</span>
@@ -45,16 +43,17 @@
           <td class="text-sm text-gray">{{ user.createdAt }}</td>
           <td>
             <div class="row-actions">
-              <button class="btn btn-ghost btn-sm" (click)="openEdit(user)"
-                [attr.aria-label]="'Editar ' + user.name">
+              <button type="button" class="ump-act" (click)="openEdit(user)"
+                [attr.aria-label]="'Editar ' + user.name" title="Editar">
                 <span class="material-symbols-outlined" aria-hidden="true">edit</span>
               </button>
-              <button class="btn btn-ghost btn-sm" (click)="resetPassword(user)"
-                [attr.aria-label]="'Redefinir senha de ' + user.name">
+              <button type="button" class="ump-act" (click)="resetPassword(user)"
+                [attr.aria-label]="'Redefinir senha de ' + user.name" title="Redefinir senha">
                 <span class="material-symbols-outlined" aria-hidden="true">key</span>
               </button>
-              <button class="btn btn-ghost btn-sm" (click)="toggleStatus(user)"
-                [attr.aria-label]="(user.status === 'ativo' ? 'Desativar ' : 'Ativar ') + user.name">
+              <button type="button" class="ump-act" [class.is-danger]="user.status === 'ativo'" (click)="toggleStatus(user)"
+                [attr.aria-label]="(user.status === 'ativo' ? 'Desativar ' : 'Ativar ') + user.name"
+                [title]="user.status === 'ativo' ? 'Desativar' : 'Ativar'">
                 <span class="material-symbols-outlined" aria-hidden="true">{{ user.status === 'ativo' ? 'block' : 'check_circle' }}</span>
               </button>
             </div>
@@ -72,12 +71,11 @@
     </table>
   </div>
 
-  <div class="pagination-bar" style="display:flex;align-items:center;justify-content:space-between;margin-top:.75rem">
-    <p class="results-count text-xs text-gray" style="margin:0">
-      Página <strong>{{ page + 1 }}</strong> de <strong>{{ totalPages || 1 }}</strong>
-      — <strong>{{ totalElements }}</strong> usuários no total
+  <div class="ump-pagination">
+    <p class="text-sm text-gray">
+      Página {{ page + 1 }} de {{ totalPages || 1 }} · <strong>{{ totalElements }}</strong> usuário{{ totalElements === 1 ? '' : 's' }}
     </p>
-    <div style="display:flex;gap:.5rem">
+    <div class="ump-pagination__btns">
       <button class="btn btn-outline btn-sm" (click)="previousPage()" [disabled]="page === 0 || usersLoading">
         Anterior
       </button>

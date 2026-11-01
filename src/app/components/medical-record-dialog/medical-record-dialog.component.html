@@ -1,15 +1,17 @@
 <div class="modal-backdrop" *ngIf="open" role="dialog" aria-modal="true">
-  <div class="modal modal-lg">
+  <div class="modal modal-lg mr" aria-labelledby="mr-title">
 
-    <!-- HEADER -->
+    <!-- CABEÇALHO (fixo) -->
+    <div class="mr-head">
     <div class="modal-header">
       <div>
-        <h2>{{ isInitialEvaluation ? 'Avaliação Inicial' : 'Prontuário do Paciente' }}</h2>
-        <div class="mr-meta">
-          <span><span class="material-symbols-outlined">person</span> {{ patientName }}{{ patientAge ? ', ' + patientAge + ' anos' : '' }}</span>
-          <span *ngIf="condition && condition !== 'sem_avaliacao'">· {{ conditionLabel }}</span>
-          <span>· {{ today }}</span>
-        </div>
+        <h2 id="mr-title">{{ isInitialEvaluation ? 'Avaliação inicial' : 'Prontuário do paciente' }}</h2>
+        <p class="mr-meta">
+          {{ patientName }}{{ patientAge ? ', ' + patientAge + ' anos' : '' }}
+          <ng-container *ngIf="condition && condition !== 'sem_avaliacao'; else semCondicao"> · {{ conditionLabel }}</ng-container>
+          <ng-template #semCondicao><ng-container *ngIf="isInitialEvaluation"> · Avaliação pendente</ng-container></ng-template>
+          · {{ today }}
+        </p>
       </div>
       <button class="modal-close" (click)="close()" aria-label="Fechar">
         <span class="material-symbols-outlined">close</span>
@@ -17,20 +19,23 @@
     </div>
 
     <!-- TABS -->
-    <div class="modal-tabs">
-      <button *ngIf="isInitialEvaluation || viewingHistoryEvaluation"
-        [class.active]="tab === 'avaliacao'" (click)="setTab('avaliacao')">
-        <span class="material-symbols-outlined">assignment</span> Avaliação
+    <div class="modal-tabs mr-tabs" role="tablist">
+      <button type="button" role="tab" *ngIf="isInitialEvaluation || viewingHistoryEvaluation"
+        [class.active]="tab === 'avaliacao'" [attr.aria-selected]="tab === 'avaliacao'" (click)="setTab('avaliacao')">
+        Avaliação
       </button>
-      <button *ngIf="!isInitialEvaluation"
-        [class.active]="tab === 'evolucao'" (click)="setTab('evolucao')">
-        <span class="material-symbols-outlined">trending_up</span>
-        {{ activeSessaoId ? 'Registrar Evolução' : 'Evolução da Sessão' }}
+      <button type="button" role="tab" *ngIf="!isInitialEvaluation"
+        [class.active]="tab === 'evolucao'" [attr.aria-selected]="tab === 'evolucao'" (click)="setTab('evolucao')">
+        {{ activeSessaoId ? 'Registrar evolução' : 'Evolução da sessão' }}
       </button>
-      <button [class.active]="tab === 'historico'" (click)="setTab('historico')">
-        <span class="material-symbols-outlined">history</span> Histórico
+      <button type="button" role="tab" [class.active]="tab === 'historico'" [attr.aria-selected]="tab === 'historico'" (click)="setTab('historico')">
+        Histórico
       </button>
     </div>
+    </div>
+
+    <!-- CORPO (rola entre cabeçalho e rodapé) -->
+    <div class="mr-body">
 
     <!-- ALERTS -->
     <div *ngIf="saveSuccess" class="alert-success" role="status">
@@ -51,80 +56,72 @@
 
       <!-- Fisioterapeuta -->
       <div class="eval-section">
-        <div class="eval-section__title">
-          <span class="material-symbols-outlined">medical_services</span> Identificação
-        </div>
+        <h3 class="eval-section__title"><span class="eval-section__num">01</span> Identificação</h3>
         <div class="field-group">
-          <label for="av-medico">Fisioterapeuta Responsável</label>
+          <label for="av-medico">Fisioterapeuta responsável</label>
           <input id="av-medico" class="input" [(ngModel)]="medico" placeholder="Nome do fisioterapeuta" [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation" />
         </div>
       </div>
 
       <!-- Anamnese -->
       <div class="eval-section">
-        <div class="eval-section__title">
-          <span class="material-symbols-outlined">assignment</span> Anamnese
-        </div>
+        <h3 class="eval-section__title"><span class="eval-section__num">02</span> Anamnese</h3>
         <div class="field-group">
-          <label for="av-hda">HDA — História da Doença Atual *</label>
+          <label for="av-hda">HDA — História da doença atual <span class="req" aria-hidden="true">*</span></label>
           <textarea id="av-hda" class="input" [(ngModel)]="hda" rows="4"
-            placeholder="Queixa principal, início dos sintomas, evolução, fatores de piora/melhora..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+            placeholder="Queixa principal, início dos sintomas, evolução, fatores de piora e melhora…" [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
         </div>
         <div class="field-group">
-          <label for="av-hpp">HPP — História Patológica Pregressa</label>
+          <label for="av-hpp">HPP — História patológica pregressa</label>
           <textarea id="av-hpp" class="input" [(ngModel)]="hpp" rows="2"
-            placeholder="Doenças preexistentes, histórico de lesões, acidentes..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+            placeholder="Doenças preexistentes, lesões anteriores, acidentes…" [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
         </div>
         <div class="grid grid-2" style="gap:.875rem">
           <div class="field-group">
-            <label for="av-med">Medicamentos em Uso</label>
+            <label for="av-med">Medicamentos em uso</label>
             <textarea id="av-med" class="input" [(ngModel)]="medicamentos" rows="2"
-              placeholder="Nomes, dosagens..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+              placeholder="Nomes e dosagens…" [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
           </div>
           <div class="field-group">
-            <label for="av-cir">Cirurgias Prévias</label>
+            <label for="av-cir">Cirurgias prévias</label>
             <textarea id="av-cir" class="input" [(ngModel)]="cirurgia" rows="2"
-              placeholder="Tipo e data das cirurgias..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+              placeholder="Tipo e data…" [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
           </div>
         </div>
         <div class="field-group">
           <label for="av-com">Comorbidades</label>
           <textarea id="av-com" class="input" [(ngModel)]="comodidade" rows="2"
-            placeholder="Diabetes, hipertensão, obesidade..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+            placeholder="Diabetes, hipertensão…" [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
         </div>
       </div>
 
       <!-- Avaliação Física -->
       <div class="eval-section">
-        <div class="eval-section__title">
-          <span class="material-symbols-outlined">biotech</span> Avaliação Física
-        </div>
+        <h3 class="eval-section__title"><span class="eval-section__num">03</span> Avaliação física</h3>
         <div class="field-group">
-          <label for="av-testes">Testes Realizados *</label>
+          <label for="av-testes">Testes realizados</label>
           <textarea id="av-testes" class="input" [(ngModel)]="testesRealizados" rows="4"
-            placeholder="Ex: Teste de força muscular — Grau 4/5 bilateral&#10;Teste de Lasègue — Negativo&#10;Avaliação postural — hipercifose torácica..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+            placeholder="Ex.: Força muscular — grau 4/5 bilateral&#10;Lasègue — negativo" [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
         </div>
         <div class="field-group">
-          <label for="av-gon">Goniometria (Amplitude de Movimento)</label>
+          <label for="av-gon">Goniometria (amplitude de movimento)</label>
           <textarea id="av-gon" class="input" [(ngModel)]="goniometria" rows="3"
-            placeholder="Ex: Joelho D — Flexão: 120° | Extensão: 0°&#10;Ombro E — Flexão: 80° | Abdução: 70°" [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+            placeholder="Ex.: Joelho D — flexão 120° | extensão 0°" [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
         </div>
       </div>
 
       <!-- Diagnóstico e Conduta -->
       <div class="eval-section">
-        <div class="eval-section__title">
-          <span class="material-symbols-outlined">medication</span> Diagnóstico e Conduta
-        </div>
+        <h3 class="eval-section__title"><span class="eval-section__num">04</span> Diagnóstico e conduta</h3>
         <div class="field-group">
-          <label for="av-diag">Diagnóstico Fisioterapêutico *</label>
+          <label for="av-diag">Diagnóstico fisioterapêutico <span class="req" aria-hidden="true">*</span></label>
           <textarea id="av-diag" class="input" [(ngModel)]="diagnostico" rows="2"
-            placeholder="Diagnóstico cinético funcional..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+            placeholder="Diagnóstico cinético-funcional…" [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
         </div>
 
         <div class="field-group">
-          <label>Conduta Terapêutica</label>
-          <div class="conduta-grid">
+          <span class="mr-label">Conduta terapêutica</span>
+          <div class="conduta-grid" role="group" aria-label="Conduta terapêutica">
             <label *ngFor="let c of condutaOptions" class="conduta-item"
               [class.selected]="isCondutaSelected(c)"
               [class.disabled]="avaliacaoJaFinalizada || viewingHistoryEvaluation">
@@ -137,14 +134,14 @@
         </div>
 
         <div class="field-group">
-          <label for="av-prog">Prognóstico *</label>
+          <label for="av-prog">Prognóstico <span class="req" aria-hidden="true">*</span></label>
           <textarea id="av-prog" class="input" [(ngModel)]="prognostico" rows="3"
-            placeholder="Expectativas de recuperação, tempo estimado..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+            placeholder="Expectativa de recuperação e tempo estimado…" [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
         </div>
         <div class="field-group">
-          <label for="av-des">Desfecho Esperado</label>
+          <label for="av-des">Desfecho esperado</label>
           <textarea id="av-des" class="input" [(ngModel)]="desfecho" rows="2"
-            placeholder="Objetivos funcionais do tratamento..." [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
+            placeholder="Objetivos funcionais do tratamento…" [readonly]="avaliacaoJaFinalizada || viewingHistoryEvaluation"></textarea>
         </div>
       </div>
 
@@ -162,23 +159,23 @@
         <div class="evolucao-box card">
           <div class="evolucao-header">
             <span class="material-symbols-outlined" aria-hidden="true">trending_up</span>
-            <strong>Registrar Evolução da Sessão</strong>
+            <strong>Registrar evolução da sessão</strong>
           </div>
 
           <div class="field-group">
-            <label for="ev-notes">Observações da Sessão</label>
+            <label for="ev-notes">Observações da sessão</label>
             <textarea id="ev-notes" class="input" [(ngModel)]="sessionNotes" rows="4"
               placeholder="Como o paciente está? Houve melhora? Dificuldades encontradas?..."></textarea>
           </div>
 
           <div class="grid grid-2" style="gap:1rem">
             <div class="field-group">
-              <label for="ev-pain">Nível de Dor Hoje (0–10)</label>
+              <label for="ev-pain">Nível de dor hoje (0–10)</label>
               <input id="ev-pain" class="input" type="number" [(ngModel)]="sessionPain"
                 min="0" max="10" placeholder="0 = sem dor · 10 = máxima" />
             </div>
             <div class="field-group">
-              <label for="ev-mob">Mobilidade Atual (%)</label>
+              <label for="ev-mob">Mobilidade atual (%)</label>
               <input id="ev-mob" class="input" type="number" [(ngModel)]="sessionMobility"
                 min="0" max="100" placeholder="Percentual estimado" />
             </div>
@@ -187,7 +184,7 @@
 
         <div class="exercises-section">
           <div class="exercises-header">
-            <strong>Exercícios Realizados</strong>
+            <strong>Exercícios realizados</strong>
             <button class="btn btn-outline btn-sm" type="button" (click)="addExercise()">+ Adicionar</button>
           </div>
           <div *ngIf="sessionExercises.length === 0" class="empty-state" style="padding:1.5rem 0">
@@ -262,17 +259,17 @@
               <!-- Ver ficha clínica (apenas na entrada de avaliação) -->
               <button *ngIf="s.tipo === 'avaliacao' && historicAvaliacaoId"
                 class="btn btn-outline btn-sm" (click)="verFichaClinica()">
-                <span class="material-symbols-outlined">assignment</span> Ver Ficha Clínica
+                <span class="material-symbols-outlined">assignment</span> Ver ficha clínica
               </button>
               <!-- Registrar evolução — sessão de hoje sem evolução ainda -->
               <button *ngIf="s.tipo !== 'avaliacao' && isHoje(s.dataHora) && (s.status === 'marcada' || s.status === 'remarcada') && !temEvolucao(s)"
                 class="btn btn-primary btn-sm" (click)="registrarEvolucaoParaSessao(s)">
-                <span class="material-symbols-outlined">edit_note</span> Registrar Evolução
+                <span class="material-symbols-outlined">edit_note</span> Registrar evolução
               </button>
               <!-- Editar evolução — qualquer sessão que já tenha evolução salva -->
               <button *ngIf="s.tipo !== 'avaliacao' && temEvolucao(s)"
                 class="btn btn-outline btn-sm" (click)="registrarEvolucaoParaSessao(s)">
-                <span class="material-symbols-outlined">edit</span> Editar Evolução
+                <span class="material-symbols-outlined">edit</span> Editar evolução
               </button>
             </div>
 
@@ -281,8 +278,11 @@
       </div>
     </div>
 
-    <!-- FOOTER -->
-    <div class="modal-footer">
+    </div>
+
+    <!-- RODAPÉ (fixo) -->
+    <div class="modal-footer mr-footer">
+      <span class="mr-footer__hint" *ngIf="currentTabHasSave && tab === 'avaliacao'">Campos com * são obrigatórios</span>
       <button class="btn btn-outline" (click)="close()" [disabled]="saving">Cancelar</button>
       <button *ngIf="currentTabHasSave" class="btn btn-primary"
         [class.btn-success]="saveSuccess" (click)="save()" [disabled]="saving">

@@ -4,7 +4,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
-import { isValidEmail, isValidPhone } from '../../core/validators';
+import { formatarTelefone, isValidEmail, isValidPhone } from '../../core/validators';
 
 type Campo = 'name' | 'phone' | 'email' | 'complaint';
 
@@ -87,12 +87,7 @@ export class ContactFormDialogComponent implements OnChanges {
 
   /** Máscara (11) 99999-9999 / (11) 9999-9999 enquanto digita. */
   onPhone(valor: string): void {
-    const d = valor.replace(/\D/g, '').slice(0, 11);
-    let fmt = d;
-    if (d.length > 0)  fmt = `(${d.slice(0, 2)}`;
-    if (d.length >= 3) fmt += `) ${d.slice(2, d.length > 10 ? 7 : 6)}`;
-    if (d.length >= 7) fmt += `-${d.slice(d.length > 10 ? 7 : 6)}`;
-    this.phone = fmt;
+    this.phone = formatarTelefone(valor);
   }
 
   submit(): void {

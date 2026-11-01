@@ -153,7 +153,7 @@ export interface AgendarAvaliacaoDto {
 
 export interface AgendarSessoesDto {
   dataHora: string;
-  avaliacaoId: string;
+  avaliacaoId?: string;
   observacao?: string;
   modoAgendamento?: string;
   frequenciaSemanal?: number;

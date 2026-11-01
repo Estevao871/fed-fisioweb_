@@ -1,177 +1,197 @@
-<div class="dash-layout">
+<div class="fisio">
 
-  <header class="dash-header">
-    <div class="dash-title-group">
-      <div class="brand">
-        <img src="assets/logo_fisio.png" alt="Vida em Movimento" class="brand-logo" />
-      </div>
-      <div class="dash-title-info">
-        <h1>Painel do Fisioterapeuta</h1>
-        <p>{{ userName }}</p>
+  <!-- ============ TOPO ============ -->
+  <header class="fisio__top">
+    <div class="fisio__top-inner">
+      <a class="fisio__brand" routerLink="/" aria-label="Vida em Movimento">
+        <img src="assets/logo_fisio.png" alt="Vida em Movimento" />
+      </a>
+
+      <div class="fisio__user">
+        <span class="fisio__avatar" aria-hidden="true">{{ iniciais }}</span>
+        <span class="fisio__user-info">
+          <strong>{{ userName }}</strong>
+          <span>Fisioterapeuta</span>
+        </span>
+        <button type="button" class="btn btn-outline btn-xs fisio__sair" (click)="logout()">
+          <span class="material-symbols-outlined" aria-hidden="true">logout</span> Sair
+        </button>
       </div>
     </div>
-    <button class="btn btn-ghost btn-sm logout-btn" (click)="logout()">↗ Sair</button>
   </header>
 
-  <main class="dash-body">
+  <main class="fisio__body">
 
-    <!-- STATS -->
-    <section class="grid grid-4">
-      <div class="stat-card">
-        <div class="stat-info">
-          <p class="stat-label">Consultas Hoje</p>
-          <p class="stat-value text-purple">{{ statsConsultasHoje }}</p>
-        </div>
-        <div class="stat-icon" style="background:var(--purple-100);color:var(--purple-600)">
-          <span class="material-symbols-outlined">calendar_month</span>
-        </div>
+    <!-- ============ TÍTULO ============ -->
+    <section class="fisio__hero">
+      <p class="eyebrow fisio__date">{{ hojeExtenso }}</p>
+      <h1>{{ saudacao }}, <span class="accent">{{ primeiroNome }}</span></h1>
+    </section>
+
+    <!-- ============ INDICADORES ============ -->
+    <section class="fisio__stats" aria-label="Resumo">
+      <div class="fisio-stat">
+        <span class="fisio-stat__dot is-purple" aria-hidden="true"></span>
+        <p class="fisio-stat__label">Consultas hoje</p>
+        <p class="fisio-stat__value">{{ statsConsultasHoje }}</p>
+        <p class="fisio-stat__hint">{{ horariosHoje || 'nenhuma consulta hoje' }}</p>
       </div>
-      <div class="stat-card">
-        <div class="stat-info">
-          <p class="stat-label">Avaliações Pendentes</p>
-          <p class="stat-value text-pink">{{ statsAvaliacoesPendentes }}</p>
-        </div>
-        <div class="stat-icon" style="background:#fce7f3;color:#db2777">
-          <span class="material-symbols-outlined">description</span>
-        </div>
+      <div class="fisio-stat">
+        <span class="fisio-stat__dot is-yellow" aria-hidden="true"></span>
+        <p class="fisio-stat__label">Avaliações pendentes</p>
+        <p class="fisio-stat__value">{{ statsAvaliacoesPendentes }}</p>
+        <p class="fisio-stat__hint">aguardando registro</p>
       </div>
-      <div class="stat-card">
-        <div class="stat-info">
-          <p class="stat-label">Pacientes Ativos</p>
-          <p class="stat-value text-purple">{{ statsPacientesAtivos }}</p>
-        </div>
-        <div class="stat-icon" style="background:var(--purple-100);color:var(--purple-600)">
-          <span class="material-symbols-outlined">person</span>
-        </div>
+      <div class="fisio-stat">
+        <span class="fisio-stat__dot is-green" aria-hidden="true"></span>
+        <p class="fisio-stat__label">Pacientes ativos</p>
+        <p class="fisio-stat__value">{{ statsPacientesAtivos }}</p>
+        <p class="fisio-stat__hint">{{ meusPacientes ? 'em tratamento com você' : 'em tratamento na clínica' }}</p>
       </div>
-      <div class="stat-card">
-        <div class="stat-info">
-          <p class="stat-label">Taxa Comparecimento</p>
-          <p class="stat-value text-green">{{ statsTaxaRecuperacao }}</p>
-        </div>
-        <div class="stat-icon" style="background:#dcfce7;color:#16a34a">
-          <span class="material-symbols-outlined">trending_up</span>
-        </div>
+      <div class="fisio-stat">
+        <span class="fisio-stat__dot is-lilac" aria-hidden="true"></span>
+        <p class="fisio-stat__label">Taxa de comparecimento</p>
+        <p class="fisio-stat__value">{{ statsTaxaRecuperacao }}</p>
+        <p class="fisio-stat__hint">sessões já realizadas</p>
       </div>
     </section>
 
-    <!-- TABS -->
-    <div class="tab-group">
-      <button class="tab-btn" [class.active]="tab === 'agenda'"    (click)="tab = 'agenda'">Agenda</button>
-      <button class="tab-btn" [class.active]="tab === 'pacientes'" (click)="tab = 'pacientes'">Meus Pacientes</button>
-      <button class="tab-btn" [class.active]="tab === 'avaliacoes'"(click)="tab = 'avaliacoes'">
-        Avaliações
-        <span class="tab-badge" *ngIf="statsAvaliacoesPendentes > 0">{{ statsAvaliacoesPendentes }}</span>
+    <!-- ============ ABAS ============ -->
+    <nav class="tab-group" role="tablist" aria-label="Seções do painel">
+      <button type="button" role="tab" class="tab-btn" [class.active]="tab === 'agenda'" [attr.aria-selected]="tab === 'agenda'" (click)="tab = 'agenda'">Agenda</button>
+      <button type="button" role="tab" class="tab-btn" [class.active]="tab === 'pacientes'" [attr.aria-selected]="tab === 'pacientes'" (click)="tab = 'pacientes'">Meus pacientes</button>
+      <button type="button" role="tab" class="tab-btn" [class.active]="tab === 'avaliacoes'" [attr.aria-selected]="tab === 'avaliacoes'" (click)="tab = 'avaliacoes'">
+        Avaliações <span class="tab-count" *ngIf="statsAvaliacoesPendentes > 0">{{ statsAvaliacoesPendentes }}</span>
       </button>
-      <button class="tab-btn" [class.active]="tab === 'historico'" (click)="tab = 'historico'; loadHistoricoAvaliacoes()">
-        Avaliações Concluídas
+      <button type="button" role="tab" class="tab-btn" [class.active]="tab === 'historico'" [attr.aria-selected]="tab === 'historico'" (click)="tab = 'historico'; loadHistoricoAvaliacoes()">
+        Avaliações concluídas
       </button>
-    </div>
+    </nav>
 
-    <!-- AGENDA -->
+    <!-- ============ AGENDA ============ -->
     <div *ngIf="tab === 'agenda'" class="agenda-layout">
-    <section class="card">
-      <app-agenda-calendar [selectedDate]="selectedDate" (selectedDateChange)="loadAgendaDia($event)"></app-agenda-calendar>
-    </section>
+      <section class="card fisio__panel">
+        <app-agenda-calendar [selectedDate]="selectedDate" (selectedDateChange)="loadAgendaDia($event)"></app-agenda-calendar>
+      </section>
 
-    <section class="card">
-      <div class="section-title-row">
-        <h2>{{ selectedDateLabel }}</h2>
-        <button class="btn btn-ghost btn-sm" (click)="refreshAgenda()" [disabled]="loading"
-          title="Atualizar — ver chegadas confirmadas pela recepção">
-          <span class="material-symbols-outlined">refresh</span>
-          {{ loading ? 'Carregando...' : 'Atualizar' }}
-        </button>
-      </div>
-      <div class="appointment-list" *ngIf="appointments.length > 0; else emptyAgenda">
-        <div class="appointment-item" *ngFor="let item of appointments">
-          <div class="appt-info">
-            <strong>{{ item.patient }}</strong>
-            <span class="appt-meta">{{ item.time }} · {{ typeLabel(item.type) }} · {{ item.duration }} min</span>
+      <section class="card fisio__panel">
+        <div class="fisio__panel-head fisio__panel-head--tight">
+          <h2>{{ selectedDateLabel }}</h2>
+          <div class="agenda-head-right">
+            <span class="text-sm text-gray">{{ atendimentosLabel }}</span>
+            <button type="button" class="btn-icon agenda-refresh" (click)="refreshAgenda()" [disabled]="loading"
+              title="Atualizar — ver chegadas confirmadas pela recepção" aria-label="Atualizar agenda">
+              <span class="material-symbols-outlined" [class.spin]="loading" aria-hidden="true">refresh</span>
+            </button>
           </div>
-          <div class="appt-right">
-            <span class="badge" [ngClass]="statusBadge(item.status)">{{ statusLabel(item.status) }}</span>
-            <ng-container *ngIf="item.type === 'avaliacao'; else sessaoBtn">
-              <ng-container *ngIf="avaliacaoPendente(item) as av; else avaliacaoFeita">
-                <button class="btn btn-primary btn-sm"
-                  [disabled]="iniciandoAvaliacao === av.idSessao"
-                  (click)="iniciarAvaliacao(av)">
-                  <span class="material-symbols-outlined" *ngIf="iniciandoAvaliacao !== av.idSessao">play_arrow</span>
-                  {{ iniciandoAvaliacao === av.idSessao ? 'Iniciando...' : 'Iniciar Avaliação' }}
-                </button>
+        </div>
+
+        <div class="appt-list" *ngIf="appointments.length > 0; else emptyAgenda">
+          <article class="appt" *ngFor="let item of appointments">
+            <div class="appt__top">
+              <div class="appt__info">
+                <strong>{{ item.patient }}</strong>
+                <span>{{ item.time }} · {{ typeLabel(item.type) }} · {{ item.duration }} min</span>
+              </div>
+              <span class="badge" [ngClass]="statusBadge(item.status)">{{ statusLabel(item.status) }}</span>
+            </div>
+
+            <div class="appt__actions">
+              <ng-container *ngIf="item.type === 'avaliacao'; else sessaoBtn">
+                <ng-container *ngIf="avaliacaoPendente(item) as av; else avaliacaoFeita">
+                  <button type="button" class="btn btn-outline btn-xs appt__btn-light"
+                    [disabled]="iniciandoAvaliacao === av.idSessao"
+                    (click)="iniciarAvaliacao(av)">
+                    {{ iniciandoAvaliacao === av.idSessao ? 'Iniciando...' : 'Iniciar avaliação' }}
+                    <span class="material-symbols-outlined" *ngIf="iniciandoAvaliacao !== av.idSessao" aria-hidden="true">arrow_forward</span>
+                  </button>
+                </ng-container>
+                <ng-template #avaliacaoFeita>
+                  <button *ngIf="item.status === 'concluido'" type="button" class="btn btn-outline btn-xs appt__btn-light"
+                    (click)="tab = 'historico'; loadHistoricoAvaliacoes()">
+                    Ver avaliação
+                  </button>
+                  <p *ngIf="item.status === 'agendado'" class="appt__hint"
+                    title="A recepção confirma quando o paciente chegar. Depois clique em Atualizar.">
+                    <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+                    Aguardando a recepção confirmar a chegada
+                  </p>
+                </ng-template>
               </ng-container>
-              <ng-template #avaliacaoFeita>
-                <button *ngIf="item.status === 'concluido'" class="btn btn-outline btn-sm"
-                  (click)="tab = 'historico'; loadHistoricoAvaliacoes()">
-                  Ver avaliação
+              <ng-template #sessaoBtn>
+                <button type="button" class="btn btn-primary btn-xs" (click)="openRecord(item)">
+                  {{ item.status === 'concluido' ? 'Ver prontuário' : 'Abrir prontuário' }}
+                  <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
                 </button>
-                <span *ngIf="item.status === 'agendado'" class="aguardando-chegada text-xs"
-                  title="A recepção confirma quando o paciente chegar. Depois clique em Atualizar.">
-                  <span class="material-symbols-outlined">schedule</span>
-                  Aguardando chegada
-                </span>
               </ng-template>
-            </ng-container>
-            <ng-template #sessaoBtn>
-              <button class="btn btn-primary btn-sm" (click)="openRecord(item)">
-                {{ item.status === 'concluido' ? 'Ver prontuário' : 'Abrir prontuário' }}
-              </button>
-            </ng-template>
+            </div>
+          </article>
+        </div>
+
+        <ng-template #emptyAgenda>
+          <div class="empty-state">
+            <span class="empty-icon"><span class="material-symbols-outlined">calendar_month</span></span>
+            <p>{{ loading ? 'Carregando...' : 'Nenhuma sessão agendada ' + (selectedDate === today ? 'para hoje' : 'neste dia') }}</p>
           </div>
-        </div>
-      </div>
-      <ng-template #emptyAgenda>
-        <div class="empty-state">
-          <span class="empty-icon"><span class="material-symbols-outlined">calendar_month</span></span>
-          <p>Nenhuma sessão agendada {{ selectedDate === today ? 'para hoje' : 'neste dia' }}</p>
-        </div>
-      </ng-template>
-    </section>
+        </ng-template>
+      </section>
     </div>
 
-    <!-- PATIENTS -->
-    <section *ngIf="tab === 'pacientes'" class="card">
-      <div class="section-title-row">
-        <h2>Acompanhamento de Pacientes</h2>
-        <div class="search-wrap">
-          <span class="search-icon"><span class="material-symbols-outlined">search</span></span>
-          <input class="input search-input" [(ngModel)]="searchTerm"
-            placeholder="Buscar paciente ou condição..." />
-        </div>
-      </div>
-      <div class="section-title-row" style="margin-top:-.5rem;margin-bottom:.75rem">
-        <button class="btn btn-ghost btn-sm" (click)="toggleMeusPacientes()">
-          <span class="material-symbols-outlined">{{ meusPacientes ? 'group' : 'person' }}</span>
-          {{ meusPacientes ? 'Mostrar todos os pacientes da clínica' : 'Mostrar somente meus pacientes' }}
-        </button>
+    <!-- ============ MEUS PACIENTES ============ -->
+    <section *ngIf="tab === 'pacientes'" class="card fisio__panel">
+      <div class="fisio__panel-head">
+        <h2>Acompanhamento de pacientes</h2>
+        <label class="fisio__search">
+          <span class="material-symbols-outlined" aria-hidden="true">search</span>
+          <input class="input input-search" [(ngModel)]="searchTerm" placeholder="Buscar paciente ou condição..." aria-label="Buscar paciente" />
+        </label>
       </div>
 
-      <div class="patient-list">
-        <div class="patient-item" *ngFor="let p of filteredPatients()" (click)="openPatient(p)">
-          <div class="patient-item__info">
-            <strong>{{ p.name }}</strong>
-            <span>{{ p.condition }}</span>
-            <span class="text-xs text-purple" *ngIf="!meusPacientes && p.fisioterapeuta">Fisio: {{ p.fisioterapeuta }}</span>
-          </div>
-          <div class="patient-item__right">
-            <span class="text-xs text-gray">{{ p.nextAppointment !== '—' ? p.nextAppointment : 'Sem próxima sessão' }}</span>
-            <span class="text-xs text-gray">{{ p.totalSessions }} {{ p.totalSessions === 1 ? 'sessão' : 'sessões' }}</span>
-          </div>
-          <div class="patient-item__progress">
-            <div class="progress-bar-label">
-              <span class="text-xs text-gray">Progresso</span>
+      <label class="switch-row">
+        <input type="checkbox" class="switch" [checked]="!meusPacientes" (change)="toggleMeusPacientes()" [disabled]="pacientesLoading" />
+        <span>Mostrar todos os pacientes da clínica</span>
+      </label>
+
+      <div class="pac-grid" *ngIf="filteredPatients().length > 0; else emptyPacientes">
+        <article class="pac" *ngFor="let p of filteredPatients()">
+          <div class="pac__top">
+            <span class="pac__avatar" aria-hidden="true">{{ p.iniciais }}</span>
+            <div class="pac__id">
+              <strong>{{ p.name }}</strong>
+              <span>{{ p.subtitulo }}</span>
+              <span class="pac__fisio" *ngIf="!meusPacientes && p.fisioterapeuta">Fisio: {{ p.fisioterapeuta }}</span>
             </div>
-            <div class="progress-bar-wrap colored">
+            <span class="badge" [ngClass]="pacienteBadge(p).css">{{ pacienteBadge(p).label }}</span>
+          </div>
+
+          <div class="pac__progress">
+            <div class="pac__progress-row">
+              <span>{{ p.sessionsCompleted }} de {{ p.totalSessions || '—' }} sessões</span>
+              <strong>{{ p.progress }}%</strong>
+            </div>
+            <div class="progress-bar-wrap colored" role="progressbar" [attr.aria-valuenow]="p.progress" aria-valuemin="0" aria-valuemax="100">
               <div class="progress-bar-fill" [style.width]="p.progress + '%'"></div>
             </div>
-            <span class="text-xs text-purple font-semibold">{{ p.progress }}% concluído</span>
           </div>
-        </div>
-        <div class="empty-state" *ngIf="filteredPatients().length === 0">
-          <span class="empty-icon"><span class="material-symbols-outlined">search</span></span>
-          <p>Nenhum paciente encontrado</p>
-        </div>
+
+          <ng-container *ngIf="avaliacaoDoPaciente(p) as av; else abrirPront">
+            <button type="button" class="btn btn-outline btn-xs pac__btn"
+              [disabled]="iniciandoAvaliacao === av.idSessao" (click)="acaoPaciente(p)">
+              {{ iniciandoAvaliacao === av.idSessao ? 'Iniciando...' : 'Iniciar avaliação' }}
+            </button>
+          </ng-container>
+          <ng-template #abrirPront>
+            <button type="button" class="btn btn-outline btn-xs pac__btn" (click)="openPatient(p)">Abrir prontuário</button>
+          </ng-template>
+        </article>
       </div>
+
+      <ng-template #emptyPacientes>
+        <div class="empty-state">
+          <span class="empty-icon"><span class="material-symbols-outlined">search</span></span>
+          <p>{{ pacientesLoading ? 'Carregando pacientes...' : 'Nenhum paciente encontrado' }}</p>
+        </div>
+      </ng-template>
 
       <!-- Paginação pacientes — server-side -->
       <div class="pagination-row" *ngIf="pacienteTotalPages > 1">
@@ -185,29 +205,30 @@
       </div>
     </section>
 
-    <!-- AVALIAÇÕES PENDENTES -->
-    <section *ngIf="tab === 'avaliacoes'" class="card">
-      <h2 style="margin-bottom:1.25rem">Avaliações Aguardando Atendimento</h2>
-
-      <div class="eval-list" *ngIf="avaliacoesPendentes.length > 0; else emptyEval">
-        <div class="eval-item card" *ngFor="let av of avaliacoesPendentes">
-          <div class="eval-info">
-            <strong>{{ av.nome ?? 'Paciente' }}</strong>
-            <span class="text-sm text-gray">{{ formatDataHora(av.dataHora) }}</span>
-            <span *ngIf="av.telefone" class="text-sm text-gray">
-              <span class="material-symbols-outlined">phone</span> {{ av.telefone }}
-            </span>
-          </div>
-          <span class="badge badge-yellow">Aguardando avaliação</span>
-          <button
-            class="btn btn-primary btn-sm"
-            [disabled]="iniciandoAvaliacao === av.idSessao"
-            (click)="iniciarAvaliacao(av)"
-          >
-            <span class="material-symbols-outlined" *ngIf="iniciandoAvaliacao !== av.idSessao">play_arrow</span>
-            {{ iniciandoAvaliacao === av.idSessao ? 'Iniciando...' : 'Iniciar Avaliação' }}
-          </button>
+    <!-- ============ AVALIAÇÕES PENDENTES ============ -->
+    <section *ngIf="tab === 'avaliacoes'" class="card fisio__panel">
+      <div class="fisio__panel-head">
+        <div>
+          <h2>Avaliações aguardando atendimento</h2>
+          <p>Pacientes que ainda precisam da avaliação inicial</p>
         </div>
+      </div>
+
+      <div class="row-list" *ngIf="avaliacoesPendentes.length > 0; else emptyEval">
+        <article class="row-item" *ngFor="let av of avaliacoesPendentes">
+          <div class="row-item__info">
+            <strong>{{ av.nome ?? 'Paciente' }}</strong>
+            <span>{{ formatDataHora(av.dataHora) }}<ng-container *ngIf="av.telefone"> · {{ av.telefone }}</ng-container></span>
+          </div>
+          <div class="row-item__actions">
+            <span class="badge badge-yellow">Aguardando avaliação</span>
+            <button type="button" class="btn btn-primary btn-xs"
+              [disabled]="iniciandoAvaliacao === av.idSessao" (click)="iniciarAvaliacao(av)">
+              {{ iniciandoAvaliacao === av.idSessao ? 'Iniciando...' : 'Iniciar avaliação' }}
+              <span class="material-symbols-outlined" *ngIf="iniciandoAvaliacao !== av.idSessao" aria-hidden="true">arrow_forward</span>
+            </button>
+          </div>
+        </article>
       </div>
 
       <ng-template #emptyEval>
@@ -218,39 +239,41 @@
       </ng-template>
     </section>
 
-    <!-- HISTÓRICO DE AVALIAÇÕES CONCLUÍDAS -->
-    <section *ngIf="tab === 'historico'" class="card">
-      <div class="section-title-row" style="margin-bottom:1.25rem">
-        <h2>Avaliações Concluídas</h2>
-        <div class="search-wrap" *ngIf="avaliacoesHistorico.length > 0">
-          <span class="search-icon"><span class="material-symbols-outlined">search</span></span>
-          <input class="input search-input" [(ngModel)]="historicoSearch"
-            (ngModelChange)="historicoPage = 0" placeholder="Buscar paciente..." />
+    <!-- ============ AVALIAÇÕES CONCLUÍDAS ============ -->
+    <section *ngIf="tab === 'historico'" class="card fisio__panel">
+      <div class="fisio__panel-head">
+        <div>
+          <h2>Avaliações concluídas</h2>
+          <p>Fichas de avaliação já finalizadas</p>
         </div>
+        <label class="fisio__search" *ngIf="avaliacoesHistorico.length > 0">
+          <span class="material-symbols-outlined" aria-hidden="true">search</span>
+          <input class="input input-search" [(ngModel)]="historicoSearch"
+            (ngModelChange)="historicoPage = 0" placeholder="Buscar paciente..." aria-label="Buscar paciente" />
+        </label>
       </div>
 
       <div *ngIf="loadingHistorico" class="empty-state">
         <p>Carregando histórico...</p>
       </div>
 
-      <div class="eval-list" *ngIf="!loadingHistorico && pagedHistorico.length > 0">
-        <div class="eval-item card" *ngFor="let h of pagedHistorico">
-          <div class="eval-info">
+      <div class="row-list" *ngIf="!loadingHistorico && pagedHistorico.length > 0">
+        <article class="row-item" *ngFor="let h of pagedHistorico">
+          <div class="row-item__info">
             <strong>{{ h.paciente }}</strong>
-            <span class="text-sm text-gray">{{ formatData(h.data) }}</span>
-            <span class="text-sm text-gray" *ngIf="h.resumo && h.resumo !== 'Sem resumo'">{{ h.resumo }}</span>
+            <span>{{ formatData(h.data) }}<ng-container *ngIf="h.resumo && h.resumo !== 'Sem resumo'"> · {{ h.resumo }}</ng-container></span>
           </div>
-          <div style="display:flex;align-items:center;gap:.75rem">
+          <div class="row-item__actions">
             <span class="badge badge-green">Finalizada</span>
-            <button class="btn btn-outline btn-sm" (click)="editarAvaliacao(h)">
-              <span class="material-symbols-outlined">edit</span> Editar
+            <button type="button" class="btn btn-outline btn-xs" (click)="editarAvaliacao(h)">
+              <span class="material-symbols-outlined" aria-hidden="true">edit</span> Editar
             </button>
           </div>
-        </div>
+        </article>
       </div>
 
       <!-- Paginação do histórico -->
-      <div class="pagination-row" *ngIf="historicoTotalPages > 1" style="margin-top:1rem">
+      <div class="pagination-row" *ngIf="historicoTotalPages > 1">
         <button class="btn btn-outline btn-sm"
                 [disabled]="historicoPage === 0"
                 (click)="historicoPage = historicoPage - 1">← Anterior</button>

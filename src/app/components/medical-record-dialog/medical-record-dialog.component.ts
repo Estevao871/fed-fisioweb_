@@ -91,7 +91,7 @@ export class MedicalRecordDialogComponent implements OnChanges {
 
   get saveLabel(): string {
     if (this.saving) return 'Salvando...';
-    return this.tab === 'avaliacao' ? 'Salvar Avaliação' : 'Salvar Evolução';
+    return this.tab === 'avaliacao' ? 'Salvar avaliação' : 'Salvar evolução';
   }
 
   constructor(private readonly api: ApiService) {}
